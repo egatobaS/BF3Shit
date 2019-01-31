@@ -1,9 +1,5 @@
 #include "main.h"
 
-typedef int(*D3DDevice_Present_t)(D3DDevice *pDevice, unsigned long long r4, unsigned long long r5, unsigned long long r6, unsigned long long r7);
-D3DDevice_Present_t pD3DDevice_Present;
-Detour dD3DDevice_Present;
-
 bool RunThread = true;
 
 void MainThread()
@@ -11,6 +7,8 @@ void MainThread()
 	if (CreateSymbolicLink(NAME_MOUNT, NAME_HDD, TRUE) != ERROR_SUCCESS) {
 		printf("Could not create symbolic link!\n");
 	}
+
+	AddMenuOptions();
 
 	while (RunThread)
 	{
@@ -23,26 +21,6 @@ void MainThread()
 	printf("Thread Exited\n");
 }
 
-int D3DDevice_PresentHk(D3DDevice* pDevice, unsigned long long r4, unsigned long long r5, unsigned long long r6, unsigned long long r7) {
-
-	ATG::g_pd3dDevice = (ATG::D3DDevice*)*(int*)((((int)pDevice) + 0x18));
-
-	InitTexture();
-
-	if (IsFontInit && IsTextureInit)
-	{
-
-		DrawBox(100, 100, 100, 100, D3DCOLOR_RGBA(255, 0, 0, 255));
-
-		DrawText("xbOnline Menu e e Menu", 1280 / 2, 720 / 2, 1, D3DCOLOR_RGBA(0, 255, 255, 50));
-
-		DrawLine(1280 / 2, 720 / 2, 1280 / 2, (720 / 2) + 100, 5.4f, D3DCOLOR_RGBA(0, 255, 255, 50));
-
-	}
-
-	return pD3DDevice_Present(pDevice, r4, r5, r6, r7);;
-}
-
 
 BOOL WINAPI DllMain(HANDLE ModuleHandle, unsigned int fdwReason, LPVOID lpReserved)
 {
@@ -50,7 +28,8 @@ BOOL WINAPI DllMain(HANDLE ModuleHandle, unsigned int fdwReason, LPVOID lpReserv
 
 		ATG::g_pd3dDevice = NULL;
 
-		pD3DDevice_Present = (D3DDevice_Present_t)dD3DDevice_Present.HookFunction(0x8315F850, (unsigned int)D3DDevice_PresentHk);
+		D3DDevice_PresentOriginal = (D3DDevice_Present_t)D3DDevice_PresentDetour.HookFunction(0x8315F850, (unsigned int)D3DDevice_PresentHook);
+		XamInputGetStateDetour.HookFunction(GetAddr(0x82D80000, 0x191), (unsigned int)XamInputGetStateHook);
 
 		CreateSystemThread(MainThread, NULL);
 
@@ -60,7 +39,8 @@ BOOL WINAPI DllMain(HANDLE ModuleHandle, unsigned int fdwReason, LPVOID lpReserv
 
 		RunThread = false;
 
-		dD3DDevice_Present.RestoreFunction();
+		XamInputGetStateDetour.RestoreFunction();
+		D3DDevice_PresentDetour.RestoreFunction();
 
 		Sleep(500);
 	}

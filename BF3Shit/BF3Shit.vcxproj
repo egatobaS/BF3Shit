@@ -247,13 +247,24 @@
   <ItemGroup>
     <ClCompile Include="Detour.cpp" />
     <ClCompile Include="Drawing.cpp" />
+    <ClCompile Include="GameDrawing.cpp" />
+    <ClCompile Include="Hooks.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Menu.cpp" />
+    <ClCompile Include="MenuDrawing.cpp" />
+    <ClCompile Include="MenuOptions.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Detour.h" />
     <ClInclude Include="Drawing.h" />
+    <ClInclude Include="GameDrawing.h" />
+    <ClInclude Include="Hooks.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="Menu.h" />
+    <ClInclude Include="MenuDrawing.h" />
+    <ClInclude Include="MenuOptions.h" />
+    <ClInclude Include="Structures.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

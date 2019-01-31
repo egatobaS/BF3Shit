@@ -1,26 +1,5 @@
 #pragma once
 
-enum SavedStates
-{
-	SAVEDSTATE_D3DRS_ALPHABLENDENABLE,
-	SAVEDSTATE_D3DRS_SRCBLEND,
-	SAVEDSTATE_D3DRS_DESTBLEND,
-	SAVEDSTATE_D3DRS_BLENDOP,
-	SAVEDSTATE_D3DRS_ALPHATESTENABLE,
-	SAVEDSTATE_D3DRS_ALPHAREF,
-	SAVEDSTATE_D3DRS_ALPHAFUNC,
-	SAVEDSTATE_D3DRS_FILLMODE,
-	SAVEDSTATE_D3DRS_CULLMODE,
-	SAVEDSTATE_D3DRS_ZENABLE,
-	SAVEDSTATE_D3DRS_STENCILENABLE,
-	SAVEDSTATE_D3DRS_VIEWPORTENABLE,
-	SAVEDSTATE_D3DSAMP_MINFILTER,
-	SAVEDSTATE_D3DSAMP_MAGFILTER,
-	SAVEDSTATE_D3DSAMP_ADDRESSU,
-	SAVEDSTATE_D3DSAMP_ADDRESSV,
-
-	SAVEDSTATE_COUNT
-};
 
 extern ATG::Font m_Font;     // Font for drawing text
 extern D3DTexture* Primitive;
@@ -48,7 +27,7 @@ bool InitFont();
 
 extern bool IsTextureInit;
 extern bool IsFontInit;
-void DrawText(const char *Text, float x, float y, float scale, D3DCOLOR Color);
-void DrawBox(int x, int y, int w, int h, D3DCOLOR color);
+void DrawBox(float X, float Y, float W, float H, D3DCOLOR Color);
+void DrawText(const char *Text, float x, float y, float scale, D3DCOLOR Color, int Flags);
 void DrawLine(float X, float Y, float X2, float Y2, float Width, D3DCOLOR Color);
 HRESULT GenerateTexture(D3DDevice* Device, D3DTexture** Texture, DWORD Color);

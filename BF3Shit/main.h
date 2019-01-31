@@ -25,6 +25,13 @@
 
 #include "Detour.h"
 #include "Utils.h"
+#include "Structures.h"
 #include "Drawing.h"
+#include "Menu.h"
+#include "GameDrawing.h"
+#include "MenuOptions.h"
+#include "MenuDrawing.h"
+#include "Hooks.h"
+
 
 using namespace std;
