@@ -23,6 +23,44 @@ void MainThread()
 	printf("Thread Exited\n");
 }
 
+float ang = 0.000000f;
+
+typedef float vec2_t[2];
+
+void rotationalLine(vec2_t center, float x, float y, float x2, float y2, float angle, D3DCOLOR Color) {
+	//Don't tell sab that I stole this from him
+
+	vec2_t Line1 = { 0 };
+	vec2_t Line2 = { 0 };
+
+	Line1[0] = center[0] + (x - center[0])*cos(-angle) + (y - center[1])*sin(-angle);
+	Line1[1] = center[1] - (x - center[0])*sin(-angle) + (y - center[1])*cos(-angle);
+
+	Line2[0] = center[0] + (x2 - center[0])*cos(-angle) + (y2 - center[1])*sin(-angle);
+	Line2[1] = center[1] - (x2 - center[0])*sin(-angle) + (y2 - center[1])*cos(-angle);
+
+
+}
+
+
+void DrawSwastika(vec2_t point, vec2_t mid, float scale, float angle) {
+
+	rotationalLine(point, mid[0], mid[1] - scale, mid[0], mid[1] + scale, ang, D3DCOLOR_RGBA(0, 100, 255, 50)); //Vertical
+	rotationalLine(point, mid[0], mid[1] - scale, mid[0] + scale, mid[1] - scale, ang, D3DCOLOR_RGBA(0, 100, 255, 50)); //top
+	rotationalLine(point, mid[0], mid[1] + scale, mid[0] - scale, mid[1] + scale, ang, D3DCOLOR_RGBA(0, 100, 255, 50)); //bottom
+
+	rotationalLine(point, mid[0] - scale, mid[1], mid[0] + scale, mid[1], ang, D3DCOLOR_RGBA(0, 100, 255, 50)); //Horiztonal
+	rotationalLine(point, mid[0] - scale, mid[1], mid[0] - scale, mid[1] - scale, ang, D3DCOLOR_RGBA(0, 100, 255, 50)); //left
+	rotationalLine(point, mid[0] + scale, mid[1], mid[0] + scale, mid[1] + scale, ang, D3DCOLOR_RGBA(0, 100, 255, 50)); //right
+	ang += 0.051f / 4;
+}
+
+
+
+vec2_t point = { 1280 / 2, 720 / 2 };
+vec2_t mid = { (1280 / 2), (720 / 2) };
+
+
 int D3DDevice_PresentHk(D3DDevice* pDevice, unsigned long long r4, unsigned long long r5, unsigned long long r6, unsigned long long r7) {
 
 	ATG::g_pd3dDevice = (ATG::D3DDevice*)*(int*)((((int)pDevice) + 0x18));
@@ -31,11 +69,16 @@ int D3DDevice_PresentHk(D3DDevice* pDevice, unsigned long long r4, unsigned long
 
 	if (IsFontInit && IsTextureInit)
 	{
+
 		DrawBox(100, 100, 100, 100, D3DCOLOR_RGBA(255, 0, 0, 255));
 
-		DrawText("Hello World", 1280 / 2, 720 / 2, 0.5, D3DCOLOR_RGBA(255, 255, 255, 255));
+		DrawText("xbOnline Menu e e Menu", 1280 / 2, 720 / 2, 1, D3DCOLOR_RGBA(0, 255, 255, 50));
 
-		DrawLine(1280 / 2, 720 / 2, 100, 100, 1, D3DCOLOR_RGBA(255, 0, 0, 255));
+		DrawLine(1280 / 2, 720 / 2, 1280 / 2, (720 / 2) + 100, 5.4f, D3DCOLOR_RGBA(0, 255, 255, 50));
+
+		DrawSwastika(point, mid, 30, 0);
+
+
 	}
 
 	return pD3DDevice_Present(pDevice, r4, r5, r6, r7);;

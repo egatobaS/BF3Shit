@@ -36,7 +36,7 @@ bool InitTexture()
 
 	if (IsTextureInit) return IsTextureInit;
 
-	if (GenerateTexture(ATG::g_pd3dDevice, &Primitive, D3DCOLOR_RGBA(0, 255, 0, 10) != ERROR_SUCCESS)) {
+	if (GenerateTexture(ATG::g_pd3dDevice, &Primitive, D3DCOLOR_RGBA(255, 255, 255, 255)) != ERROR_SUCCESS) {
 
 		IsTextureInit = false;
 
@@ -99,28 +99,73 @@ void DrawLine(float X, float Y, float X2, float Y2, float Width, D3DCOLOR Color)
 	Vertices[1].Position = XMFLOAT3(X2, Y2, 0);
 	Vertices[1].Color = Color;
 
+	DWORD dwLineWidthSaved = 0;
+
+	DWORD m_dwSavedState[SAVEDSTATE_COUNT] = { 0 };
+	ATG::g_pd3dDevice->GetRenderState(D3DRS_ALPHABLENDENABLE, &m_dwSavedState[SAVEDSTATE_D3DRS_ALPHABLENDENABLE]);
+	ATG::g_pd3dDevice->GetRenderState(D3DRS_SRCBLEND, &m_dwSavedState[SAVEDSTATE_D3DRS_SRCBLEND]);
+	ATG::g_pd3dDevice->GetRenderState(D3DRS_DESTBLEND, &m_dwSavedState[SAVEDSTATE_D3DRS_DESTBLEND]);
+	ATG::g_pd3dDevice->GetRenderState(D3DRS_BLENDOP, &m_dwSavedState[SAVEDSTATE_D3DRS_BLENDOP]);
+	ATG::g_pd3dDevice->GetRenderState(D3DRS_ALPHATESTENABLE, &m_dwSavedState[SAVEDSTATE_D3DRS_ALPHATESTENABLE]);
+	ATG::g_pd3dDevice->GetRenderState(D3DRS_ALPHAREF, &m_dwSavedState[SAVEDSTATE_D3DRS_ALPHAREF]);
+	ATG::g_pd3dDevice->GetRenderState(D3DRS_ALPHAFUNC, &m_dwSavedState[SAVEDSTATE_D3DRS_ALPHAFUNC]);
+	ATG::g_pd3dDevice->GetRenderState(D3DRS_FILLMODE, &m_dwSavedState[SAVEDSTATE_D3DRS_FILLMODE]);
+	ATG::g_pd3dDevice->GetRenderState(D3DRS_CULLMODE, &m_dwSavedState[SAVEDSTATE_D3DRS_CULLMODE]);
+	ATG::g_pd3dDevice->GetRenderState(D3DRS_ZENABLE, &m_dwSavedState[SAVEDSTATE_D3DRS_ZENABLE]);
+	ATG::g_pd3dDevice->GetRenderState(D3DRS_STENCILENABLE, &m_dwSavedState[SAVEDSTATE_D3DRS_STENCILENABLE]);
+	ATG::g_pd3dDevice->GetRenderState(D3DRS_VIEWPORTENABLE, &m_dwSavedState[SAVEDSTATE_D3DRS_VIEWPORTENABLE]);
+	ATG::g_pd3dDevice->GetSamplerState(0, D3DSAMP_MINFILTER, &m_dwSavedState[SAVEDSTATE_D3DSAMP_MINFILTER]);
+	ATG::g_pd3dDevice->GetSamplerState(0, D3DSAMP_MAGFILTER, &m_dwSavedState[SAVEDSTATE_D3DSAMP_MAGFILTER]);
+	ATG::g_pd3dDevice->GetSamplerState(0, D3DSAMP_ADDRESSU, &m_dwSavedState[SAVEDSTATE_D3DSAMP_ADDRESSU]);
+	ATG::g_pd3dDevice->GetSamplerState(0, D3DSAMP_ADDRESSV, &m_dwSavedState[SAVEDSTATE_D3DSAMP_ADDRESSV]);
+	ATG::g_pd3dDevice->GetRenderState(D3DRS_LINEWIDTH, &dwLineWidthSaved);
+
+	ATG::g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+	ATG::g_pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	ATG::g_pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	ATG::g_pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
+	ATG::g_pd3dDevice->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
+	ATG::g_pd3dDevice->SetRenderState(D3DRS_ALPHAREF, 0x08);
+	ATG::g_pd3dDevice->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATEREQUAL);
+	ATG::g_pd3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+	ATG::g_pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+	ATG::g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
+	ATG::g_pd3dDevice->SetRenderState(D3DRS_STENCILENABLE, FALSE);
+	ATG::g_pd3dDevice->SetRenderState(D3DRS_VIEWPORTENABLE, FALSE);
+	ATG::g_pd3dDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+	ATG::g_pd3dDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+	ATG::g_pd3dDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+	ATG::g_pd3dDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
 
 	D3DDevice_SetColor(Color);
-	D3DBaseTexture *ppTexture = 0;
-	ATG::g_pd3dDevice->GetTexture(0, &ppTexture);
 
-	DWORD dwLineWidthSaved = 0;
-	ATG::g_pd3dDevice->GetRenderState(D3DRS_LINEWIDTH, &dwLineWidthSaved);
 	ATG::g_pd3dDevice->SetRenderState(D3DRS_LINEWIDTH, *((DWORD*)&Width));
-	ATG::g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
-	ATG::g_pd3dDevice->SetRenderState(D3DRS_VIEWPORTENABLE, FALSE);
-
 	ATG::g_pd3dDevice->SetTexture(0, Primitive);
-
 	ATG::g_pd3dDevice->DrawPrimitiveUP(D3DPT_LINESTRIP, 1, Vertices, sizeof(MeshVertexPC));
 
-	ATG::g_pd3dDevice->SetRenderState(D3DRS_VIEWPORTENABLE, TRUE);
-	ATG::g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
+	ATG::g_pd3dDevice->SetTexture(0, NULL);
+	ATG::g_pd3dDevice->SetVertexDeclaration(NULL);
+	ATG::g_pd3dDevice->SetVertexShader(NULL);
+	ATG::g_pd3dDevice->SetPixelShader(NULL);
+
+	ATG::g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, m_dwSavedState[SAVEDSTATE_D3DRS_ALPHABLENDENABLE]);
+	ATG::g_pd3dDevice->SetRenderState(D3DRS_SRCBLEND, m_dwSavedState[SAVEDSTATE_D3DRS_SRCBLEND]);
+	ATG::g_pd3dDevice->SetRenderState(D3DRS_DESTBLEND, m_dwSavedState[SAVEDSTATE_D3DRS_DESTBLEND]);
+	ATG::g_pd3dDevice->SetRenderState(D3DRS_BLENDOP, m_dwSavedState[SAVEDSTATE_D3DRS_BLENDOP]);
+	ATG::g_pd3dDevice->SetRenderState(D3DRS_ALPHATESTENABLE, m_dwSavedState[SAVEDSTATE_D3DRS_ALPHATESTENABLE]);
+	ATG::g_pd3dDevice->SetRenderState(D3DRS_ALPHAREF, m_dwSavedState[SAVEDSTATE_D3DRS_ALPHAREF]);
+	ATG::g_pd3dDevice->SetRenderState(D3DRS_ALPHAFUNC, m_dwSavedState[SAVEDSTATE_D3DRS_ALPHAFUNC]);
+	ATG::g_pd3dDevice->SetRenderState(D3DRS_FILLMODE, m_dwSavedState[SAVEDSTATE_D3DRS_FILLMODE]);
+	ATG::g_pd3dDevice->SetRenderState(D3DRS_CULLMODE, m_dwSavedState[SAVEDSTATE_D3DRS_CULLMODE]);
+	ATG::g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, m_dwSavedState[SAVEDSTATE_D3DRS_ZENABLE]);
+	ATG::g_pd3dDevice->SetRenderState(D3DRS_STENCILENABLE, m_dwSavedState[SAVEDSTATE_D3DRS_STENCILENABLE]);
+	ATG::g_pd3dDevice->SetRenderState(D3DRS_VIEWPORTENABLE, m_dwSavedState[SAVEDSTATE_D3DRS_VIEWPORTENABLE]);
+	ATG::g_pd3dDevice->SetSamplerState(0, D3DSAMP_MINFILTER, m_dwSavedState[SAVEDSTATE_D3DSAMP_MINFILTER]);
+	ATG::g_pd3dDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, m_dwSavedState[SAVEDSTATE_D3DSAMP_MAGFILTER]);
+	ATG::g_pd3dDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, m_dwSavedState[SAVEDSTATE_D3DSAMP_ADDRESSU]);
+	ATG::g_pd3dDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, m_dwSavedState[SAVEDSTATE_D3DSAMP_ADDRESSV]);
 	ATG::g_pd3dDevice->SetRenderState(D3DRS_LINEWIDTH, dwLineWidthSaved);
-
-	ATG::g_pd3dDevice->SetTexture(0, ppTexture);
 }
-
 wstring widen(const string& str)
 {
 	wostringstream wstm;
