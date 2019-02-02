@@ -945,10 +945,14 @@ UnlockAssetBase* getUA(ClientPlayer* localp)
 		int modifiertest = (weapmodlist + (i * 0x10));
 		int checkPTR = *(int*)(modifiertest);
 
-		if (checkPTR > 0x5F000000 || checkPTR < 0x41000000)
+		if (!MmIsAddressValidPtr((void*)checkPTR))
 			continue;
 
 		int checkPTRVtable = *(int*)checkPTR;
+
+		if (!MmIsAddressValidPtr((void*)checkPTR))
+			continue;
+
 		if (checkPTRVtable == 0x82E6DC40)
 			return (UnlockAssetBase*)checkPTR;
 	}
