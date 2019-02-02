@@ -1485,7 +1485,6 @@ public:
 	virtual float getRecoilPitch();       // V: 0x8C
 	virtual float getRecoilYaw();        // V: 0x90
 
-
 	char pad_0000[4]; //0x0000
 	class GunSwayData* m_data; //0x0004
 	char pad_0008[180]; //0x0008
@@ -1907,6 +1906,12 @@ public:
 
 	ClientSoldierWeapon* GetActiveSoldierWeapon()
 	{
+		if (!MmIsAddressValidPtr(m_pActiveHandler))
+			return NULL;
+		
+		if (!MmIsAddressValidPtr(m_pActiveHandler->m_pActiveWeapon))
+			return NULL;
+
 		return m_pActiveHandler->m_pActiveWeapon;
 	};
 };
@@ -1914,8 +1919,6 @@ public:
 class ResourceManager
 {
 public:
-
-#pragma warning( disable : 4200 )
 
 	class Compartment
 	{
@@ -1985,6 +1988,13 @@ public:
 	virtual void Function9();
 
 };//Size=0x04C0
+
+class QuatTransform
+{
+public:
+	Vector4 m_TransAndScale; // 0x0000
+	Vector4 m_Rotation;  // 0x0010
+}; // Size 0x0020
 
 class UpdatePoseResultData
 {
@@ -2208,12 +2218,6 @@ public:
 		totalBones
 	};
 
-	class QuatTransform
-	{
-	public:
-		Vector4 m_TransAndScale; // 0x0000
-		Vector4 m_Rotation;  // 0x0010
-	}; // Size 0x0020
 	class QuatTransform* m_LocalTransform; //0x004C UpdatePoseResultData  Instance
 	class QuatTransform* m_WorldTransform; //0x0050
 	class QuatTransform* N00003AA7; //0x0054
@@ -2856,9 +2860,10 @@ class ClientSoldierPrediction
 public:
 	char pad_0000[32]; //0x0000
 	Vector3 m_Position; //0x0020
-	float m_Unk;
+	float m_Unk1;
 	char pad_0030[16]; //0x0030
-	Vector4 m_Velocity; //0x0040
+	Vector3 m_Velocity; //0x0040
+	float m_Unk2;
 	char pad_0050[28]; //0x0050
 	int m_Pose; //0x006C
 	int m_ChangingToPose; //0x0070

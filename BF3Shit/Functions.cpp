@@ -1,10 +1,19 @@
 #include "main.h"
 
+bool setBitFlag = false;
+
+int NearestPlayer = -1;
+int UACounterInt = 0;
+
+WeaponSway::Deviation* pRecoil = 0;
+WeaponSway::Deviation *pSpread = 0;
+
 int(*GetAmmoPtr)(int x, int y, int z) = (int(*)(int x, int y, int z))0x83266AC0;
 int(*CCMessage)(ClientConnection*, Message*) = (int(*)(ClientConnection*, Message*))0x831FAD00;
 int(*ReloadMessageFunction)(int r3, int r4, int r5) = (int(*)(int r3, int r4, int r5))0x834CC888;
-int(*AddDamageData)(ClientConnection*, ClientDamageStream*) = (int(*)(ClientConnection*, ClientDamageStream*))0x831FB1D8;
+int(*AddDamageData)(ClientConnection*, ClientDamageStream::DamageData*) = (int(*)(ClientConnection*, ClientDamageStream::DamageData*))0x831FB1D8;
 int(*GetPlayerScore)(ClientPlayerScoreManager*, ClientPlayer*) = (int(*)(ClientPlayerScoreManager*, ClientPlayer*))0x83212338;
+UnlockAssetBase(*GetWeaponID)(ClientWeapon*) = (UnlockAssetBase(*)(ClientWeapon*))0x836F4390;
 
 bool WorldToScreen(Vector3 WorldPos, Vector3* ScreenPos)
 {
@@ -98,11 +107,7 @@ bool IsLocalClientAlive()
 	if (!MmIsAddressValidPtr(pCSR))
 		return false;
 
-	BFClientSoldierHealthComponent* pBFCSHC = pCSE->m_healthModule;
-	if (!MmIsAddressValidPtr(pBFCSHC))
-		return false;
-
-	if (pBFCSHC->m_Health < 0.1f)
+	if (pCSE->m_Health < 0.1f)
 		return false;
 
 	ClientBoneCollisionComponent* pCBCC = pCSE->m_pClientBoneCollisionComponent;
@@ -129,6 +134,14 @@ bool IsLocalClientAlive()
 	if (!MmIsAddressValidPtr(pCSAS))
 		return false;
 
+	WeaponFiringData *pFireData = pCSWC->GetActiveSoldierWeapon()->m_pWeapon->m_pWeaponFiringData;
+	if (pFireData == 0)
+		return false;
+
+	BulletEntityData *pProjData = pFireData->m_pFiringFunctionData->m_pBulletEntityData;
+	if (pProjData == 0)
+		return false;
+
 	return true;
 }
 
@@ -148,11 +161,7 @@ bool IsClientAlive(ClientPlayer* pTarget)
 	if (!MmIsAddressValidPtr(pCSR))
 		return false;
 
-	BFClientSoldierHealthComponent* pBFCSHC = pCSE->m_healthModule;
-	if (!MmIsAddressValidPtr(pBFCSHC))
-		return false;
-
-	if (pBFCSHC->m_Health < 0.1f)
+	if (pCSE->m_Health < 0.1f)
 		return false;
 
 	ClientBoneCollisionComponent* pCBCC = pCSE->m_pClientBoneCollisionComponent;
@@ -174,6 +183,59 @@ bool IsClientAlive(ClientPlayer* pTarget)
 	return true;
 }
 
+void setIsAuthoritativeMovementActive(EntryInputState *pEIS, bool active)
+{
+	pEIS->m_CustomBitFlags ^= (pEIS->m_CustomBitFlags ^ -active) & 2;
+}
+
+void MovementHack()
+{
+	bool bStay = 0;
+
+	GameRenderer* renderer = GameRenderer::Singleton();
+
+	if (renderer == NULL)
+		return;
+
+	if (renderer->m_viewParams.view.Update() == false)
+		return;
+
+	MatrixD* Mat = (MatrixD*)(((int)renderer) + 0xDB0);
+
+	Vector3 vOrigin = renderer->m_viewParams.firstPersonTransform.trans;
+	Vector3 vForward = Mat->Forward();
+	vForward.Normalize();
+	Vector3 vRayEnd = vOrigin + (vForward * 10);
+	Vector3 vDiff = vRayEnd - vOrigin;
+	vDiff.Normalize();
+	float factor = 50.0f / sqrt(vDiff.x*vDiff.x + vDiff.y * vDiff.y + vDiff.z * vDiff.z);
+
+	if (!GetAsyncKeyState(XINPUT_GAMEPAD_DPAD_UP))
+	{
+		bStay = 1;
+	}
+	else
+	{
+		bStay = 0;
+	}
+
+	if (GetAsyncKeyState(XINPUT_GAMEPAD_Y))
+	{
+		if (!bStay)
+		{
+			setBitFlag = true;
+			memcpy(&GetLocalPlayer()->m_pExternalInputState->m_authoritativeMovementVelocity, &vDiff, 0xC);
+			setIsAuthoritativeMovementActive(GetLocalPlayer()->m_pExternalInputState, true);
+		}
+		else
+		{
+			setBitFlag = true;
+			GetLocalPlayer()->m_pExternalInputState->m_authoritativeMovementVelocity = Vector4(0, 0, 0, 0);
+			setIsAuthoritativeMovementActive(GetLocalPlayer()->m_pExternalInputState, false);
+		}
+	}
+}
+
 void DrawCompass(Vector3 ClientPosition, D3DCOLOR Color, float CompassSize)
 {
 	__try
@@ -186,7 +248,6 @@ void DrawCompass(Vector3 ClientPosition, D3DCOLOR Color, float CompassSize)
 		float Angle = (ClientGameContext::GetInstance()->m_pClientPlayerManager->m_pLocalPlayer->m_pControlledControllable->m_ViewAngles.x * (360.0f / 6.4f)) / 180.0f * 3.14159f;
 
 		Vector2 ViewAngles = ClientGameContext::GetInstance()->m_pClientPlayerManager->m_pLocalPlayer->m_pControlledControllable->m_ViewAngles;
-
 
 		float RotateX = RadarY * cos(Angle) - RadarX * sin(Angle);
 		float RotateY = RadarX * cos(Angle) + RadarY * sin(Angle);
@@ -230,6 +291,10 @@ bool Draw2DBox(ClientVehicleEntity* pEnt, D3DCOLOR color, float size)
 	Vector3 Pos;
 
 	AxisAlignedBox* TransAABB = new AxisAlignedBox;
+
+	if (!MmIsAddressValidPtr(pEnt))
+		return false;
+
 	pEnt->computeBoundingBox(TransAABB);
 
 	pEnt->getTransform(trans);
@@ -285,6 +350,10 @@ bool TransformDrawAABB(ClientVehicleEntity* pEnt, D3DCOLOR color, float size)
 	Vector3 Pos;
 
 	AxisAlignedBox* TransAABB = new AxisAlignedBox;
+
+	if (!MmIsAddressValidPtr(pEnt))
+		return false;
+
 	pEnt->computeBoundingBox(TransAABB);
 
 	pEnt->getTransform(trans);
@@ -335,11 +404,98 @@ bool TransformDrawAABB(ClientVehicleEntity* pEnt, D3DCOLOR color, float size)
 	return true;
 }
 
+bool GetBone(ClientSoldierEntity* pEnt, Vector3 *vOut, int iBone)
+{
+	if (iBone == -1)
+		return false;
+
+	if (!MmIsAddressValidPtr(pEnt))
+		return false;
+
+	if (!iBone)
+		return false;
+
+	if (!MmIsAddressValidPtr(vOut))
+		return false;
+
+	ClientAntAnimatableComponent* pAnt = pEnt->m_pAntAnimatable2;
+	if (!MmIsAddressValidPtr(pAnt))
+		return false;
+
+	pAnt->m_handler.m_hadVisualUpdate = true;
+
+	ClientRagDollComponent * pCRC = pEnt->m_pClientRagdollComponent;
+
+	if (!MmIsAddressValidPtr(pCRC))
+		return false;
+
+	if (pCRC->m_UpdatePoseResultData.m_ValidTransforms)
+	{
+
+		QuatTransform* pQuat = pCRC->m_UpdatePoseResultData.m_ActiveWorldTransforms;
+
+		if (!MmIsAddressValidPtr(pQuat))
+			return false;
+
+		Vector4 vTmp = pQuat[iBone].m_TransAndScale;
+
+		vOut->x = vTmp.x;
+		vOut->y = vTmp.y;
+		vOut->z = vTmp.z;
+
+		return true;
+	}
+
+	return false;
+}
+
+void DrawBoneLine(ClientPlayer* entity, int tagname1, int tagname2, D3DCOLOR col)
+{
+	Vector3 Origin1, Origin2;
+
+	if (GetBone(entity->m_pControlledControllable, &Origin1, tagname1) && GetBone(entity->m_pControlledControllable, &Origin2, tagname2))
+	{
+		Vector3 Loc1, Loc2;
+		if (WorldToScreen(Origin1, &Loc1) && WorldToScreen(Origin2, &Loc2))
+			DrawLine(Loc1.x, Loc1.y, Loc2.x, Loc2.y, 1.0f, col);
+	}
+}
+
+void DoAllBones(ClientPlayer* Client, D3DCOLOR boneESPCol)
+{
+	//neck
+	DrawBoneLine(Client, UpdatePoseResultData::Head, UpdatePoseResultData::Neck, boneESPCol);
+
+	//left arm
+	DrawBoneLine(Client, UpdatePoseResultData::Neck, UpdatePoseResultData::LeftShoulder, boneESPCol);
+	DrawBoneLine(Client, UpdatePoseResultData::LeftShoulder, UpdatePoseResultData::LeftElbowRoll, boneESPCol);
+	DrawBoneLine(Client, UpdatePoseResultData::LeftElbowRoll, UpdatePoseResultData::RightHand, boneESPCol);
+
+	//right arm
+	DrawBoneLine(Client, UpdatePoseResultData::Neck, UpdatePoseResultData::RightShoulder, boneESPCol);
+	DrawBoneLine(Client, UpdatePoseResultData::RightShoulder, UpdatePoseResultData::RightElbowRoll, boneESPCol);
+	DrawBoneLine(Client, UpdatePoseResultData::RightElbowRoll, UpdatePoseResultData::RightHand, boneESPCol);
+
+	//spine
+	DrawBoneLine(Client, UpdatePoseResultData::Neck, UpdatePoseResultData::Spine, boneESPCol);
+
+	//left leg
+	DrawBoneLine(Client, UpdatePoseResultData::Spine, UpdatePoseResultData::LeftKneeRoll, boneESPCol);
+	DrawBoneLine(Client, UpdatePoseResultData::LeftKneeRoll, UpdatePoseResultData::LeftFoot, boneESPCol);
+
+	//right leg
+	DrawBoneLine(Client, UpdatePoseResultData::Spine, UpdatePoseResultData::RightKneeRoll, boneESPCol);
+	DrawBoneLine(Client, UpdatePoseResultData::RightKneeRoll, UpdatePoseResultData::RightFoot, boneESPCol);
+}
+
 bool DrawESP() //TODO: BoneESP and a Visibility Check
 {
 	for (int i = 0; i < 24; i++)
 	{
 		if (!IsClientAlive(GetPlayerById(i)))
+			continue;
+
+		if (GetPlayerById(i) == GetLocalPlayer())
 			continue;
 
 		Vector3 ClientPosition = GetPlayerById(i)->GetClientSoldier()->m_pClientSoldierPrediction->m_Position;
@@ -355,18 +511,23 @@ bool DrawESP() //TODO: BoneESP and a Visibility Check
 			if (bFCompass)
 				DrawCompass(ClientPosition, D3DCOLOR_RGBA(0, 255, 0, 255), 120.0f);
 
+			if (bDrawBonesF)
+				DoAllBones(GetPlayerById(i), D3DCOLOR_RGBA(0, 120, 230, 255));
+
 			if (bESPFriendly)
 			{
 				switch (ESPType)
 				{
 				case 1:
 				{
-					Draw2DBox((ClientVehicleEntity*)GetPlayerById(i)->GetClientSoldier(), D3DCOLOR_RGBA(0, 255, 0, 255), 0.8);
+					if (MmIsAddressValidPtr(GetPlayerById(i)->GetClientSoldier()))
+						Draw2DBox((ClientVehicleEntity*)GetPlayerById(i)->GetClientSoldier(), D3DCOLOR_RGBA(0, 255, 0, 255), 0.8);
 					break;
 				}
 				case 0:
 				{
-					TransformDrawAABB((ClientVehicleEntity*)GetPlayerById(i)->GetClientSoldier(), D3DCOLOR_RGBA(0, 255, 0, 255), 0.8);
+					if (MmIsAddressValidPtr(GetPlayerById(i)->GetClientSoldier()))
+						TransformDrawAABB((ClientVehicleEntity*)GetPlayerById(i)->GetClientSoldier(), D3DCOLOR_RGBA(0, 255, 0, 255), 0.8);
 					break;
 				}
 				}
@@ -383,18 +544,23 @@ bool DrawESP() //TODO: BoneESP and a Visibility Check
 			if (bECompass)
 				DrawCompass(ClientPosition, D3DCOLOR_RGBA(255, 0, 0, 255), 120.0f);
 
+			if (bDrawBonesE)
+				DoAllBones(GetPlayerById(i), D3DCOLOR_RGBA(0, 120, 230, 255));
+
 			if (bESPEnemy)
 			{
 				switch (ESPType)
 				{
 				case 1:
 				{
-					Draw2DBox((ClientVehicleEntity*)GetPlayerById(i)->GetClientSoldier(), D3DCOLOR_RGBA(255, 0, 0, 255), 0.8);
+					if (MmIsAddressValidPtr(GetPlayerById(i)->GetClientSoldier()))
+						Draw2DBox((ClientVehicleEntity*)GetPlayerById(i)->GetClientSoldier(), D3DCOLOR_RGBA(255, 0, 0, 255), 0.8);
 					break;
 				}
 				case 0:
 				{
-					TransformDrawAABB((ClientVehicleEntity*)GetPlayerById(i)->GetClientSoldier(), D3DCOLOR_RGBA(255, 0, 0, 255), 0.8);
+					if (MmIsAddressValidPtr(GetPlayerById(i)->GetClientSoldier()))
+						TransformDrawAABB((ClientVehicleEntity*)GetPlayerById(i)->GetClientSoldier(), D3DCOLOR_RGBA(255, 0, 0, 255), 0.8);
 					break;
 				}
 				}
@@ -403,4 +569,430 @@ bool DrawESP() //TODO: BoneESP and a Visibility Check
 	}
 
 	return 0;
+}
+
+float solveQuadratic(float a, float b, float c)
+{
+	return (-b + sqrt(b*b - 4 * a*c)) / (2 * a);
+}
+
+bool custom_isnan(double var)
+{
+	volatile double d = var;
+	return d != d;
+}
+
+void CorrectRecoil(Vector2* pAngles, WeaponSway::Deviation* pRecoil)
+{
+	WeaponFiring* pFiring = GetLocalPlayer()->m_pControlledControllable->m_pClientSoldierWeaponsComponent->GetActiveSoldierWeapon()->m_pPrimaryFiring;
+	if (MmIsAddressValidPtr(pFiring) && MmIsAddressValidPtr(pRecoil))
+	{
+		if (custom_isnan(asin(pRecoil->m_Yaw)) || custom_isnan(asin(pRecoil->m_Pitch)))
+			return;
+
+		pAngles->x += asin(pRecoil->m_Yaw);
+		pAngles->y += asin(pRecoil->m_Pitch);
+	}
+}
+
+void CorrectSpread(Vector2* pAngles, WeaponSway::Deviation* pSpread)
+{
+	WeaponFiring* pFiring = GetLocalPlayer()->m_pControlledControllable->m_pClientSoldierWeaponsComponent->GetActiveSoldierWeapon()->m_pPrimaryFiring;
+	if (MmIsAddressValidPtr(pFiring) && MmIsAddressValidPtr(pSpread))
+	{
+		if (custom_isnan(asin(pSpread->m_Yaw)) || custom_isnan(asin(pSpread->m_Pitch)))
+			return;
+
+		pAngles->x += pSpread->m_Yaw;
+		pAngles->y += pSpread->m_Pitch;
+	}
+}
+
+float VectorLength2D(Vector3* pV)
+{
+	return	sqrtf(pV->x * pV->x + pV->z * pV->z);
+}
+
+void AimCorrection(Vector3 * inVec, Vector3 enemyVelo, Vector3 myVelo, float Distance, float BulletSpeed, float Gravity)
+{
+	if (!IsLocalClientAlive())
+		return;
+
+	ClientSoldierWeaponsComponent *pWeapComp = GetLocalPlayer()->m_pControlledControllable->m_pClientSoldierWeaponsComponent;
+	if (pWeapComp == 0)
+		return;
+
+	WeaponFiringData *pFireData = pWeapComp->GetActiveSoldierWeapon()->m_pWeapon->m_pWeaponFiringData;
+	if (pFireData == 0)
+		return;
+
+	BulletEntityData *pProjData = pFireData->m_pFiringFunctionData->m_pBulletEntityData;
+	if (pProjData == 0)
+		return;
+
+	inVec->y -= atan2(pFireData->m_pFiringFunctionData->m_initialSpeed.y, pFireData->m_pFiringFunctionData->m_initialSpeed.z);
+
+	float m_time = Distance / fabsf(BulletSpeed);
+	float m_grav = fabsf(Gravity);
+	*inVec = *inVec + (enemyVelo * m_time);
+	inVec->y += 0.2f * m_grav * m_time * m_time;
+
+	float holdover = solveQuadratic(Gravity / (2 * (BulletSpeed*BulletSpeed)), 1 + (Gravity*inVec->y) / (BulletSpeed*BulletSpeed), (Distance)*Gravity / (2 * (BulletSpeed*BulletSpeed)));
+	inVec->y += holdover;
+}
+
+void DoAimCorrection(ClientSoldierEntity * mySoldier, ClientSoldierEntity * enemySoldier, Vector3 & enemyVec)
+{
+	if (!IsLocalClientAlive())
+		return;
+
+	ClientSoldierWeaponsComponent *pWeapComp = GetLocalPlayer()->m_pControlledControllable->m_pClientSoldierWeaponsComponent;
+	if (pWeapComp == 0)
+		return;
+
+	WeaponFiringData *pFireData = pWeapComp->GetActiveSoldierWeapon()->m_pWeapon->m_pWeaponFiringData;
+	if (pFireData == 0)
+		return;
+
+	BulletEntityData *pProjData = pFireData->m_pFiringFunctionData->m_pBulletEntityData;
+	if (pProjData == 0)
+		return;
+
+	float Gravity = pProjData->m_gravity;
+	float Bulletspeed = pFireData->m_pFiringFunctionData->m_initialSpeed.z;
+
+	AimCorrection(&enemyVec, enemySoldier->m_pClientSoldierPrediction->m_Velocity, mySoldier->m_pClientSoldierPrediction->m_Velocity, mySoldier->m_pClientSoldierPrediction->m_Position.Distance(enemySoldier->m_pClientSoldierPrediction->m_Position), Bulletspeed, Gravity);
+}
+
+bool GetAimPos(ClientPlayer* _EnemyPlayer, Vector2* Angles, Vector3* LocalOrigin, Vector3* Origin)
+{
+	Vector3 Space;
+
+	if (_EnemyPlayer->m_pControlledControllable != 0)
+	{
+		*LocalOrigin = GetLocalPlayer()->m_pControlledControllable->m_pClientSoldierPrediction->m_Position;
+		*Origin = _EnemyPlayer->m_pControlledControllable->m_pClientSoldierPrediction->m_Position;
+
+		DoAimCorrection(GetLocalPlayer()->m_pControlledControllable, _EnemyPlayer->m_pControlledControllable, *Origin);
+
+		Space.x = Origin->x - LocalOrigin->x;
+		Space.y = Origin->y - LocalOrigin->y;
+		Space.z = Origin->z - LocalOrigin->z;
+
+		Angles->x = -atan2(Space.x, Space.z);
+		Angles->y = atan2(Space.y, VectorLength2D(&Space));
+
+		return true;
+	}
+	return false;
+}
+
+int ClosestClient(ClientPlayer* LocalPlayer)
+{
+	int Nearest = -1;
+
+	float nearestDistance = 99999;
+
+	for (int i = 0; i < 24; i++)
+	{
+		ClientPlayer* Target = GetPlayerById(i);
+
+		if (!MmIsAddressValidPtr(Target))
+			continue;
+
+		if (!IsClientAlive(Target))
+			continue;
+
+		if (LocalPlayer == Target)
+			continue;
+
+		Vector3 Position, PositionL;
+
+		if (!MmIsAddressValidPtr(GetLocalPlayer()->m_pControlledControllable->m_pClientSoldierPrediction))
+			return -1;
+
+		if (!MmIsAddressValidPtr((void*)&GetLocalPlayer()->m_pControlledControllable->m_pClientSoldierPrediction->m_Position))
+			return -1;
+
+		if (!MmIsAddressValidPtr(Target->m_pControlledControllable->m_pClientSoldierPrediction))
+			return -1;
+
+		if (!MmIsAddressValidPtr((void*)&Target->m_pControlledControllable->m_pClientSoldierPrediction->m_Position))
+			return -1;
+
+		PositionL = GetLocalPlayer()->m_pControlledControllable->m_pClientSoldierPrediction->m_Position;
+
+		PositionL.y += 1.8f;
+
+		Position = Target->m_pControlledControllable->m_pClientSoldierPrediction->m_Position;
+
+		Position.y += 1.8f;
+
+		float distance = Position.Distance(PositionL);
+
+		if (Target->m_teamId != LocalPlayer->m_teamId)
+		{
+			if ((bVisibility) || !bVisibility)
+			{
+				if ((distance < nearestDistance))
+				{
+					nearestDistance = distance;
+					Nearest = i;
+				}
+			}
+		}
+	}
+	return Nearest;
+}
+
+void DamagePlayer(ClientPlayer* Target, ClientPlayer* LocalPlayer, float damage, UnlockAssetBase* Weapon, HitReactionType HitType)
+{
+
+	if (!MmIsAddressValidPtr(Target) || (!MmIsAddressValidPtr(LocalPlayer)))
+		return;
+	ClientGameContext* pGC = ClientGameContext::GetInstance();
+	if (!MmIsAddressValidPtr(pGC))
+		return;
+	OnlineManager* pOM = pGC->m_pOnlineManager;
+	if (!MmIsAddressValidPtr(pOM))
+		return;
+	ClientConnection* pCCC = pOM->m_pClientConnection;
+	if (!MmIsAddressValidPtr(pCCC))
+		return;
+	ClientDamageStream* pDamageStream = pCCC->m_pDamageStream;
+	if (!MmIsAddressValidPtr(pDamageStream))
+		return;
+	ClientDamageStream::DamageData* pDMG = pDamageStream->m_pDamageData;
+	if (!MmIsAddressValidPtr(pDMG))
+		return;
+
+	pDMG->victimPlayerId = Target->getId();
+	pDMG->victimInstanceId = 0;
+	pDMG->inflictorPlayerId = LocalPlayer->getId();
+	pDMG->hitType = HitType;
+	pDMG->weaponUnlockAsset = Weapon;
+	pDMG->damage = damage;
+	pDMG->clientAiKilled = 0;
+
+	AddDamageData(pCCC, pDMG);
+}
+
+void HealSelf(ClientPlayer* LocalPlayer)
+{
+	DamagePlayer(LocalPlayer, LocalPlayer, -200.0f, NULL, HitReactionType::HRT_Body);
+}
+
+int getKitID()
+{
+	ClientPlayer* localP = ClientGameContext::GetInstance()->m_pClientPlayerManager->m_pLocalPlayer;
+	if (!MmIsAddressValidPtr(localP))
+		return 0xFF;
+
+	VeniceSoldierCustomizationAsset* veniceFind = localP->m_pSelectedCustomizationAsset;
+	if (!MmIsAddressValidPtr(veniceFind))
+		return 0xFF;
+
+	const char* assaultString = "ID_M_ASSAULT";
+	const char* EngineerString = "ID_M_ENGINEER";
+	const char* SUPPORTString = "ID_M_SUPPORT";
+	const char* ReconString = "ID_M_RECON";
+	int kitID = 0;
+
+	if (strcmp(assaultString, veniceFind->m_ID_Name) == 0)
+		return 0;
+
+	if (strcmp(EngineerString, veniceFind->m_ID_Name) == 0)
+		return 1;
+
+	if (strcmp(SUPPORTString, veniceFind->m_ID_Name) == 0)
+		return 2;
+
+	if (strcmp(ReconString, veniceFind->m_ID_Name) == 0)
+		return 3;
+
+	return 0xFF;
+}
+
+UnlockAssetBase* getUA(ClientPlayer* localp)
+{
+	ClientSoldierEntity* localcse = localp->m_pControlledControllable;
+	if (!MmIsAddressValidPtr(localcse))
+		return NULL;
+
+	ClientSoldierWeaponsComponent* cwep = localcse->m_pClientSoldierWeaponsComponent;
+	if (!MmIsAddressValidPtr(cwep))
+		return NULL;
+
+	ClientSoldierWeapon* cwepp = cwep->m_pHandler->m_WeaponList[cwep->m_activeSlot];
+	if (!MmIsAddressValidPtr(cwepp))
+		return NULL;
+
+	ClientWeapon* cwepreal = cwepp->m_pWeapon;
+	if (!MmIsAddressValidPtr(cwepreal))
+		return NULL;
+
+	WeaponModifier* WeapMod = cwepreal->m_pWeaponModifier;
+	if (!MmIsAddressValidPtr(cwepreal))
+		return NULL;
+
+	int modifiertest = (int)WeapMod;
+	int weapmodlist = *(int*)(modifiertest + 0x8);
+
+	if (weapmodlist > 0x5F000000 || weapmodlist < 0x41000000)
+		return NULL;
+
+	weapmodlist = weapmodlist + 0xC;
+
+	for (int i = 0; i < 5; i++)
+	{
+		int modifiertest = (weapmodlist + (i * 0x10));
+		int checkPTR = *(int*)(modifiertest);
+
+		if (checkPTR > 0x5F000000 || checkPTR < 0x41000000)
+			continue;
+
+		int checkPTRVtable = *(int*)checkPTR;
+		if (checkPTRVtable == 0x82E6DC40)
+			return (UnlockAssetBase*)checkPTR;
+	}
+
+	return NULL;
+}
+
+ClientPlayerScore* GetScorePTR()
+{
+	ClientPlayerScoreManager* pscore = ClientGameContext::GetInstance()->m_pClientScoreManager;
+	if (!MmIsAddressValidPtr(pscore))
+		return NULL;
+
+	ClientPlayer* localp = GetLocalPlayer();
+	if (!MmIsAddressValidPtr(localp))
+		return NULL;
+
+	int pScore = GetPlayerScore(pscore, localp);
+
+	ClientPlayerScore* pscoreReal = (ClientPlayerScore*)pScore;
+	if (!MmIsAddressValidPtr(pscoreReal))
+		return NULL;
+	return pscoreReal;
+}
+
+void DoAmmo()
+{
+	if (IsLocalClientAlive())
+	{
+		ClientPlayer* localP = ClientGameContext::GetInstance()->m_pClientPlayerManager->m_pLocalPlayer;
+		if (!MmIsAddressValidPtr(localP))
+			return;
+
+		ClientSoldierEntity* cse = localP->m_pControlledControllable;
+		if (!MmIsAddressValidPtr(cse))
+			return;
+
+		ClientSoldierWeaponsComponent* cwc = cse->m_pClientSoldierWeaponsComponent;
+		if (!MmIsAddressValidPtr(cwc))
+			return;
+
+		ClientSoldierWeaponsComponent::ClientActiveWeaponHandler* act12 = cwc->m_pActiveHandler;
+		if (!MmIsAddressValidPtr(act12))
+			return;
+
+		ClientSoldierWeapon* act1 = act12->m_pActiveWeapon;
+		if (!MmIsAddressValidPtr(act1))
+			return;
+
+		WeaponFiring* wepfPrimary = act1->m_pPrimaryFiring;
+		if (!MmIsAddressValidPtr(wepfPrimary))
+			return;
+
+		WeaponFiring* wepfCorrected = act1->m_pCorrectedFiring;
+		if (!MmIsAddressValidPtr(wepfCorrected))
+			return;
+
+		VeniceSoldierCustomizationAsset* veniceFind = localP->m_pSelectedCustomizationAsset;
+		if (!MmIsAddressValidPtr(veniceFind))
+			return;
+
+		if (wepfPrimary->m_Ammo != 0x0 && UACounterInt != 0x0 && GetAsyncKeyState(XINPUT_GAMEPAD_X) != true)
+		{
+			UACounterInt = 0;
+			return;
+		}
+
+		if (GetAsyncKeyState(XINPUT_GAMEPAD_X) && UACounterInt == 0x0 && MmIsAddressValidPtr(act1) || (wepfPrimary->m_Ammo == 0 && UACounterInt == 0x0 && MmIsAddressValidPtr(act1)))
+		{
+			UACounterInt = 1;
+
+			int kitID = getKitID();
+			if (kitID == 0xFF)
+				return;
+
+			int r3 = *(int*)(0x841289FC);
+			int r4 = (int)(0x8420E38C);
+			int checkPtr = GetAmmoPtr(r3, r4, 0x1);
+			ReloadMessageFunction(checkPtr, kitID, 0x1);
+		}
+	}
+}
+
+void Aimbot(ClientPlayer* LocalEntity)
+{
+	Vector2 Angles = Vector2(0, 0);
+	Vector2 TempAng = Vector2(0, 0);
+
+	NearestPlayer = ClosestClient(LocalEntity);
+
+	if (NearestPlayer == -1)
+	{
+		return;
+	}
+
+	ClientPlayer* AimTarget = GetPlayerById(NearestPlayer);
+	int ClientCount = NearestPlayer;
+
+	Vector3 LocalOrigin, Origin;
+
+	if (!GetAimPos(AimTarget, &Angles, &LocalOrigin, &Origin))
+		return;
+
+	ClientSoldierWeaponsComponent* pCSWC = LocalEntity->m_pControlledControllable->m_pClientSoldierWeaponsComponent;
+
+	if (!MmIsAddressValidPtr(pCSWC))
+		return;
+
+	ClientSoldierWeapon* pCSW = pCSWC->GetActiveSoldierWeapon();
+
+	if (!MmIsAddressValidPtr(pCSW))
+		return;
+
+	if (pCSW->m_pCorrectedFiring->m_weaponState == 11)
+		return;
+
+	Angles.x -= pCSW->m_pClientSoldierAimingSimulation->m_sway.x;
+	Angles.y -= pCSW->m_pClientSoldierAimingSimulation->m_sway.y;
+
+	TempAng = Angles;
+
+	if ((bFOVCheck) || !bFOVCheck)
+	{
+		if (bAimingRequired)
+		{
+			if (GetAsyncKeyState(0x5555))
+			{
+				pCSW->m_pClientSoldierAimingSimulation->m_fpsAimer->m_pitch = Angles.y;
+				pCSW->m_pClientSoldierAimingSimulation->m_fpsAimer->m_yaw = Angles.x;
+
+				if (GetAsyncKeyState(KEY_RT))
+					DamagePlayer(AimTarget, GetLocalPlayer(), 100.0f, getUA(GetLocalPlayer()), HitReactionType::HRT_Head);
+			}
+		}
+		else
+		{
+			pCSW->m_pClientSoldierAimingSimulation->m_fpsAimer->m_pitch = Angles.y;
+			pCSW->m_pClientSoldierAimingSimulation->m_fpsAimer->m_yaw = Angles.x;
+
+			if (GetAsyncKeyState(KEY_RT))
+				DamagePlayer(AimTarget, GetLocalPlayer(), 100.0f, getUA(GetLocalPlayer()), HitReactionType::HRT_Head);
+		}
+	}
 }

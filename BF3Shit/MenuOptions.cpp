@@ -134,47 +134,47 @@ void AddMenuOptions()
 	AimbotMenu = MenuBase.CreateSubMenu("Aimbot");
 	MenuBase.AddBool("Aimbot", "Enables aimbot.", &bAimbot);
 	MenuBase.AddBool("Aiming Required", "The aimbot will only be activated when ADS.", &bAimingRequired);
-	MenuBase.AddBool("Visibility Check", "The aimbot will only aim at visible players.", &bVisibility);
-	MenuBase.AddBool("Spread Predicition", "The aimbot will automatically counter your recoil and spread.", &pAim);
-	MenuBase.AddBool("Aiming in Parachute", "This will allow you to rotate 360 degrees while in a parachute.", &bAntiParachute);
-	MenuBase.AddBool("Auto Shoot", "Shoots automatically when target is in sight.", &bAutoShoot);
-	MenuBase.AddBool("Silent Aimbot", "Curved bullets", &bSilentAimbot);
-	MenuBase.AddBool("Unfair Aimbot", "Allows the user to shoot through some walls.", &bUnfairAimbot);
-	MenuBase.AddBool("Headshots", "Sets if your damage type is a headshot.", &bHeadshots);
-	MenuBase.AddBool("Spoof WeaponID to Target", "Allows the user to spoof their kills to that of their target.", &bSpoofTarget);
-	MenuBase.AddBool("Spoof Kills", "Allows the user to spoof kills.", &bSpoofKills);
-	MenuBase.AddListBox("Spoof Weapon", "Sets your weapon to be spoofed.", &SpoofArrayEnumarator, SpoofArray, 12);
+	MenuBase.AddBool("Visibility Check", "The aimbot will only aim at visible players.", &bVisibility);  //todo
+	MenuBase.AddBool("Spread Predicition", "The aimbot will automatically counter your recoil and spread.", &pAim); //todo
+	MenuBase.AddBool("Aiming in Parachute", "This will allow you to rotate 360 degrees while in a parachute.", &bAntiParachute); //todo
+	MenuBase.AddBool("Auto Shoot", "Shoots automatically when target is in sight.", &bAutoShoot); //todo
+	MenuBase.AddBool("Silent Aimbot", "Curved bullets", &bSilentAimbot);//todo
+	MenuBase.AddBool("Unfair Aimbot", "Allows the user to shoot through some walls.", &bUnfairAimbot); //fix
+	MenuBase.AddBool("Headshots", "Sets if your damage type is a headshot.", &bHeadshots); //fix
+	MenuBase.AddBool("Spoof WeaponID to Target", "Allows the user to spoof their kills to that of their target.", &bSpoofTarget); //todo
+	MenuBase.AddBool("Spoof Kills", "Allows the user to spoof kills.", &bSpoofKills);//todo
+	MenuBase.AddListBox("Spoof Weapon", "Sets your weapon to be spoofed.", &SpoofArrayEnumarator, SpoofArray, 12);//todo
 
 	WeaponMenu = MenuBase.CreateSubMenu("Weapon Mods");
 	MenuBase.AddBool("Unlimited Ammo", "Gives your weapon unlimited ammo.", &bUnlimitedAmmo);
-	MenuBase.AddBool("Self Healing Gun", "Health regens whilst shooting.", &bHealSelf);
-	MenuBase.AddBool("Team Healing Gun", "Regens your friendlies health whilst shooting.", &bTeamHeal);
-	MenuBase.AddBool("One hit kill", "Sets the bullet damage.", &bOHK);
-	MenuBase.AddBool("Remove View bobbing", "Enable and see what it does", &bNoBBobbing);
-	MenuBase.AddBool("Remove Visual Spread", "Enable and see what it does", &bNoSpreadFake);
-	MenuBase.AddBool("Remove Sway", "Enable and see what it does", &bNoSway);
+	MenuBase.AddBool("Self Healing Gun", "Health regens whilst shooting.", &bHealSelf); //fix
+	MenuBase.AddBool("Team Healing Gun", "Regens your friendlies health whilst shooting.", &bTeamHeal); //fix
+	MenuBase.AddBool("One hit kill", "Sets the bullet damage.", &bOHK); //todo
+	MenuBase.AddBool("Remove View bobbing", "Enable and see what it does", &bNoBBobbing); //todo
+	MenuBase.AddBool("Remove Visual Spread", "Enable and see what it does", &bNoSpreadFake); //todo
+	MenuBase.AddBool("Remove Sway", "Enable and see what it does", &bNoSway); //todo
 
 
 	ClassCustomizationMenu = MenuBase.CreateSubMenu("Customization");
-	MenuBase.AddListBox("Set Primary", "Sets your weapon to the selected option.", &PrimaryArrayEnumarator, OptionArray, 10, SetPrimary);
-	MenuBase.AddListBox("Set Secondary", "Sets your weapon to the selected option.", &SecondaryArrayEnumarator, OptionArray, 10, SetSecondary);
-	MenuBase.AddListBox("Set Gadget 1", "Sets your weapon to the selected option.", &Gadget1ArrayEnumarator, OptionArray, 10, SetGadet1);
-	MenuBase.AddListBox("Set Gadget 2", "Sets your weapon to the selected option.", &Gadget2WeaponArrayEnumarator, OptionArray, 10, SetGadget2);
-	MenuBase.AddListBox("Set Grenade", "Sets your weapon to the selected option.", &GrenadeWeaponArrayEnumarator, OptionArray, 10, SetGrenade);
-	MenuBase.AddCall("Invisibility", "Makes your player invisible to other clients. [YOU HAVE TO RESPAWN]", DoInvisible);
+	MenuBase.AddListBox("Set Primary", "Sets your weapon to the selected option.", &PrimaryArrayEnumarator, OptionArray, 10, SetPrimary);			  //todo
+	MenuBase.AddListBox("Set Secondary", "Sets your weapon to the selected option.", &SecondaryArrayEnumarator, OptionArray, 10, SetSecondary);		  //todo
+	MenuBase.AddListBox("Set Gadget 1", "Sets your weapon to the selected option.", &Gadget1ArrayEnumarator, OptionArray, 10, SetGadet1);			  //todo
+	MenuBase.AddListBox("Set Gadget 2", "Sets your weapon to the selected option.", &Gadget2WeaponArrayEnumarator, OptionArray, 10, SetGadget2);	  //todo
+	MenuBase.AddListBox("Set Grenade", "Sets your weapon to the selected option.", &GrenadeWeaponArrayEnumarator, OptionArray, 10, SetGrenade);		  //todo
+	MenuBase.AddCall("Invisibility", "Makes your player invisible to other clients. [YOU HAVE TO RESPAWN]", DoInvisible);							  //todo
 
 	SendChatMenu = MenuBase.CreateSubMenu("Chat Message");
-	MenuBase.AddCall("Made by Trojan041 and Sabotage!", "Sends a chat message.", SendChatMessage, "s", 1, L"Made by Trojan041 and Sabotage!");
-	MenuBase.AddCall("Trojan041#1337", "Sends a chat message.", SendChatMessage, "s", 1, L"Trojan041#1337");
-	MenuBase.AddCall("Sabotage#1337", "Sends a chat message.", SendChatMessage, "s", 1, L"Sabotage#1337");
-	MenuBase.AddCall("https://xbOnline.live/", "Sends a chat message.", SendChatMessage, "s", 1, L"https://xbOnline.live/");
-	MenuBase.AddCall("Sabotage eats shoes", "Sends a chat message.", SendChatMessage, "s", 1, L"Sabotage eats shoes");
-	MenuBase.AddCall("Fubc is dad", "Sends a chat message.", SendChatMessage, "s", 1, L"Fubc is dad");
-	MenuBase.AddCall("I'm a nasty lil cheater", "Sends a chat message.", SendChatMessage, "s", 1, L"I'm a nasty lil cheater");
-	MenuBase.AddCall("We always finish second.", "Sends a chat message.", SendChatMessage, "s", 1, L"We always finish second.");
-	MenuBase.AddCall("Why do I have so many notification?", "Sends a chat message.", SendChatMessage, "s", 1, L"Why do I have so many notification?");
-	MenuBase.AddCall("Shoutout windows defender", "Sends a chat message.", SendChatMessage, "s", 1, L"Shoutout windows defender");
-	MenuBase.AddCall("El Carterino was here!", "Sends a chat message.", SendChatMessage, "s", 1, L"El Carterino was here!");
+	MenuBase.AddCall("Made by Trojan041 and Sabotage!", "Sends a chat message.", SendChatMessage, "s", 1, L"Made by Trojan041 and Sabotage!");				//todo
+	MenuBase.AddCall("Trojan041#1337", "Sends a chat message.", SendChatMessage, "s", 1, L"Trojan041#1337");												//todo
+	MenuBase.AddCall("Sabotage#1337", "Sends a chat message.", SendChatMessage, "s", 1, L"Sabotage#1337");													//todo
+	MenuBase.AddCall("https://xbOnline.live/", "Sends a chat message.", SendChatMessage, "s", 1, L"https://xbOnline.live/");								//todo
+	MenuBase.AddCall("Sabotage eats shoes", "Sends a chat message.", SendChatMessage, "s", 1, L"Sabotage eats shoes");										//todo
+	MenuBase.AddCall("Fubc is dad", "Sends a chat message.", SendChatMessage, "s", 1, L"Fubc is dad");														//todo
+	MenuBase.AddCall("I'm a nasty lil cheater", "Sends a chat message.", SendChatMessage, "s", 1, L"I'm a nasty lil cheater");								//todo
+	MenuBase.AddCall("We always finish second.", "Sends a chat message.", SendChatMessage, "s", 1, L"We always finish second.");							//todo
+	MenuBase.AddCall("Why do I have so many notification?", "Sends a chat message.", SendChatMessage, "s", 1, L"Why do I have so many notification?");		//todo
+	MenuBase.AddCall("Shoutout windows defender", "Sends a chat message.", SendChatMessage, "s", 1, L"Shoutout windows defender");							//todo
+	MenuBase.AddCall("El Carterino was here!", "Sends a chat message.", SendChatMessage, "s", 1, L"El Carterino was here!");								//todo
 
 	ESPMenu = MenuBase.CreateSubMenu("ESP");
 	MenuBase.AddListBox("ESP Type", "Choose the ESP Type.", &ESPType, ESPArray, 2);
@@ -183,8 +183,8 @@ void AddMenuOptions()
 	MenuBase.AddSubMenuLink("Compass", "", &CompassMenu);
 	MenuBase.AddSubMenuLink("Enemies", "", &EnemyESPMenu);
 	MenuBase.AddSubMenuLink("Friendly", "", &FriendlyESPMenu);
-	MenuBase.AddSubMenuLink("Vehicles", "", &VehicleESPMenu);
-	MenuBase.AddSubMenuLink("Entity", "", &EntityESPMenu);
+	MenuBase.AddSubMenuLink("Vehicles", "", &VehicleESPMenu);//todo
+	MenuBase.AddSubMenuLink("Entity", "", &EntityESPMenu);//todo
 
 	CompassMenu = MenuBase.CreateSubMenu("Compass");
 	MenuBase.AddFloat("Compass Size", "Defines the size of the compass.", &fCompassSize, 5.0f, 120.0f, 320.0f);

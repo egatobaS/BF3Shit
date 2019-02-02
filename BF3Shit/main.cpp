@@ -34,6 +34,7 @@ BOOL WINAPI DllMain(HANDLE ModuleHandle, unsigned int fdwReason, LPVOID lpReserv
 
 		D3DDevice_PresentOriginal = (D3DDevice_Present_t)D3DDevice_PresentDetour.HookFunction(0x8315F850, (unsigned int)D3DDevice_PresentHook);
 		XamInputGetStateDetour.HookFunction(GetAddr(0x82D80000, 0x191), (unsigned int)XamInputGetStateHook);
+		AddMoveOriginal = (AddMoveStub)AddMoveHook.HookFunction(0x83D00B58, (DWORD)AddMove);
 
 		CreateSystemThread(MainThread, NULL);
 
@@ -45,6 +46,7 @@ BOOL WINAPI DllMain(HANDLE ModuleHandle, unsigned int fdwReason, LPVOID lpReserv
 
 		XamInputGetStateDetour.RestoreFunction();
 		D3DDevice_PresentDetour.RestoreFunction();
+		AddMoveHook.RestoreFunction();
 
 		Sleep(500);
 	}

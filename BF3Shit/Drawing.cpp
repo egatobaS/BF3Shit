@@ -171,3 +171,50 @@ void DrawText(const char *Text, float x, float y, float scale, D3DCOLOR Color, i
 	m_Font.End();
 }
 
+void DrawTextCentered(const char *Text, float x, float y, float scale, D3DCOLOR Color, int Flags)
+{
+	if (x < 0 || y < 0) return;
+
+	m_Font.Begin();
+	wchar_t* wcstr = charToWChar(Text);
+
+	m_Font.SetScaleFactors(scale, scale);
+
+	m_Font.DrawText((x - ((m_Font.GetTextWidth(wcstr) * scale))), y, Color, wcstr, Flags);
+
+	delete wcstr;
+
+	m_Font.End();
+}
+
+void DrawHealthBar(float Health, float MaxHealth)
+{
+
+	float CenterX, CenterY;
+	float fMultiplier, HealthBarLength;
+	fMultiplier = (200.0f / (float)MaxHealth);
+	HealthBarLength = (Health * fMultiplier);
+
+	CenterX = (1280 / 2); CenterY = (((720 / 2) - 60));
+
+	DrawBox((CenterX - 100), (CenterY + 300), 204, 20, D3DCOLOR_RGBA(0, 0, 0, 50));
+	DrawBox((CenterX - 98), (CenterY + 302), HealthBarLength, 16, D3DCOLOR_RGBA(255, 0, 0, 35));
+
+	char Buffer[255] = { 0 };
+
+	_snprintf(Buffer, 255, "Health (%0.f/%0.f)", Health, MaxHealth);
+
+	if (CenterX < 0 || CenterY < 0) return;
+
+	m_Font.Begin();
+	wchar_t* wcstr = charToWChar(Buffer);
+
+	m_Font.SetScaleFactors(0.5, 0.5);
+
+	m_Font.DrawText((CenterX - ((m_Font.GetTextWidth(wcstr) * 0.5))), (CenterY + 302), D3DCOLOR_RGBA(255, 255, 255, 255), wcstr, 0);
+
+	delete wcstr;
+
+	m_Font.End();
+
+}
