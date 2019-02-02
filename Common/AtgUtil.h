@@ -49,7 +49,8 @@ namespace ATG
 //--------------------------------------------------------------------------------------
 // Debug spew and error handling routines
 //--------------------------------------------------------------------------------------
-#ifdef  _Printf_format_string_  // VC++ 2008 and later support this annotation
+#ifdef  _
+	_format_string_  // VC++ 2008 and later support this annotation
 VOID CDECL DebugSpew( _In_z_ _Printf_format_string_ const CHAR*, ... );  // Un-modified debug spew
 VOID CDECL __declspec(noreturn) FatalError( _In_z_ _Printf_format_string_ const CHAR*, ... ); // Debug spew with a forced break and exit
 #else

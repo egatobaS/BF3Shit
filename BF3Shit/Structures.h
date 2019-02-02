@@ -1916,6 +1916,8 @@ public:
 	};
 };
 
+
+#pragma warning( disable : 4200 )
 class ResourceManager
 {
 public:

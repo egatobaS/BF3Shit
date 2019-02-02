@@ -58,3 +58,7 @@ ClientPlayerScore * GetScorePTR();
 void DoAmmo();
 
 void Aimbot(ClientPlayer * LocalEntity);
+
+extern int NearestPlayer;
+
+extern bool isClientWallable[24];

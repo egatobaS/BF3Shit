@@ -268,6 +268,7 @@
     <ClInclude Include="Menu.h" />
     <ClInclude Include="MenuDrawing.h" />
     <ClInclude Include="MenuOptions.h" />
+    <ClInclude Include="SimpleIni.h" />
     <ClInclude Include="Structures.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>

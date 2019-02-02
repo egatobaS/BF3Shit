@@ -117,33 +117,33 @@ void DoInvisible()
 void AddMenuOptions()
 {
 	MainMenu = MenuBase.CreateSubMenu("Main Menu");
-	MenuBase.AddCall("Set Draw At Current Origin", "", SetDraw);
-
 	MenuBase.AddSubMenuLink("Movement", "", &MovementMenu);
 	MenuBase.AddSubMenuLink("Aimbot", "", &AimbotMenu);
 	MenuBase.AddSubMenuLink("Weapon mods", "", &WeaponMenu);
-	MenuBase.AddSubMenuLink("Customization", "", &ClassCustomizationMenu);
-	MenuBase.AddSubMenuLink("Chat messages", "", &SendChatMenu);
+	//MenuBase.AddSubMenuLink("Customization", "", &ClassCustomizationMenu);
+	//MenuBase.AddSubMenuLink("Chat messages", "", &SendChatMenu);
 	MenuBase.AddSubMenuLink("ESP", "", &ESPMenu);
 
 	MovementMenu = MenuBase.CreateSubMenu("Movement");
-	MenuBase.AddBool("Teleport To Crosshair [RB]", "Press RB to teleport to your crosshair.", &bTeleCrosshair);
-	MenuBase.AddBool("Teleport in Air [RS & LS]", "Press the right thumb and left thumb button to teleport into the air.", &bTeleAir);
-	MenuBase.AddFloat("Teleport Height", "Allows you to set how high you teleport.", &fTeleHeight, 20.0f, 0.0f, 2000.0f);
+	//MenuBase.AddBool("Teleport To Crosshair [RB]", "Press RB to teleport to your crosshair.", &bTeleCrosshair);
+	//MenuBase.AddBool("Teleport in Air [RS & LS]", "Press the right thumb and left thumb button to teleport into the air.", &bTeleAir);
+	//MenuBase.AddFloat("Teleport Height", "Allows you to set how high you teleport.", &fTeleHeight, 20.0f, 0.0f, 2000.0f);
+	MenuBase.AddBool("Flyhack", "Enables no-clip.", &bFlyHack);
+	MenuBase.AddFloat("Fly speed", "TEST DESCRIPTION 4", &FlySpeed, 2.f, 0.0f, 550.0f);
 
 	AimbotMenu = MenuBase.CreateSubMenu("Aimbot");
 	MenuBase.AddBool("Aimbot", "Enables aimbot.", &bAimbot);
 	MenuBase.AddBool("Aiming Required", "The aimbot will only be activated when ADS.", &bAimingRequired);
 	MenuBase.AddBool("Visibility Check", "The aimbot will only aim at visible players.", &bVisibility);  //todo
-	MenuBase.AddBool("Spread Predicition", "The aimbot will automatically counter your recoil and spread.", &pAim); //todo
-	MenuBase.AddBool("Aiming in Parachute", "This will allow you to rotate 360 degrees while in a parachute.", &bAntiParachute); //todo
+	//MenuBase.AddBool("Spread Predicition", "The aimbot will automatically counter your recoil and spread.", &pAim); //todo
+	//MenuBase.AddBool("Aiming in Parachute", "This will allow you to rotate 360 degrees while in a parachute.", &bAntiParachute); //todo
 	MenuBase.AddBool("Auto Shoot", "Shoots automatically when target is in sight.", &bAutoShoot); //todo
-	MenuBase.AddBool("Silent Aimbot", "Curved bullets", &bSilentAimbot);//todo
+	//MenuBase.AddBool("Silent Aimbot", "Curved bullets", &bSilentAimbot);//todo
 	MenuBase.AddBool("Unfair Aimbot", "Allows the user to shoot through some walls.", &bUnfairAimbot); //fix
 	MenuBase.AddBool("Headshots", "Sets if your damage type is a headshot.", &bHeadshots); //fix
 	MenuBase.AddBool("Spoof WeaponID to Target", "Allows the user to spoof their kills to that of their target.", &bSpoofTarget); //todo
-	MenuBase.AddBool("Spoof Kills", "Allows the user to spoof kills.", &bSpoofKills);//todo
-	MenuBase.AddListBox("Spoof Weapon", "Sets your weapon to be spoofed.", &SpoofArrayEnumarator, SpoofArray, 12);//todo
+	//MenuBase.AddBool("Spoof Kills", "Allows the user to spoof kills.", &bSpoofKills);//todo
+	//MenuBase.AddListBox("Spoof Weapon", "Sets your weapon to be spoofed.", &SpoofArrayEnumarator, SpoofArray, 12);//todo
 
 	WeaponMenu = MenuBase.CreateSubMenu("Weapon Mods");
 	MenuBase.AddBool("Unlimited Ammo", "Gives your weapon unlimited ammo.", &bUnlimitedAmmo);
@@ -155,26 +155,26 @@ void AddMenuOptions()
 	MenuBase.AddBool("Remove Sway", "Enable and see what it does", &bNoSway); //todo
 
 
-	ClassCustomizationMenu = MenuBase.CreateSubMenu("Customization");
-	MenuBase.AddListBox("Set Primary", "Sets your weapon to the selected option.", &PrimaryArrayEnumarator, OptionArray, 10, SetPrimary);			  //todo
-	MenuBase.AddListBox("Set Secondary", "Sets your weapon to the selected option.", &SecondaryArrayEnumarator, OptionArray, 10, SetSecondary);		  //todo
-	MenuBase.AddListBox("Set Gadget 1", "Sets your weapon to the selected option.", &Gadget1ArrayEnumarator, OptionArray, 10, SetGadet1);			  //todo
-	MenuBase.AddListBox("Set Gadget 2", "Sets your weapon to the selected option.", &Gadget2WeaponArrayEnumarator, OptionArray, 10, SetGadget2);	  //todo
-	MenuBase.AddListBox("Set Grenade", "Sets your weapon to the selected option.", &GrenadeWeaponArrayEnumarator, OptionArray, 10, SetGrenade);		  //todo
-	MenuBase.AddCall("Invisibility", "Makes your player invisible to other clients. [YOU HAVE TO RESPAWN]", DoInvisible);							  //todo
+	//ClassCustomizationMenu = MenuBase.CreateSubMenu("Customization");
+	//MenuBase.AddListBox("Set Primary", "Sets your weapon to the selected option.", &PrimaryArrayEnumarator, OptionArray, 10, SetPrimary);			  //todo
+	//MenuBase.AddListBox("Set Secondary", "Sets your weapon to the selected option.", &SecondaryArrayEnumarator, OptionArray, 10, SetSecondary);		  //todo
+	//MenuBase.AddListBox("Set Gadget 1", "Sets your weapon to the selected option.", &Gadget1ArrayEnumarator, OptionArray, 10, SetGadet1);			  //todo
+	//MenuBase.AddListBox("Set Gadget 2", "Sets your weapon to the selected option.", &Gadget2WeaponArrayEnumarator, OptionArray, 10, SetGadget2);	  //todo
+	//MenuBase.AddListBox("Set Grenade", "Sets your weapon to the selected option.", &GrenadeWeaponArrayEnumarator, OptionArray, 10, SetGrenade);		  //todo
+	//MenuBase.AddCall("Invisibility", "Makes your player invisible to other clients. [YOU HAVE TO RESPAWN]", DoInvisible);							  //todo
 
-	SendChatMenu = MenuBase.CreateSubMenu("Chat Message");
-	MenuBase.AddCall("Made by Trojan041 and Sabotage!", "Sends a chat message.", SendChatMessage, "s", 1, L"Made by Trojan041 and Sabotage!");				//todo
-	MenuBase.AddCall("Trojan041#1337", "Sends a chat message.", SendChatMessage, "s", 1, L"Trojan041#1337");												//todo
-	MenuBase.AddCall("Sabotage#1337", "Sends a chat message.", SendChatMessage, "s", 1, L"Sabotage#1337");													//todo
-	MenuBase.AddCall("https://xbOnline.live/", "Sends a chat message.", SendChatMessage, "s", 1, L"https://xbOnline.live/");								//todo
-	MenuBase.AddCall("Sabotage eats shoes", "Sends a chat message.", SendChatMessage, "s", 1, L"Sabotage eats shoes");										//todo
-	MenuBase.AddCall("Fubc is dad", "Sends a chat message.", SendChatMessage, "s", 1, L"Fubc is dad");														//todo
-	MenuBase.AddCall("I'm a nasty lil cheater", "Sends a chat message.", SendChatMessage, "s", 1, L"I'm a nasty lil cheater");								//todo
-	MenuBase.AddCall("We always finish second.", "Sends a chat message.", SendChatMessage, "s", 1, L"We always finish second.");							//todo
-	MenuBase.AddCall("Why do I have so many notification?", "Sends a chat message.", SendChatMessage, "s", 1, L"Why do I have so many notification?");		//todo
-	MenuBase.AddCall("Shoutout windows defender", "Sends a chat message.", SendChatMessage, "s", 1, L"Shoutout windows defender");							//todo
-	MenuBase.AddCall("El Carterino was here!", "Sends a chat message.", SendChatMessage, "s", 1, L"El Carterino was here!");								//todo
+	//SendChatMenu = MenuBase.CreateSubMenu("Chat Message");
+	//MenuBase.AddCall("Made by Trojan041 and Sabotage!", "Sends a chat message.", SendChatMessage, "s", 1, L"Made by Trojan041 and Sabotage!");				//todo
+	//MenuBase.AddCall("Trojan041#1337", "Sends a chat message.", SendChatMessage, "s", 1, L"Trojan041#1337");												//todo
+	//MenuBase.AddCall("Sabotage#1337", "Sends a chat message.", SendChatMessage, "s", 1, L"Sabotage#1337");													//todo
+	//MenuBase.AddCall("https://xbOnline.live/", "Sends a chat message.", SendChatMessage, "s", 1, L"https://xbOnline.live/");								//todo
+	//MenuBase.AddCall("Sabotage eats shoes", "Sends a chat message.", SendChatMessage, "s", 1, L"Sabotage eats shoes");										//todo
+	//MenuBase.AddCall("Fubc is dad", "Sends a chat message.", SendChatMessage, "s", 1, L"Fubc is dad");														//todo
+	//MenuBase.AddCall("I'm a nasty lil cheater", "Sends a chat message.", SendChatMessage, "s", 1, L"I'm a nasty lil cheater");								//todo
+	//MenuBase.AddCall("We always finish second.", "Sends a chat message.", SendChatMessage, "s", 1, L"We always finish second.");							//todo
+	//MenuBase.AddCall("Why do I have so many notification?", "Sends a chat message.", SendChatMessage, "s", 1, L"Why do I have so many notification?");		//todo
+	//MenuBase.AddCall("Shoutout windows defender", "Sends a chat message.", SendChatMessage, "s", 1, L"Shoutout windows defender");							//todo
+	//MenuBase.AddCall("El Carterino was here!", "Sends a chat message.", SendChatMessage, "s", 1, L"El Carterino was here!");								//todo
 
 	ESPMenu = MenuBase.CreateSubMenu("ESP");
 	MenuBase.AddListBox("ESP Type", "Choose the ESP Type.", &ESPType, ESPArray, 2);
@@ -184,7 +184,7 @@ void AddMenuOptions()
 	MenuBase.AddSubMenuLink("Enemies", "", &EnemyESPMenu);
 	MenuBase.AddSubMenuLink("Friendly", "", &FriendlyESPMenu);
 	MenuBase.AddSubMenuLink("Vehicles", "", &VehicleESPMenu);//todo
-	MenuBase.AddSubMenuLink("Entity", "", &EntityESPMenu);//todo
+	//MenuBase.AddSubMenuLink("Entity", "", &EntityESPMenu);//todo
 
 	CompassMenu = MenuBase.CreateSubMenu("Compass");
 	MenuBase.AddFloat("Compass Size", "Defines the size of the compass.", &fCompassSize, 5.0f, 120.0f, 320.0f);
@@ -197,7 +197,7 @@ void AddMenuOptions()
 	MenuBase.AddBool("Draw Snaplines", "Draws lines from the crosshair to players.", &bDrawSnapLinesE);
 	MenuBase.AddListBox("Snapline position", "Positions snapline in the top/middle/bottom", &SnapArrayEnumaratorE, SnapLineArray, 3);
 	MenuBase.AddBool("Draw Bones", "Draw player bones.", &bDrawBonesE);
-	MenuBase.AddBool("Player Chams", "Enable for highlighted Players.", &bPlayerChamsE);
+	/*MenuBase.AddBool("Player Chams", "Enable for highlighted Players.", &bPlayerChamsE);*/
 
 	FriendlyESPMenu = MenuBase.CreateSubMenu("Friendly");
 	MenuBase.AddBool("Friendly ESP", "Enable ESP for friendlies.", &bESPFriendly);
@@ -205,16 +205,197 @@ void AddMenuOptions()
 	MenuBase.AddBool("Draw Snaplines", "Draws lines from the crosshair to players.", &bDrawSnapLinesF);
 	MenuBase.AddListBox("Snapline position", "Positions snapline in the top/middle/bottom", &SnapArrayEnumaratorF, SnapLineArray, 3);
 	MenuBase.AddBool("Draw Bones", "Draw player bones.", &bDrawBonesF);
-	MenuBase.AddBool("Player Chams", "Enable for highlighted Players.", &bPlayerChamsF);
+	/*MenuBase.AddBool("Player Chams", "Enable for highlighted Players.", &bPlayerChamsF);*/
 
 	VehicleESPMenu = MenuBase.CreateSubMenu("Vehicles");
 	MenuBase.AddBool("Vehicle ESP", "Draws boxes around vehicles.", &bVehicleESP);
-	MenuBase.AddBool("Vehicle Chams", "Enable for highlighted vehicles.", &bVehicleChams);
-	MenuBase.AddBool("Draw Unused Vehicles", "Draws boxes around empty vehicles.", &bDrawUnusedVehicles);
+	/*MenuBase.AddBool("Vehicle Chams", "Enable for highlighted vehicles.", &bVehicleChams);*/
+	/*MenuBase.AddBool("Draw Unused Vehicles", "Draws boxes around empty vehicles.", &bDrawUnusedVehicles);*/
 
-	EntityESPMenu = MenuBase.CreateSubMenu("Entity");
-	MenuBase.AddBool("Draw Pickups", "Draws any weapons that are on the ground.", &bDrawPickups);
-	MenuBase.AddBool("Draw Supply Crates", "Draws medkits and ammoboxes.", &bDrawSupply);
-	MenuBase.AddBool("Draw Explosives", "Draws claymores/c4/anti-tank.", &bDrawExplosive);
-	MenuBase.AddBool("Draw Grenade", "Draws Grenades.", &bDrawGrenade);
+	//EntityESPMenu = MenuBase.CreateSubMenu("Entity");
+	//MenuBase.AddBool("Draw Pickups", "Draws any weapons that are on the ground.", &bDrawPickups);
+	//MenuBase.AddBool("Draw Supply Crates", "Draws medkits and ammoboxes.", &bDrawSupply);
+	//MenuBase.AddBool("Draw Explosives", "Draws claymores/c4/anti-tank.", &bDrawExplosive);
+	//MenuBase.AddBool("Draw Grenade", "Draws Grenades.", &bDrawGrenade);
 }
+
+
+void LoadINI()
+{
+	CSimpleIniA ini;
+
+	if (!FileExists("Nigel:\\xbOnline"))
+		CreateDirectory("Nigel:\\xbOnline", NULL);
+
+	if (!ini.LoadFile("Nigel:\\xbOnline\\BF3.cfg"))
+	{
+		if (!strcmp(ini.GetValue("Game", "ESPType"), "3D ESP"))
+			ESPType = 0;
+		else
+			ESPType = 1;
+
+
+		bAimbot = ini.GetBoolValue("Game", "bAimbot");
+		bVisibility = ini.GetBoolValue("Game", "bVisibility");
+		bFOVCheck = ini.GetBoolValue("Game", "bFOVCheck");
+		bSilentAimbot = ini.GetBoolValue("Game", "bSilentAimbot");
+		bFlyHack = ini.GetBoolValue("Game", "bFlyHack");
+		bTeleCrosshair = ini.GetBoolValue("Game", "bTeleCrosshair");
+		bTeleAir = ini.GetBoolValue("Game", "bTeleAir");
+		bUnfairAimbot = ini.GetBoolValue("Game", "bUnfairAimbot");
+		bUnlimitedAmmo = ini.GetBoolValue("Game", "bUnlimitedAmmo");
+		bHealSelf = ini.GetBoolValue("Game", "bHealSelf");
+		bTeamHeal = ini.GetBoolValue("Game", "bTeamHeal");
+		bAimingRequired = ini.GetBoolValue("Game", "bAimingRequired");
+		bAntiParachute = ini.GetBoolValue("Game", "bAntiParachute");
+		bNoSpreadFake = ini.GetBoolValue("Game", "bNoSpreadFake");
+		bNoSpread = ini.GetBoolValue("Game", "bNoSpread");
+		bNoSway = ini.GetBoolValue("Game", "bNoSway");
+		bNoBBobbing = ini.GetBoolValue("Game", "bNoBBobbing");
+		bESPEnemy = ini.GetBoolValue("Game", "bESPEnemy");
+		bVehicleESP = ini.GetBoolValue("Game", "bVehicleESP");
+		bESPFriendly = ini.GetBoolValue("Game", "bESPFriendly");
+		bDrawSnapLinesE = ini.GetBoolValue("Game", "bDrawSnapLinesE");
+		bDrawSnapLinesF = ini.GetBoolValue("Game", "bDrawSnapLinesF");
+		bDrawBonesE = ini.GetBoolValue("Game", "bDrawBonesE");
+		bDrawBonesF = ini.GetBoolValue("Game", "bDrawBonesF");
+		bAutoShoot = ini.GetBoolValue("Game", "bAutoShoot");
+		bDrawPickups = ini.GetBoolValue("Game", "bDrawPickups");
+		bDrawSupply = ini.GetBoolValue("Game", "bDrawSupply");
+		bDrawUnusedVehicles = ini.GetBoolValue("Game", "bDrawUnusedVehicles");
+		bHeadshots = ini.GetBoolValue("Game", "bHeadshots");
+		bDrawGrenade = ini.GetBoolValue("Game", "bDrawGrenade");
+		bDrawExplosive = ini.GetBoolValue("Game", "bDrawExplosive");
+		bVehicleChams = ini.GetBoolValue("Game", "bVehicleChams");
+		bPlayerChamsE = ini.GetBoolValue("Game", "bPlayerChamsE");
+		bPlayerChamsF = ini.GetBoolValue("Game", "bPlayerChamsF");
+		bInvisible = ini.GetBoolValue("Game", "bInvisible");
+		bSpoofKills = ini.GetBoolValue("Game", "bSpoofKills");
+		bSpoofTarget = ini.GetBoolValue("Game", "bSpoofTarget");
+		bUAV = ini.GetBoolValue("Game", "bUAV");
+		bOHK = ini.GetBoolValue("Game", "bOHK");
+		bTargetInfo = ini.GetBoolValue("Game", "bTargetInfo");
+		pAim = ini.GetBoolValue("Game", "pAim");
+		bFriendName = ini.GetBoolValue("Game", "bFriendName");
+		bEnemyName = ini.GetBoolValue("Game", "bEnemyName");
+		bDrawRadar = ini.GetBoolValue("Game", "bDrawRadar");
+	}
+	else
+	{
+		ini.SetValue("Game", "ESPType", "3D ESP");
+		ini.SetValue("Game", "bAimbot", "false");
+		ini.SetValue("Game", "bVisibility", "false");
+		ini.SetValue("Game", "bFOVCheck", "false");
+		ini.SetValue("Game", "bSilentAimbot", "false");
+		ini.SetValue("Game", "bFlyHack", "false");
+		ini.SetValue("Game", "bTeleCrosshair", "false");
+		ini.SetValue("Game", "bTeleAir", "false");
+		ini.SetValue("Game", "bUnfairAimbot", "false");
+		ini.SetValue("Game", "bUnlimitedAmmo", "false");
+		ini.SetValue("Game", "bHealSelf", "false");
+		ini.SetValue("Game", "bTeamHeal", "false");
+		ini.SetValue("Game", "bAimingRequired", "false");
+		ini.SetValue("Game", "bAntiParachute", "false");
+		ini.SetValue("Game", "bNoSpreadFake", "false");
+		ini.SetValue("Game", "bNoSpread", "false");
+		ini.SetValue("Game", "bNoSway", "false");
+		ini.SetValue("Game", "bNoBBobbing", "false");
+		ini.SetValue("Game", "bESPEnemy", "false");
+		ini.SetValue("Game", "bVehicleESP", "false");
+		ini.SetValue("Game", "bESPFriendly", "false");
+		ini.SetValue("Game", "bDrawSnapLinesE", "false");
+		ini.SetValue("Game", "bDrawSnapLinesF", "false");
+		ini.SetValue("Game", "bDrawBonesE", "false");
+		ini.SetValue("Game", "bDrawBonesF", "false");
+		ini.SetValue("Game", "bAutoShoot", "false");
+		ini.SetValue("Game", "bDrawPickups", "false");
+		ini.SetValue("Game", "bDrawSupply", "false");
+		ini.SetValue("Game", "bDrawUnusedVehicles", "false");
+		ini.SetValue("Game", "bHeadshots", "false");
+		ini.SetValue("Game", "bDrawGrenade", "false");
+		ini.SetValue("Game", "bDrawExplosive", "false");
+		ini.SetValue("Game", "bVehicleChams", "false");
+		ini.SetValue("Game", "bPlayerChamsE", "false");
+		ini.SetValue("Game", "bPlayerChamsF", "false");
+		ini.SetValue("Game", "bInvisible", "false");
+		ini.SetValue("Game", "bSpoofKills", "false");
+		ini.SetValue("Game", "bSpoofTarget", "false");
+		ini.SetValue("Game", "bUAV", "false");
+		ini.SetValue("Game", "bOHK", "false");
+		ini.SetValue("Game", "bTargetInfo", "false");
+		ini.SetValue("Game", "pAim", "false");
+		ini.SetValue("Game", "bFriendName", "false");
+		ini.SetValue("Game", "bEnemyName", "false");
+		bDrawRadar = ini.GetBoolValue("Game", "bDrawRadar", "false");
+
+		ini.SaveFile("Nigel:\\xbOnline\\BF3.cfg");
+	}
+}
+
+void SetInit()
+{
+	CSimpleIniA ini;
+
+	if (!ini.LoadFile("Nigel:\\xbOnline\\BF3.cfg"))
+	{
+		switch (ESPType)
+		{
+		case 0:
+			ini.SetValue("Game", "ESPType", "3D ESP");
+			break;
+		case 1:
+			ini.SetValue("Game", "ESPType", "2D ESP");
+			break;
+		default:
+			break;
+		}
+
+		ini.SetValue("Game", "bAimbot", bAimbot ? "true" : "false");
+		ini.SetValue("Game", "bVisibility", bVisibility ? "true" : "false");
+		ini.SetValue("Game", "bFOVCheck", bFOVCheck ? "true" : "false");
+		ini.SetValue("Game", "bSilentAimbot", bSilentAimbot ? "true" : "false");
+		ini.SetValue("Game", "bFlyHack", bFlyHack ? "true" : "false");
+		ini.SetValue("Game", "bTeleCrosshair", bTeleCrosshair ? "true" : "false");
+		ini.SetValue("Game", "bTeleAir", bTeleAir ? "true" : "false");
+		ini.SetValue("Game", "bUnfairAimbot", bUnfairAimbot ? "true" : "false");
+		ini.SetValue("Game", "bUnlimitedAmmo", bUnlimitedAmmo ? "true" : "false");
+		ini.SetValue("Game", "bHealSelf", bHealSelf ? "true" : "false");
+		ini.SetValue("Game", "bTeamHeal", bTeamHeal ? "true" : "false");
+		ini.SetValue("Game", "bAimingRequired", bAimingRequired ? "true" : "false");
+		ini.SetValue("Game", "bAntiParachute", bAntiParachute ? "true" : "false");
+		ini.SetValue("Game", "bNoSpreadFake", bNoSpreadFake ? "true" : "false");
+		ini.SetValue("Game", "bNoSpread", bNoSpread ? "true" : "false");
+		ini.SetValue("Game", "bNoSway", bNoSway ? "true" : "false");
+		ini.SetValue("Game", "bNoBBobbing", bNoBBobbing ? "true" : "false");
+		ini.SetValue("Game", "bESPEnemy", bESPEnemy ? "true" : "false");
+		ini.SetValue("Game", "bVehicleESP", bVehicleESP ? "true" : "false");
+		ini.SetValue("Game", "bESPFriendly", bESPFriendly ? "true" : "false");
+		ini.SetValue("Game", "bDrawSnapLinesE", bDrawSnapLinesE ? "true" : "false");
+		ini.SetValue("Game", "bDrawSnapLinesF", bDrawSnapLinesF ? "true" : "false");
+		ini.SetValue("Game", "bDrawBonesE", bDrawBonesE ? "true" : "false");
+		ini.SetValue("Game", "bDrawBonesF", bDrawBonesF ? "true" : "false");
+		ini.SetValue("Game", "bAutoShoot", bAutoShoot ? "true" : "false");
+		ini.SetValue("Game", "bDrawPickups", bDrawPickups ? "true" : "false");
+		ini.SetValue("Game", "bDrawSupply", bDrawSupply ? "true" : "false");
+		ini.SetValue("Game", "bDrawUnusedVehicles", bDrawUnusedVehicles ? "true" : "false");
+		ini.SetValue("Game", "bHeadshots", bHeadshots ? "true" : "false");
+		ini.SetValue("Game", "bDrawGrenade", bDrawGrenade ? "true" : "false");
+		ini.SetValue("Game", "bDrawExplosive", bDrawExplosive ? "true" : "false");
+		ini.SetValue("Game", "bVehicleChams", bVehicleChams ? "true" : "false");
+		ini.SetValue("Game", "bPlayerChamsE", bPlayerChamsE ? "true" : "false");
+		ini.SetValue("Game", "bPlayerChamsF", bPlayerChamsF ? "true" : "false");
+		ini.SetValue("Game", "bInvisible", bInvisible ? "true" : "false");
+		ini.SetValue("Game", "bSpoofKills", bSpoofKills ? "true" : "false");
+		ini.SetValue("Game", "bSpoofTarget", bSpoofTarget ? "true" : "false");
+		ini.SetValue("Game", "bUAV", bUAV ? "true" : "false");
+		ini.SetValue("Game", "bOHK", bOHK ? "true" : "false");
+		ini.SetValue("Game", "bTargetInfo", bTargetInfo ? "true" : "false");
+		ini.SetValue("Game", "pAim", pAim ? "true" : "false");
+		ini.SetValue("Game", "bFriendName", bFriendName ? "true" : "false");
+		ini.SetValue("Game", "bEnemyName", bEnemyName ? "true" : "false");
+		ini.SetValue("Game", "bDrawRadar", bDrawRadar ? "true" : "false");
+
+		ini.SaveFile("Nigel:\\xbOnline\\BF3.cfg");
+	}
+}
+

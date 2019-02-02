@@ -75,3 +75,7 @@ extern bool bOHK;
 
 
 void AddMenuOptions();
+
+void LoadINI();
+
+void SetInit();

@@ -25,6 +25,8 @@
 #define PAD(SIZE) BYTE MACRO_CONCAT(_pad, __COUNTER__)[SIZE];
 #define POINTERCHK( pointer ) ( pointer && pointer != 0 && HIWORD( pointer ) )
 
+#include "SimpleIni.h"
+
 #include "Detour.h"
 #include "Utils.h"
 #include "Structures.h"
@@ -35,5 +37,7 @@
 #include "MenuOptions.h"
 #include "MenuDrawing.h"
 #include "Hooks.h"
+
+extern bool ShouldSetIni;
 
 using namespace std;

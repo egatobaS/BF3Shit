@@ -112,22 +112,6 @@ void DrawMenu()
 	{
 
 
-
-
-
-		Vector3 Coords;
-
-		if (WorldToScreen(Origin, &Coords))
-		{
-
-			printf("%f %f\n", Coords.x, Coords.y);
-
-			DrawText("My previous Origin", Coords.x, Coords.y, 1, 0xffffffff, 0);
-
-			DrawLine(1280 / 2, 720 / 2, Coords.x, Coords.y, 1, 0xffffffff);
-
-		}
-
 		Drawing.DrawRect(70.0f, 120.0f, 280.0f, 100.0f + (MenuBase.OptionCount[MenuBase.CurrentSubMenu] * 17.65f), &BackGround);
 		Drawing.DrawBorderBox(69.0f, 119.0f, 281.0f, 101.0f + (MenuBase.OptionCount[MenuBase.CurrentSubMenu] * 17.65f), 1, &Blue);
 

@@ -198,7 +198,7 @@ void DrawHealthBar(float Health, float MaxHealth)
 	CenterX = (1280 / 2); CenterY = (((720 / 2) - 60));
 
 	DrawBox((CenterX - 100), (CenterY + 300), 204, 20, D3DCOLOR_RGBA(0, 0, 0, 50));
-	DrawBox((CenterX - 98), (CenterY + 302), HealthBarLength, 16, D3DCOLOR_RGBA(255, 0, 0, 35));
+	DrawBox((CenterX - 98), (CenterY + 302), HealthBarLength, 16, D3DCOLOR_RGBA(0, 120, 230, 35));
 
 	char Buffer[255] = { 0 };
 
