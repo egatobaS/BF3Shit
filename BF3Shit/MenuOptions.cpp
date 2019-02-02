@@ -141,7 +141,7 @@ void AddMenuOptions()
 	//MenuBase.AddBool("Silent Aimbot", "Curved bullets", &bSilentAimbot);//todo
 	MenuBase.AddBool("Unfair Aimbot", "Allows the user to shoot through some walls.", &bUnfairAimbot); //fix
 	MenuBase.AddBool("Headshots", "Sets if your damage type is a headshot.", &bHeadshots); //fix
-	MenuBase.AddBool("Spoof WeaponID to Target", "Allows the user to spoof their kills to that of their target.", &bSpoofTarget); //todo
+	//MenuBase.AddBool("Spoof WeaponID to Target", "Allows the user to spoof their kills to that of their target.", &bSpoofTarget); //todo
 	//MenuBase.AddBool("Spoof Kills", "Allows the user to spoof kills.", &bSpoofKills);//todo
 	//MenuBase.AddListBox("Spoof Weapon", "Sets your weapon to be spoofed.", &SpoofArrayEnumarator, SpoofArray, 12);//todo
 
@@ -151,9 +151,7 @@ void AddMenuOptions()
 	MenuBase.AddBool("Team Healing Gun", "Regens your friendlies health whilst shooting.", &bTeamHeal); //fix
 	MenuBase.AddBool("One hit kill", "Sets the bullet damage.", &bOHK); //todo
 	MenuBase.AddBool("Remove View bobbing", "Enable and see what it does", &bNoBBobbing); //todo
-	MenuBase.AddBool("Remove Visual Spread", "Enable and see what it does", &bNoSpreadFake); //todo
-	MenuBase.AddBool("Remove Sway", "Enable and see what it does", &bNoSway); //todo
-
+	MenuBase.AddBool("No Spread", "Enable and see what it does", &bNoSpreadFake); //todo
 
 	//ClassCustomizationMenu = MenuBase.CreateSubMenu("Customization");
 	//MenuBase.AddListBox("Set Primary", "Sets your weapon to the selected option.", &PrimaryArrayEnumarator, OptionArray, 10, SetPrimary);			  //todo

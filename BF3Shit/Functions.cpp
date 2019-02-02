@@ -186,6 +186,14 @@ bool IsClientAlive(ClientPlayer* pTarget)
 	if (!MmIsAddressValidPtr(pCW))
 		return false;
 
+	WeaponModifier* pWM = pCW->m_pWeaponModifier;
+	if (!MmIsAddressValidPtr(pWM))
+		return false;
+
+	UnlockAssetBase* pUAB = pWM->m_pWeaponUnlockAsset;
+	if (!MmIsAddressValidPtr(pUAB))
+		return false;
+
 	return true;
 }
 
@@ -1024,6 +1032,24 @@ void DoAmmo()
 	}
 }
 
+void HealTeam(ClientPlayer* LocalPlayer)
+{
+	for (int i = 0; i < 24; i++)
+	{
+		ClientPlayer* pTarget = GetPlayerById(i);
+		if (!MmIsAddressValidPtr(pTarget))
+			continue;
+
+		if (pTarget->m_teamId != LocalPlayer->m_teamId)
+			continue;
+
+		if (!IsClientAlive(pTarget))
+			continue;
+
+		if (GetAsyncKeyState(KEY_RT))
+			DamagePlayer(pTarget, LocalPlayer, -200.0f, NULL, HitReactionType::HRT_Head);
+	}
+}
 
 void Aimbot(ClientPlayer* LocalEntity)
 {
@@ -1058,18 +1084,18 @@ void Aimbot(ClientPlayer* LocalEntity)
 	if (pCSW->m_pCorrectedFiring->m_weaponState == 11)
 		return;
 
+	if (pCSW->m_pSoldierWeaponData->isRocket())
+		return;
+
 	Angles.x -= pCSW->m_pClientSoldierAimingSimulation->m_sway.x;
 	Angles.y -= pCSW->m_pClientSoldierAimingSimulation->m_sway.y;
 
 	TempAng = Angles;
 
-
-
 	if (bAimingRequired)
 	{
 		if (custom_isnan(Angles.x) || custom_isnan(Angles.y))
 			return;
-
 
 		if (GetAsyncKeyState(0x5555))
 		{
@@ -1077,7 +1103,7 @@ void Aimbot(ClientPlayer* LocalEntity)
 			pCSW->m_pClientSoldierAimingSimulation->m_fpsAimer->m_yaw = Angles.x;
 
 			if (GetAsyncKeyState(KEY_RT) && bUnfairAimbot)
-				DamagePlayer(AimTarget, GetLocalPlayer(), 100.0f, getUA(GetLocalPlayer()), HitReactionType::HRT_Head);
+				DamagePlayer(AimTarget, GetLocalPlayer(), 100.0f, getUA(GetLocalPlayer()), bHeadshots ? HitReactionType::HRT_Head : (HitReactionType)0);
 		}
 	}
 	else
@@ -1086,7 +1112,7 @@ void Aimbot(ClientPlayer* LocalEntity)
 		pCSW->m_pClientSoldierAimingSimulation->m_fpsAimer->m_yaw = Angles.x;
 
 		if (GetAsyncKeyState(KEY_RT) && bUnfairAimbot)
-			DamagePlayer(AimTarget, GetLocalPlayer(), 100.0f, getUA(GetLocalPlayer()), HitReactionType::HRT_Head);
+			DamagePlayer(AimTarget, GetLocalPlayer(), 100.0f, getUA(GetLocalPlayer()), bHeadshots ? HitReactionType::HRT_Head : (HitReactionType)0);
 	}
 
 }

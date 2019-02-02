@@ -57,6 +57,8 @@ ClientPlayerScore * GetScorePTR();
 
 void DoAmmo();
 
+void HealTeam(ClientPlayer * LocalPlayer);
+
 void Aimbot(ClientPlayer * LocalEntity);
 
 extern int NearestPlayer;

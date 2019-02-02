@@ -86,8 +86,11 @@ int D3DDevice_PresentHook(D3DDevice* pDevice, unsigned long long r4, unsigned lo
 					if (GetAsyncKeyState(KEY_RT))
 						HealSelf(GetLocalPlayer());
 
-			*(int*)(0x836D01E4) = 0x39600000;//no bobbing
-			*(int*)(0x836FDAC8) = 0x60000000;//zero out recoil/spread
+			if (bTeamHeal)
+				HealTeam(GetLocalPlayer());
+
+			*(int*)(0x836D01E4) = bNoBBobbing ? 0x39600000 : 0x39600001;//no bobbing
+			*(int*)(0x836FDAC8) = bNoSpreadFake ? 0x60000000 : 0x4E800421;//zero out recoil/spread
 			*(int*)(0x836bbf98) = 0x60000000;  //Force Bones to update
 
 			setBitFlag = bFlyHack;
