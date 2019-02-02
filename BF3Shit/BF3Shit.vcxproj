@@ -223,7 +223,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PreprocessorDefinitions>NDEBUG;_XBOX;LTCG</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\Common\%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4172</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4172;4200;4800;4200;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

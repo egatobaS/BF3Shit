@@ -1915,6 +1915,8 @@ class ResourceManager
 {
 public:
 
+#pragma warning( disable : 4200 )
+
 	class Compartment
 	{
 	public:
