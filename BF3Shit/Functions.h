@@ -33,6 +33,8 @@ void DrawBoneLine(ClientPlayer * entity, int tagname1, int tagname2, D3DCOLOR co
 
 void DoAllBones(ClientPlayer * Client, D3DCOLOR boneESPCol);
 
+float GetDistance(Vector3 c1, Vector3 c2);
+
 bool DrawESP();
 
 float solveQuadratic(float a, float b, float c);

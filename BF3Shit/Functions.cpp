@@ -493,6 +493,12 @@ void DoAllBones(ClientPlayer* Client, D3DCOLOR boneESPCol)
 	DrawBoneLine(Client, UpdatePoseResultData::RightKneeRoll, UpdatePoseResultData::RightFoot, boneESPCol);
 }
 
+float GetDistance(Vector3 c1, Vector3 c2)
+{
+	Vector3 Sub = c1 - c2;
+	return (sqrt((float)((Sub.x * Sub.x) + (Sub.y * Sub.y) + (Sub.z * Sub.z))) / 55.0f);
+}
+
 bool DrawESP() //TODO: BoneESP and a Visibility Check
 {
 	for (int i = 0; i < 24; i++)
@@ -543,6 +549,36 @@ bool DrawESP() //TODO: BoneESP and a Visibility Check
 
 		Vector3 ClientPosition = pCSP->m_Position;
 
+		ClientSoldierEntity* LocalpCSE = GetLocalPlayer()->GetClientSoldier();
+		if (!MmIsAddressValidPtr(LocalpCSE))
+			continue;
+
+		ClientSoldierPrediction* LocalpCSP = LocalpCSE->m_pClientSoldierPrediction;
+		if (!MmIsAddressValidPtr(LocalpCSP))
+			continue;
+
+		Vector3 LocalPosition = LocalpCSP->m_Position;
+
+		if (bEnemyName || bESPFriendly)
+		{
+			float fFontSize = (0.3 - (GetDistance(LocalPosition, ClientPosition) / 100));
+			if (fFontSize < 0.2)
+				fFontSize = 0.2;
+
+			Vector3 PlayerHead;
+
+			if (GetBone(Target->GetClientSoldier(), &PlayerHead, UpdatePoseResultData::Head))
+			{
+				float fHeight = PlayerHead.y - ClientPosition.y;
+
+				Vector3 ScreenCoords;
+				if (WorldToScreen(PlayerHead, &ScreenCoords))
+				{
+					float y = ((ScreenCoords.y) - (fHeight + ((m_Font.GetFontHeight() * fFontSize) * 2)) + (m_Font.GetFontHeight() * fFontSize));
+					DrawTextCentered(Target->m_Name, ScreenCoords.x, y, fFontSize, D3DCOLOR_RGBA(255, 255, 255, 255), 0);
+				}
+			}
+		}
 
 		if (Target->m_teamId == GetLocalPlayer()->m_teamId)
 		{
