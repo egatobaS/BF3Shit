@@ -17,11 +17,8 @@
 
 #include <AtgApp.h>
 #include <AtgFont.h>
-#include <AtgInput.h>
-#include <AtgMesh.h>
 #include <AtgResource.h>
 #include <AtgUtil.h>
-#include <AtgSimpleShaders.h>
 
 #include "Detour.h"
 #include "Utils.h"

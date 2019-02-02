@@ -7,7 +7,7 @@ D3DDevice_Present_t D3DDevice_PresentOriginal;
 
 int D3DDevice_PresentHook(D3DDevice* pDevice, unsigned long long r4, unsigned long long r5, unsigned long long r6, unsigned long long r7) {
 
-	ATG::g_pd3dDevice = (ATG::D3DDevice*)*(int*)((((int)pDevice) + 0x18));
+	ATG::g_pd3dDevice = (D3DDevice*)*(int*)((((int)pDevice) + 0x18));
 
 	InitTexture();
 

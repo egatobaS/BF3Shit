@@ -7,7 +7,6 @@
 // Copyright (C) Microsoft Corporation. All rights reserved.
 //--------------------------------------------------------------------------------------
 #include "stdafx.h"
-#include "AtgDevice.h"
 #include "AtgResource.h"
 #include "AtgUtil.h"
 
@@ -83,10 +82,12 @@ VOID* PackedResource::GetData( const CHAR* strName ) const
 // Name: AllocateContiguousMemory()
 // Desc: Wrapper for XMemAlloc
 //--------------------------------------------------------------------------------------
+
+
 static __forceinline void* AllocateContiguousMemory( DWORD Size, DWORD Alignment,
                                                      DWORD Protection = XALLOC_MEMPROTECT_WRITECOMBINE )
 {
-    return XMemAlloc( Size, MAKE_XALLOC_ATTRIBUTES( 0, 0, 0, 0, eXALLOCAllocatorId_AtgResource,
+    return XMemAlloc( Size, MAKE_XALLOC_ATTRIBUTES( 0, 0, 0, 0, eXALLOCAllocatorId_XBOXKERNEL,
                                                     Alignment, Protection, 0,
                                                     XALLOC_MEMTYPE_PHYSICAL ) );
 }
@@ -98,7 +99,7 @@ static __forceinline void* AllocateContiguousMemory( DWORD Size, DWORD Alignment
 //--------------------------------------------------------------------------------------
 static __forceinline VOID FreeContiguousMemory( VOID* pData )
 {
-    return XMemFree( pData, MAKE_XALLOC_ATTRIBUTES( 0, 0, 0, 0, eXALLOCAllocatorId_AtgResource,
+    return XMemFree( pData, MAKE_XALLOC_ATTRIBUTES( 0, 0, 0, 0, eXALLOCAllocatorId_XBOXKERNEL,
                                                     0, 0, 0, XALLOC_MEMTYPE_PHYSICAL ) );
 }
 

@@ -114,6 +114,8 @@ void DoInvisible()
 void AddMenuOptions()
 {
 	MainMenu = MenuBase.CreateSubMenu("Main Menu");
+	MenuBase.AddCall("Set Draw At Current Origin", "", SetDraw);
+
 	MenuBase.AddSubMenuLink("Movement", "", &MovementMenu);
 	MenuBase.AddSubMenuLink("Aimbot", "", &AimbotMenu);
 	MenuBase.AddSubMenuLink("Weapon mods", "", &WeaponMenu);

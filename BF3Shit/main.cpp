@@ -13,8 +13,12 @@ void MainThread()
 	while (RunThread)
 	{
 		if (ATG::g_pd3dDevice && !IsFontInit)
+		{
 			InitFont();
 
+			break;
+		}
+		
 		Sleep(1);
 	}
 

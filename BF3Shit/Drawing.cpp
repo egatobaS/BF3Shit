@@ -71,8 +71,6 @@ bool InitTexture()
 		return IsTextureInit;
 	}
 
-	m_Font.SetWindow(ATG::GetTitleSafeArea());
-
 	IsTextureInit = true;
 
 	printf("Texture Creation Succesful\n");
@@ -163,6 +161,8 @@ wchar_t* charToWChar(const char* text)
 
 void DrawText(const char *Text, float x, float y, float scale, D3DCOLOR Color, int Flags)
 {
+	if (x < 0 || y < 0) return;
+
 	m_Font.Begin();
 	wchar_t* wcstr = charToWChar(Text);
 
