@@ -8,37 +8,6 @@ TL-------------------TR
 BL-------------------BR
 */
 
-struct MatrixCoords
-{
-	/*
-	float TL_X;	//0x70
-	float TL_Y;	//0x74
-	float TL_Z;	//0x78
-	*/
-	Vector3 TL;
-
-	/*
-	float TR_X;	//0x7C
-	float TR_Y;	//0x80
-	float TR_Z;	//0x84
-	*/
-	Vector3 TR;
-
-	/*
-	float BR_X;	//0x88
-	float BR_Y;	//0x8C
-	float BR_Z;	//0x90
-	*/
-	Vector3 BR;
-
-	/*
-	float BL_X; //0x94
-	float BL_Y; //0x98
-	float BL_Z;	//0x9C
-	*/
-	Vector3 BL;
-};
-
 typedef struct
 {
 	char padding00[0x3C];

@@ -3,6 +3,49 @@
 unsigned int WaitTime = 0;
 unsigned int TimeCount = 0;
 
+extern "C"  BOOL MmIsAddressValid(PVOID Address);
+
+const DWORD MMIORangeTable[] =
+{
+ 0x7FC80000,
+ 0x7FC9FFFF,
+ 0x7FD00000,
+ 0x7FDFFFFF,
+ 0x7FEA0000,
+ 0x7FEAFFFF,
+ 0x7FED0000,
+ 0x7FEDFFFF,
+ 0x7FED0000,
+ 0x7FEDFFFF,
+ 0x8FFF0000,
+ 0x8FFF0FFF,
+ 0x8FFF1000,
+ 0x8FFF1FFF,
+ 0x00000000,
+ 0x00000000,
+
+};
+
+BOOL FIsMmIoAddress(PVOID addr)
+{
+	int i = 0;
+
+	for (i = 0; MMIORangeTable[i]; i += 2) {
+		if (((DWORD)addr > MMIORangeTable[i]) && ((DWORD)addr < MMIORangeTable[i + 1]))
+			return TRUE;
+	}
+
+	return FALSE;
+}
+
+bool MmIsAddressValidPtr(void* ptr)
+{
+	if (((int)ptr > 0x30000000))
+		return (!FIsMmIoAddress(ptr) && MmIsAddressValid(ptr));
+
+	return false;
+}
+
 BOOL FileExists(LPCSTR lpFileName)
 {
 	if (GetFileAttributes(lpFileName) == -1) {

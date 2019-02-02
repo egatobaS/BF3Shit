@@ -14,11 +14,11 @@ int D3DDevice_PresentHook(D3DDevice* pDevice, unsigned long long r4, unsigned lo
 	if (IsFontInit && IsTextureInit)
 	{
 		DrawMenu();
+		DrawESP();
 	}
 
 	return D3DDevice_PresentOriginal(pDevice, r4, r5, r6, r7);;
 }
-
 
 DWORD XamInputGetStateHook(DWORD dwUserIndex, DWORD r4, PXINPUT_STATE pState)
 {

@@ -4,6 +4,7 @@ extern Menu MenuBase;
 
 extern float FlySpeed;
 extern float fTeleHeight;
+extern float fCompassSize;
 
 extern int ArrayEnumarator;
 
@@ -67,6 +68,8 @@ extern bool pAim;
 extern bool bFriendName;
 extern bool bEnemyName;
 extern bool bDrawRadar;
+extern bool bECompass;
+extern bool bFCompass;
 
 extern bool bOHK;
 

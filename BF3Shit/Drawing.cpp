@@ -16,7 +16,6 @@ wstring widen(const string& str)
 	return wstm.str();
 }
 
-
 D3DRECT GetTitleSafeArea()
 {
 	D3DDISPLAYMODE mode;
@@ -29,8 +28,6 @@ D3DRECT GetTitleSafeArea()
 	rcSafeArea.y2 = (LONG)(mode.Height * 1.0f);
 	return rcSafeArea;
 }
-
-
 
 bool InitFont()
 {

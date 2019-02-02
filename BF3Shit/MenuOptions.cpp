@@ -64,13 +64,16 @@ bool pAim = false;
 bool bFriendName = false;
 bool bEnemyName = false;
 bool bDrawRadar = false;
+bool bECompass = false;
+bool bFCompass = false;
 
 float damage = 100.0f;
 float FlySpeed = 10.0f;
 float fTeleHeight = 50.0f;
+float fCompassSize = 120.0f;
 
 int ESPType = 0;
-int MainMenu = 0, MovementMenu = 0, AimbotMenu = 0, WeaponMenu = 0, ClassCustomizationMenu = 0, SendChatMenu = 0, ESPMenu = 0, EnemyESPMenu = 0, FriendlyESPMenu = 0, VehicleESPMenu = 0, EntityESPMenu = 0;
+int MainMenu = 0, MovementMenu = 0, AimbotMenu = 0, WeaponMenu = 0, ClassCustomizationMenu = 0, SendChatMenu = 0, ESPMenu = 0, EnemyESPMenu = 0, FriendlyESPMenu = 0, VehicleESPMenu = 0, EntityESPMenu = 0, CompassMenu = 0;
 int Gun[] = { 0x7ECAA648, 0x74E2BFBA, 0x449E68FC, 0x7475B83D, 0x66ACC2FE, 0x270013D1, 0xDE801D07, 0xDFC9E5A, 0x231EBF24, 0xA9BEFA95 };
 int Spoof[] = { 0xA6784811, 0x7ECAA648, 0x74E2BFBA, 0xADD2FC9A, 0x4BE5D515, 0x256F047E, 0x490A8A5F, 0xBF93FD19, 0x697AA0D0, 0xD1ABE5D3, 0xC25A2EB5, 0x6C6ACD2B };
 
@@ -160,7 +163,6 @@ void AddMenuOptions()
 	MenuBase.AddListBox("Set Grenade", "Sets your weapon to the selected option.", &GrenadeWeaponArrayEnumarator, OptionArray, 10, SetGrenade);
 	MenuBase.AddCall("Invisibility", "Makes your player invisible to other clients. [YOU HAVE TO RESPAWN]", DoInvisible);
 
-
 	SendChatMenu = MenuBase.CreateSubMenu("Chat Message");
 	MenuBase.AddCall("Made by Trojan041 and Sabotage!", "Sends a chat message.", SendChatMessage, "s", 1, L"Made by Trojan041 and Sabotage!");
 	MenuBase.AddCall("Trojan041#1337", "Sends a chat message.", SendChatMessage, "s", 1, L"Trojan041#1337");
@@ -174,16 +176,20 @@ void AddMenuOptions()
 	MenuBase.AddCall("Shoutout windows defender", "Sends a chat message.", SendChatMessage, "s", 1, L"Shoutout windows defender");
 	MenuBase.AddCall("El Carterino was here!", "Sends a chat message.", SendChatMessage, "s", 1, L"El Carterino was here!");
 
-
 	ESPMenu = MenuBase.CreateSubMenu("ESP");
 	MenuBase.AddListBox("ESP Type", "Choose the ESP Type.", &ESPType, ESPArray, 2);
 	MenuBase.AddBool("Target Info", "Enable this to display information about your client.", &bTargetInfo);
 	MenuBase.AddBool("UAV", "Shows all players on the minimap.", &bUAV);
-	MenuBase.AddBool("Compass", "Draws a directional radar pointing towards enemies", &bDrawRadar);
+	MenuBase.AddSubMenuLink("Compass", "", &CompassMenu);
 	MenuBase.AddSubMenuLink("Enemies", "", &EnemyESPMenu);
 	MenuBase.AddSubMenuLink("Friendly", "", &FriendlyESPMenu);
 	MenuBase.AddSubMenuLink("Vehicles", "", &VehicleESPMenu);
 	MenuBase.AddSubMenuLink("Entity", "", &EntityESPMenu);
+
+	CompassMenu = MenuBase.CreateSubMenu("Compass");
+	MenuBase.AddFloat("Compass Size", "Defines the size of the compass.", &fCompassSize, 5.0f, 120.0f, 320.0f);
+	MenuBase.AddBool("Draw Enemies", "Draws all your enemies on the compass.", &bECompass);
+	MenuBase.AddBool("Draw Friendlies", "Draws all your friendlies on the compass.", &bFCompass);
 
 	EnemyESPMenu = MenuBase.CreateSubMenu("Enemy");
 	MenuBase.AddBool("Enemy ESP", "Enable ESP for enemies.", &bESPEnemy);

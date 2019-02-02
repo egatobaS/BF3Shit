@@ -68,11 +68,11 @@ typedef struct Vector3
 
 	const Vector3 &RoundHalfUpF()
 	{
-		return Vector3((float)floor(this->x + 0.5), (float)floor(this->y + 0.5), (float)floor(this->z + 0.5));
+		return Vector3(floor(this->x + 0.5), floor(this->y + 0.5), floor(this->z + 0.5));
 	}\
 		const Vector3 &RoundHalfDown()
 	{
-		return Vector3((float)floor(this->x + 0.5), (float)floor(this->y + 0.5), (float)floor(this->z + 0.5));
+		return Vector3(floor(this->x + 0.5), floor(this->y + 0.5), floor(this->z + 0.5));
 	}
 } Vector3, *PVector3;
 
@@ -335,13 +335,13 @@ namespace fb
 	class RelocArray
 	{
 	private:
-		int m_count; //0x0
+		UINT m_count; //0x0
 #pragma pack(push,4)
 		T* m_data; //0x4
 #pragma pack(pop)
 
 	public:
-		int Size() { return m_count; }
+		UINT Size() { return m_count; }
 		T At(INT index) { return *(T*)((intptr_t)m_data + (index * sizeof(T))); }
 		T operator[](INT index) { return At(index); }
 	};
@@ -1119,7 +1119,7 @@ class TeamEntityData
 public:
 	char pad_0000[96]; //0x0000
 	class TeamData* m_TeamData; //0x0060
-	int m_id; //0x0064
+	int32_t m_id; //0x0064
 	char pad_0068[28]; //0x0068
 }; //Size: 0x0084
 
@@ -1139,8 +1139,8 @@ public:
 	};
 
 	char pad_0000[480]; //0x0000
-	long long m_DigitalBitFlags; //0x01E0
-	int m_CustomBitFlags; //0x01E8
+	int64_t m_DigitalBitFlags; //0x01E0
+	int32_t m_CustomBitFlags; //0x01E8
 	float m_DeltaTime; //0x01EC
 	float m_TimeBehind; //0x01F0
 	Vector2 m_WeaponAngles; //0x01F4
@@ -1490,15 +1490,15 @@ public:
 	class GunSwayData* m_data; //0x0004
 	char pad_0008[180]; //0x0008
 	float m_TimeSinceLastShot; //0x00BC
-	int m_cameraRecoilDeviation; //0x00C0
+	int32_t m_cameraRecoilDeviation; //0x00C0
 	char pad_00C4[148]; //0x00C4
-	int m_seed; //0x0158
+	uint32_t m_seed; //0x0158
 	float m_randomAngle; //0x015C
 	float m_randomRadius; //0x0160
-	int m_fireShot; //0x0164
+	int8_t m_fireShot; //0x0164
 	char pad_0165[3]; //0x0165
-	int m_initialFireShot; //0x0168
-	int m_IsFiring; //0x016C
+	uint32_t m_initialFireShot; //0x0168
+	int8_t m_IsFiring; //0x016C
 };//Size=0x0C44
 
 class BulletEntityData
@@ -1525,10 +1525,10 @@ public:
 	float m_DamageFallOff; //0x00F8
 	float m_DamageFallOffEndDistance; //0x00FC
 	float m_TimeToArmExplosion; //0x0100
-	int m_bHasVehicleDetination; //0x0104
-	int m_bInstantHit; //0x0105
-	int m_bStopTrail; //0x0106
-	int m_bUnk; //0x0107
+	int8_t m_bHasVehicleDetination; //0x0104
+	int8_t m_bInstantHit; //0x0105
+	int8_t m_bStopTrail; //0x0106
+	int8_t m_bUnk; //0x0107
 	char pad_0108[828]; //0x0108
 }; //Size: 0x0444
 
@@ -1542,13 +1542,13 @@ public:
 	char pad_0090[8]; //0x0090
 	class BulletEntityData* m_pBulletEntityData; //0x0098
 	char pad_009C[20]; //0x009C
-	int m_numberOfBulletsPerShell; //0x00B0
-	int m_numberOfBulletsPerShot; //0x00B4
-	int m_numberOfBulletsPerBurst; //0x00B8
-	int m_relativeTargetAiming; //0x00BC
-	int m_forceSpawnToCamera; //0x00BD
-	int m_activeForceSpawnToCamera; //0x00BE
-	int m_SpawnVisualAtBone; //0x00BF
+	uint32_t m_numberOfBulletsPerShell; //0x00B0
+	uint32_t m_numberOfBulletsPerShot; //0x00B4
+	uint32_t m_numberOfBulletsPerBurst; //0x00B8
+	int8_t m_relativeTargetAiming; //0x00BC
+	int8_t m_forceSpawnToCamera; //0x00BD
+	int8_t m_activeForceSpawnToCamera; //0x00BE
+	int8_t m_SpawnVisualAtBone; //0x00BF
 	char pad_00C0[92]; //0x00C0
 	float m_TriggerPullWeight; //0x011C
 	float m_RateOfFire; //0x0120
@@ -1585,7 +1585,7 @@ public:
 	char pad_0000[8]; //0x0000
 	class ZoomLevelData** m_ZoomLevels; //0x0008
 	char pad_000C[4]; //0x000C
-	int m_AimAssist; //0x0010
+	int32_t m_AimAssist; //0x0010
 	float m_StandPose; //0x0014
 	char pad_0018[20]; //0x0018
 	float m_CrouchPose; //0x002C
@@ -1607,9 +1607,9 @@ public:
 	char pad_0098[4]; //0x0098
 	class SoldierWeaponData* m_pSoldierWeaponData; //0x009C
 	char pad_00A0[4]; //0x00A0
-	int m_weaponState; //0x00A4
-	int m_lastWeaponState; //0x00A8
-	int m_nextWeaponState; //0x00AC
+	int32_t m_weaponState; //0x00A4
+	int32_t m_lastWeaponState; //0x00A8
+	int32_t m_nextWeaponState; //0x00AC
 	char pad_00B0[8]; //0x00B0
 	float m_timeToWait; //0x00B8
 	float m_reloadTimer; //0x00BC
@@ -1622,15 +1622,15 @@ public:
 	float m_recoilTimeMultiplier; //0x00D8
 	float m_overheatDropMultiplier; //0x00DC
 	char pad_00E0[16]; //0x00E0
-	int m_externalPrimaryMagazineCapacity; //0x00F0
-	int m_Ammo; //0x00F4
-	int m_ExtraAmmo; //0x00F8
+	int32_t m_externalPrimaryMagazineCapacity; //0x00F0
+	uint32_t m_Ammo; //0x00F4
+	uint32_t m_ExtraAmmo; //0x00F8
 	char pad_00FC[4]; //0x00FC
-	int m_hasStoppedFiring; //0x0100
-	int m_primaryFireTriggeredLastFrame; //0x0101
-	int m_isOverheated; //0x0102
+	int8_t m_hasStoppedFiring; //0x0100
+	int8_t m_primaryFireTriggeredLastFrame; //0x0101
+	uint8_t m_isOverheated; //0x0102
 	char pad_0103[9]; //0x0103
-	int m_Ticks; //0x010C
+	uint32_t m_Ticks; //0x010C
 	char pad_0110[52]; //0x0110
 }; //Size: 0x0144
 
@@ -1644,7 +1644,7 @@ public:
 		float m_SprintPowerDecreasePerSecond; //0x0008
 		float m_SprintPowerIncreasePerSecond; //0x000C
 		float m_SprintMinimumPower; //0x0010
-		int m_AllowContinousSprinting; //0x0014
+		uint8_t m_AllowContinousSprinting; //0x0014
 	};
 	//char pad_0000[8]; //0x0000
 	//char* m_Name; //0x0008
@@ -1652,8 +1652,8 @@ public:
 	//intptr_t m_DefaultState; //0x0010
 	//char pad_0014[4]; //0x0014
 	//class CharacterSprintData* m_pSprint; //0x0018
-	//int m_MaterialPair; //0x001C
-	//int m_PushableObjectWeight; //0x0020
+	//int32_t m_MaterialPair; //0x001C
+	//int32_t m_PushableObjectWeight; //0x0020
 	//float m_Mass; //0x0024
 	//float m_MaxAscendAngle; //0x0028
 	//float m_PhysicalRadius; //0x002C
@@ -1665,8 +1665,8 @@ public:
 	//float m_JumpPenaltyTime; //0x0044
 	//float m_JumpPenaltyFactor; //0x0048
 	//float m_RadiusToPredictCollisionOnCharacters; //0x004C
-	//int m_AllowPoseChangeDuringTransition; //0x0050
-	//int m_AutoPushAwayFromWallsInProne; //0x0051
+	//uint8_t m_AllowPoseChangeDuringTransition; //0x0050
+	//uint8_t m_AutoPushAwayFromWallsInProne; //0x0051
 };
 
 class FixWeaponModifier
@@ -1685,11 +1685,11 @@ public:
 	char pad_0001[0x38]; //0x0000
 	class UnlockAssetBase* m_pWeaponUnlockAsset; //0x0034
 	char pad_0038[112]; //0x0048
-	int m_EnableBreathControl; //0x00B8
-	int m_CanBeInSupportedShooting; //0x00B9
-	int m_UnZoomOnBoltAction; //0x00BA
-	int m_HoldBoltActionUntilZoomRelease; //0x00BB
-	int m_IsSilenced; //0x00BC
+	int8_t m_EnableBreathControl; //0x00B8
+	int8_t m_CanBeInSupportedShooting; //0x00B9
+	int8_t m_UnZoomOnBoltAction; //0x00BA
+	int8_t m_HoldBoltActionUntilZoomRelease; //0x00BB
+	int8_t m_IsSilenced; //0x00BC
 
 }; //Size: 0x0184
 
@@ -1722,7 +1722,7 @@ public:
 	float m_WeaponFOV; //0x01CC
 	float m_FOVScaleFactor; //0x01D0
 	char pad_01D4[4]; //0x01D4
-	int m_ZoomLevel; //0x01D8
+	int32_t m_ZoomLevel; //0x01D8
 	char pad_01DC[1012]; //0x01DC
 	Vector4 m_lastRayBegin; //0x05D0
 	Vector4 m_lastRayEnd; //0x05E0
@@ -1823,7 +1823,7 @@ class SoldierWeaponData
 {
 public:
 	char pad_0000[100]; //0x0000
-	int m_weaponClass; //0x0064
+	int32_t m_weaponClass; //0x0064
 	char pad_0068[4]; //0x0068
 	class WeaponFiringData* m_pWeaponFiringData; //0x006C
 	char pad_0070[112]; //0x0070
@@ -1831,7 +1831,7 @@ public:
 
 	bool isRocket()
 	{
-		if (this->m_weaponClass == wcAt)
+		if (this->m_weaponClass == WeaponClassEnum::wcAt)
 		{
 			return 1;
 		}
@@ -1896,14 +1896,14 @@ public:
 	char pad_00D0[100]; //0x00D0
 	class SoldierAimingSimulation* m_pSoldierAimingSimulation; //0x0134
 	char pad_0138[28]; //0x0138
-	int m_currentZoomLevel; //0x0154
+	int32_t m_currentZoomLevel; //0x0154
 	float m_timeSinceLastShot; //0x0158
 	char pad_015C[8]; //0x015C
-	int m_activeSlot; //0x0164
-	int m_lastActiveSlot; //0x0168
-	int m_lastActiveWeaponSlot; //0x016C
+	int32_t m_activeSlot; //0x0164
+	int32_t m_lastActiveSlot; //0x0168
+	int32_t m_lastActiveWeaponSlot; //0x016C
 	char pad_0170[24]; //0x0170
-	int m_currentZoomLevel1; //0x0188
+	int32_t m_currentZoomLevel1; //0x0188
 
 	ClientSoldierWeapon* GetActiveSoldierWeapon()
 	{
@@ -1930,7 +1930,7 @@ public:
 	}; //Size: 0x0028
 
 public:
-	volatile int m_bundleLoadInProgress; //0x0000
+	volatile uint32_t m_bundleLoadInProgress; //0x0000
 	Compartment* m_compartments[]; //0x0004
 
 	static ResourceManager* GetInstance()
@@ -1965,7 +1965,7 @@ class UnlockAssetBase
 public:
 	char pad_0004[4]; //0x0004
 	char* m_name; //0x0008
-	int m_unlockUserData; //0x000C
+	int32_t m_unlockUserData; //0x000C
 	char pad_0010[4]; //0x0010
 	char* m_debugUnlockId; //0x0014
 	char pad_0018[16]; //0x0018
@@ -2219,11 +2219,11 @@ public:
 	class QuatTransform* N00003AA9; //0x005C
 	class QuatTransform* m_ActiveWorldTransforms; //0x0060
 	class QuatTransform* m_ActiveLocalTransforms; //0x0064
-	int m_Slot; //0x0068
-	int m_ReaderIndex; //0x006C
-	int m_ValidTransforms; //0x0070
-	int m_PoseUpdateEnabled; //0x0071
-	int m_PoseNeeded; //0x0072
+	int32_t m_Slot; //0x0068
+	int32_t m_ReaderIndex; //0x006C
+	int8_t m_ValidTransforms; //0x0070
+	int8_t m_PoseUpdateEnabled; //0x0071
+	int8_t m_PoseNeeded; //0x0072
 };
 
 class GameAnimatable
@@ -2265,9 +2265,9 @@ public:
 	char pad_0008[12]; //0x0008
 	class BoneTransformInfo* m_boneCollisionTransforms; //0x0014
 	char pad_0018[124]; //0x0018
-	int m_collisionBoneCount; //0x0094
-	int m_collisionEnabled; //0x0098
-	int m_collisionUpdated; //0x0099
+	uint32_t m_collisionBoneCount; //0x0094
+	int8_t m_collisionEnabled; //0x0098
+	int8_t m_collisionUpdated; //0x0099
 
 };//Size=0x0840
 
@@ -2809,21 +2809,21 @@ public:
 	};
 
 	char pad_0000[128]; //0x0000
-	int m_DefaultTeam; //0x0080
+	int32_t m_DefaultTeam; //0x0080
 	float m_LowHealthThreshold; //0x0084
-	int m_MaterialPair; //0x0088
-	int m_UsePrediction; //0x008C
-	int m_ResetTeamOnLastPlayerExits; //0x008D
-	int m_Immortal; //0x008E
-	int m_FakeImmortal; //0x008F
-	int m_ForceForegroundRendering; //0x0090
+	int32_t m_MaterialPair; //0x0088
+	uint8_t m_UsePrediction; //0x008C
+	uint8_t m_ResetTeamOnLastPlayerExits; //0x008D
+	uint8_t m_Immortal; //0x008E
+	uint8_t m_FakeImmortal; //0x008F
+	uint8_t m_ForceForegroundRendering; //0x0090
 	char pad_0091[15]; //0x0091
 	float m_MaxHealth; //0x00A0
 	PersonViewMode m_DefaultViewMode; //0x00A4
 	PlayerSpawnType PlayerSpawnType; //0x00A8
 	intptr_t* m_pVoiceOverInfo; //0x00AC
 	intptr_t* m_pSoldierSoundData; //0x00B0
-	int m_CharacterLightingEnable; //0x00B4
+	uint8_t m_CharacterLightingEnable; //0x00B4
 	char pad_00B5[43]; //0x00B5
 	class SoldierAimingConstraintsData* m_pSoldierAimingConstraintsData; //0x00E0
 	char pad_00E4[4]; //0x00E4
@@ -2834,18 +2834,18 @@ public:
 	float m_ExplosionDamageModifier; //0x010C
 	float m_RegenerationDelayModifier; //0x0110
 	float m_FallDamageThreshold; //0x0114
-	int m_UseSpineXRotation; //0x0118
-	int m_ShowWeaponWhenDead; //0x0119
-	int m_EnableGroundmapLighting; //0x011A
-	int m_LowerGunOnOwnTeam; //0x011B
-	int m_ProximityCheck; //0x011C
-	int m_FreeSpaceCheck; //0x011D
-	int m_CollisionEnabled; //0x011E
-	int m_PhysicsControlled; //0x011F
-	int m_IsPushable; //0x0120
-	int m_HumanPlayerControlled; //0x0121
-	int m_InteractiveManDownAllowed; //0x0122
-	int m_ShowNametag; //0x0123
+	uint8_t m_UseSpineXRotation; //0x0118
+	uint8_t m_ShowWeaponWhenDead; //0x0119
+	uint8_t m_EnableGroundmapLighting; //0x011A
+	uint8_t m_LowerGunOnOwnTeam; //0x011B
+	uint8_t m_ProximityCheck; //0x011C
+	uint8_t m_FreeSpaceCheck; //0x011D
+	uint8_t m_CollisionEnabled; //0x011E
+	uint8_t m_PhysicsControlled; //0x011F
+	uint8_t m_IsPushable; //0x0120
+	uint8_t m_HumanPlayerControlled; //0x0121
+	uint8_t m_InteractiveManDownAllowed; //0x0122
+	uint8_t m_ShowNametag; //0x0123
 
 };//Size=0x0440
 
@@ -2853,13 +2853,12 @@ class ClientSoldierPrediction
 {
 public:
 	char pad_0000[32]; //0x0000
-	Vector3 m_Position; //0x0020
-	float m_Unk;
+	Vector4 m_Position; //0x0020
 	char pad_0030[16]; //0x0030
 	Vector4 m_Velocity; //0x0040
 	char pad_0050[28]; //0x0050
-	int m_Pose; //0x006C
-	int m_ChangingToPose; //0x0070
+	int32_t m_Pose; //0x006C
+	int32_t m_ChangingToPose; //0x0070
 };//Size=0x00A0
 
 class ClientSpottingTargetComponent
@@ -2886,14 +2885,14 @@ public:
 		float m_PassiveSpottedTimeMultiplier; //0x0030
 		float m_SpotOnFireMultiplier; //0x0034
 		float m_RadarSpottedSpeedThresholdOverride; //0x0038
-		int m_TargetBoundingBoxCenter; //0x003C
-		int m_CalculateAngleOutsideBoundingSphere; //0x003D
+		int8_t m_TargetBoundingBoxCenter; //0x003C
+		int8_t m_CalculateAngleOutsideBoundingSphere; //0x003D
 	};
 
 	char pad_0000[4]; //0x0000
 	class SpottingTargetComponentData* m_pSpottingTargetComponentData; //0x0004
 	char pad_0008[16]; //0x0008
-	int m_spotType; //0x0018
+	uint32_t m_spotType; //0x0018
 	class ClientPlayer* m_spotterPlayer; //0x001C
 	class ClientPlayer* m_playerThatOrders; //0x0020
 	float m_lastOrderTime; //0x0024
@@ -2903,10 +2902,10 @@ public:
 class SprintInputHandler
 {
 public:
-	int m_currentState; //0x0000
+	uint32_t m_currentState; //0x0000
 	float m_doubleTapTimer; //0x0004
 	float m_sprintReleaseTimer; //0x0008
-	int m_waitForSprintRelease; //0x000C
+	uint32_t m_waitForSprintRelease; //0x000C
 
 };
 
@@ -2925,12 +2924,12 @@ struct BoneCollisionData
 	PitchModifier N0000087F; //0x0038 
 	char pad_0x0050[0x8]; //0x0050
 	char* m_pBoneName; //0x0060 
-	int m_AnimationHitReactionType; //0x0068 
+	__int32 m_AnimationHitReactionType; //0x0068 
 	DWORD m_MaterialPair; //0x006C 
-	int m_BoneAxis; //0x0070 
+	__int32 m_BoneAxis; //0x0070 
 	float m_CapsuleLength; //0x0074 
 	float m_CapsuleRadius; //0x0078 
-	int m_pAimAssistTarget; //0x0080 
+	__int32 m_pAimAssistTarget; //0x0080 
 	unsigned char m_ValidInHiLod; //0x0088 
 	unsigned char m_ValidInLowLod; //0x0089 
 	unsigned char m_DeactivateIfBehindWall; //0x008A 
@@ -2972,9 +2971,9 @@ public:
 	class MovementComponentData* m_pMovementComponentData; //0x0008
 	char pad_000C[28]; //0x000C
 	class ClientSoldierEntity* m_pSoldier; //0x0028
-	int m_State; //0x002C
+	int8_t m_State; //0x002C
 	char pad_002D[7]; //0x002D
-	int m_Move; //0x0034
+	int8_t m_Move; //0x0034
 	char pad_0035[11]; //0x0035
 	Vector3 m_LastPos; //0x0040
 	char pad_004C[40]; //0x004C
@@ -3004,7 +3003,7 @@ public:
 	float m_breathControlMultiplier; //0x0008
 	float m_breathControlPenaltyTimer; //0x000C
 	float m_breathControlPenaltyMultiplier; //0x0010
-	int m_State; //0x0014 0 - no breath, 3 - breath hold, 2 - penalty
+	uint8_t m_State; //0x0014 0 - no breath, 3 - breath hold, 2 - penalty
 }; //Size: 0x0084
 
 class ClientSoldierReplication
@@ -3023,9 +3022,9 @@ public:
 	char pad_0008[12]; //0x0008
 	class BoneTransformInfo* m_boneCollisionTransforms; //0x0014
 	char pad_0018[124]; //0x0018
-	int m_collisionBoneCount; //0x0094
-	int m_collisionEnabled; //0x0098
-	int m_collisionUpdated; //0x0099
+	uint32_t m_collisionBoneCount; //0x0094
+	int8_t m_collisionEnabled; //0x0098
+	int8_t m_collisionUpdated; //0x0099
 	char pad_009A[546]; //0x009A
 }; //Size: 0x02BC
 
@@ -3114,7 +3113,7 @@ public:
 	char pad_02B8[8]; //0x02B8
 	Matrix m_Transform; //0x02C0
 	char pad_0300[4]; //0x0300
-	int m_PoseType; //0x0304
+	int32_t m_PoseType; //0x0304
 	char m_pUnktry;
 	char pad_0308[59]; //0x0308
 	class N00004B4B* N00001E09; //0x0344
@@ -3122,16 +3121,16 @@ public:
 	class BFClientSoldierHealthComponent* m_healthModule; //0x0354
 	float m_deathTimer; //0x0358
 	class ClientSoldierWeaponsComponent* m_pClientSoldierWeaponsComponent; //0x035C
-	int ClientSoldierBodyComponent; //0x0360
+	int32_t ClientSoldierBodyComponent; //0x0360
 	class ClientBoneCollisionComponent* m_pClientBoneCollisionComponent; //0x0364
 	class ClientRagDollComponent* m_pClientRagdollComponent; //0x0368
 	char pad_036C[4]; //0x036C
 	class ClientSoldierBreathControlComponent* m_pBreathControlHandler; //0x0370
 	class SprintInputHandler* m_pSprintInputHandler; //0x0374
-	int m_sprintInterruptAction; //0x0378
+	int32_t m_sprintInterruptAction; //0x0378
 	float m_timeSinceLastSprinted; //0x037C
-	int m_sprinting; //0x0380
-	int m_occluded; //0x0381
+	int8_t m_sprinting; //0x0380
+	int8_t m_occluded; //0x0381
 	char pad_0382[6]; //0x0382
 	float m_criticalHealthThreshold; //0x0388
 	char pad_038C[180]; //0x038C
@@ -3176,8 +3175,8 @@ public:
 		float m_AutoDeployInitialDelay; //0x00D8
 		float m_AutoDeployGroundDistance; //0x00DC
 		float m_AutoDeployMinGroundDistance; //0x00E0
-		int m_AutoDeployEnabled; //0x00E4
-		int m_AutoDeployOnceOnSpawnOnly; //0x00E5
+		uint8_t m_AutoDeployEnabled; //0x00E4
+		uint8_t m_AutoDeployOnceOnSpawnOnly; //0x00E5
 
 	};
 
@@ -3190,11 +3189,11 @@ public:
 	class CharacterPhysicsEntity* m_pPhysicsEntity; //0x00B0
 	class AimingConstraints* m_pAimingContraints; //0x00B4
 	char pad_00B8[72]; //0x00B8
-	int m_State; //0x0100
+	uint32_t m_State; //0x0100
 	Vector2 m_View; //0x0104
 	Vector2 m_DeltaView; //0x010C
 	Vector2 m_AuthoratativeView; //0x0114
-	int m_SoldierInParachute; //0x011C
+	uint8_t m_SoldierInParachute; //0x011C
 
 	void Tweak()
 	{
@@ -3219,8 +3218,8 @@ class DynamicPhysicsEntity
 public:
 	char pad_0000[96]; //0x0000
 	AxisAlignedBox m_rbAabb; //0x0060
-	int bitSetMask; //0x0080
-	int bitCount; //0x0084
+	int32_t bitSetMask; //0x0080
+	uint32_t bitCount; //0x0084
 	class Matrix* m_pGameWorldTransformBase; //0x0088
 	class ClientPartComponent** m_pTransformNodes; //0x008C
 	char pad_0090[8]; //0x0090
@@ -3295,7 +3294,7 @@ public:
 	float m_maxShieldHealth; //0x0004
 	float m_damageAngleMultiplier; //0x0008
 	float m_minDamageAngle; //0x000C
-	int m_useDamageAngleCalculation; //0x0010
+	int32_t m_useDamageAngleCalculation; //0x0010
 	char pad_0014[48]; //0x0014
 }; //Size: 0x0044
 
@@ -3305,9 +3304,9 @@ public:
 	class VehicleHealthZoneData* m_pVehicleHealthZoneData; //0x0000
 	float health; //0x0004
 	float shieldHealth; //0x0008
-	int useProtectedShields; //0x000C
+	uint8_t useProtectedShields; //0x000C
 	char pad_000D[2]; //0x000D
-	int N00001B88; //0x000F
+	uint8_t N00001B88; //0x000F
 	char pad_0010[52]; //0x0010
 }; //Size: 0x0044
 
@@ -3566,15 +3565,15 @@ public:
 	char pad_0094[48]; //0x0094
 	class UnlockAssetBase* m_pSpecialization; //0x00C4
 	char pad_00C8[596]; //0x00C8
-	int m_teamId; //0x031C
+	uint32_t m_teamId; //0x031C
 	char pad_0320[164]; //0x0320
 	WeakPtr<ClientSoldierEntity> m_Corpse; //0x0EDC
 	WeakPtr<ClientSoldierEntity> m_Soldier; //0x03C8
 	WeakPtr<ClientPlayer> m_Player; //0x03CC
 	class ClientVehicleEntity* m_pAttachedControllable; //0x03D0
-	int m_AttachedEntryId; //0x03D4
+	uint32_t m_AttachedEntryId; //0x03D4
 	class ClientSoldierEntity* m_pControlledControllable; //0x03D8
-	int m_ControlledEntryId; //0x03DC
+	int32_t m_ControlledEntryId; //0x03DC
 	class EntryInputState* m_pInputState; //0x03E0
 	class EntryInputState* m_pExternalInputState; //0x03E4
 	char pad_03E8[28]; //0x03E8
@@ -3582,11 +3581,11 @@ public:
 	class ClientPlayerView* m_pOwnPlayerView; //0x0408
 	class ClientPlayerView* m_pPlayerView; //0x040C
 	char pad_0410[95]; //0x0410
-	int m_SquadId; //0x046F
-	int m_IsSquadLeader; //0x0470
-	int m_SquadClosed; //0x0471
-	int m_isAllowedToSpawnOn; //0x0472
-	int m_reviveAllowed; //0x0473
+	int8_t m_SquadId; //0x046F
+	int8_t m_IsSquadLeader; //0x0470
+	int8_t m_SquadClosed; //0x0471
+	int8_t m_isAllowedToSpawnOn; //0x0472
+	int8_t m_reviveAllowed; //0x0473
 	char pad_0474[28]; //0x0474
 	char m_FakeName[20]; //0x0490
 
@@ -3659,10 +3658,17 @@ public:
 	//virtual //vector<ClientPlayer*>* getSpectators();
 
 	class PlayerData* m_pPlayerData; //0x0004
-	int m_MaxPlayersCount; //0x0008
+	uint32_t m_MaxPlayersCount; //0x0008
 	char pad_000C[176]; //0x000C
 	class ClientPlayer* m_pLocalPlayer; //0x00BC
 	class ClientPlayer** m_ppPlayers; //0x00C0
+
+	ClientPlayer* GetPlayerById(unsigned int id)
+	{
+		if (id < 24)
+			return this->m_ppPlayers[id];
+		return NULL;
+	}
 };
 
 enum ChatChannelType
@@ -3699,6 +3705,7 @@ public:
 	}
 };
 
+
 class Material
 {
 public:
@@ -3708,7 +3715,7 @@ public:
 		MFClientDestructable = 0x40000000,
 		MFPenetrable = 0x8
 	};
-	int m_flagsAndIndex;
+	UINT32 m_flagsAndIndex;
 	__forceinline bool isPenetrable()
 	{
 		return (m_flagsAndIndex & MFPenetrable);
@@ -3747,7 +3754,7 @@ public:
 		AimbotFlags = (0x4 | 0x10 | 0x20 | 0x80)
 	};
 	virtual bool physicsRayQuery(char* text, Vector4 *from, Vector4 *to, RayCastHit *hit, int flag, void* PhysicsEntityList);
-	virtual struct SafeQueryResult* asyncPhysicsRayQuery(const char *ident, Vector4 *from, Vector4 *to, unsigned int flags, void* excluded);
+	virtual struct SafeQueryResult   * asyncPhysicsRayQuery(const char *ident, Vector4 *from, Vector4 *to, unsigned int flags, void* excluded);
 
 };
 class EntityWorld
@@ -3764,9 +3771,9 @@ public:
 	{
 	public:
 		void* entity;				// 0x00 Entity
-		int func;				// 0x04
+		int32_t func;				// 0x04
 		void* creator;		// 0x08 EntityCreator
-		int userData;			// 0x0C
+		int32_t userData;			// 0x0C
 	}; // 0x10
 	class EntityCollectionSegment
 	{
@@ -3826,12 +3833,12 @@ public:
 class GameWorld : public EntityWorld, public IPhysicsRayCaster
 {
 public:
-	int m_spatialQueryManager;	// 0x844 SpatialQueryManager*
+	int32_t m_spatialQueryManager;	// 0x844 SpatialQueryManager*
 	void* m_physicsManager;// 0x848 IPhysicsManager*
-	int m_terrainHeightFunc;		// 0x84C
-	int m_hasTerrainFunc;		// 0x850
-	int m_terrainMaterial;		// 0x854
-	int m_getSoldierFunc;		// 0x858
+	int32_t m_terrainHeightFunc;		// 0x84C
+	int32_t m_hasTerrainFunc;		// 0x850
+	int32_t m_terrainMaterial;		// 0x854
+	int32_t m_getSoldierFunc;		// 0x858
 };
 
 class ExplosionEntityData
@@ -3841,9 +3848,9 @@ public:
 	void* m_DetonationEffectForFriendlies; //+0x68 EffectBlueprint
 	void* m_MaskVolume; //+0x70 MaskVolumeEntityData
 	void* m_DestructionMaskVolume; //+0x78 DestructionMaskVolumeEntityData
-	int m_MaterialPair; //+0x80
-	int m_SecondaryMaterialPair; //+0x84
-	int m_DamageIndicationType; //+0x88
+	int32_t m_MaterialPair; //+0x80
+	int32_t m_SecondaryMaterialPair; //+0x84
+	int32_t m_DamageIndicationType; //+0x88
 	float m_EmpTime; //+0x8C
 	float m_MaxOcclusionRaycastRadius; //+0x90
 	float m_InnerBlastRadius; //+0x94
@@ -3894,19 +3901,19 @@ public:
 	class DamageData
 	{
 	public:
-		int victimPlayerId; //0x0000
-		int victimInstanceId; //0x0004 Health+0x168
-		int inflictorPlayerId; //0x0008
-		int hitType; //0x000C
+		int32_t victimPlayerId; //0x0000
+		int32_t victimInstanceId; //0x0004 Health+0x168
+		int32_t inflictorPlayerId; //0x0008
+		int32_t hitType; //0x000C
 		class UnlockAssetBase* weaponUnlockAsset; //0x0010
 		char pad_0014[12]; //0x0014
 		Vector4 direction; //0x0020
 		float damage; //0x0030
-		int clientAiKilled; //0x0034
+		int8_t clientAiKilled; //0x0034
 		char pad_0035[3]; //0x0035
-		int dw38; //0x0038
-		int dw3c; //0x003C
-		int id; //0x0040
+		int32_t dw38; //0x0038
+		int32_t dw3c; //0x003C
+		int8_t id; //0x0040
 	};//Size=0x0440
 
 	virtual bool OnWriteDamageEvents(PVOID lpBitStreamWrite);    // V: 0x0 
@@ -3944,7 +3951,7 @@ class StreamManagerMoveClient
 public:
 	intptr_t vtable; //0x0000
 	char pad_0004[12]; //0x0004
-	int m_moves; //0x0010
+	int32_t m_moves; //0x0010
 
 }; // network::StreamManagerMoveClient
 
@@ -3952,7 +3959,7 @@ class ClientPeer
 {
 public:
 	char pad_0000[0x2FE4]; //0x0000
-	int* m_ChatManager; //0x2FE4
+	int32_t* m_ChatManager; //0x2FE4
 }; //Size: 0x3844
 
 class OnlineManager
@@ -3992,7 +3999,7 @@ public:
 class ClientGameContext
 {
 public:
-	int m_MessageManager; //0x0000
+	int32_t m_MessageManager; //0x0000
 	char pad_0004[0x8]; //0x0004
 	class GameTime* m_pGameTime; //0x000C
 	class Level* m_pLevel; //0x0010
@@ -4056,11 +4063,11 @@ public:
 class GameTime
 {
 public:
-	int m_ticks; //0x0000
-	int m_tickFrequency; //0x0004
-	int m_tickIndexInFrame; //0x0008
-	int m_lastTickIndexInFrame; //0x000C
-	int m_tickCountInFrame; //0x0010
+	uint32_t m_ticks; //0x0000
+	uint32_t m_tickFrequency; //0x0004
+	uint32_t m_tickIndexInFrame; //0x0008
+	uint32_t m_lastTickIndexInFrame; //0x000C
+	uint32_t m_tickCountInFrame; //0x0010
 	float m_deltaTime; //0x0014
 	char pad_0018[36]; //0x0018
 	float m_passedDeltaTimeInFrame; //0x003C
@@ -4093,9 +4100,9 @@ public:
 	WeakPtr<void*> m_inputTimer; //0x004C Timer2 
 	WeakPtr<void*> m_timeDemo; //0x0050 TimeDemoBase 
 	char pad2[252];
-	int m_state; //0x0150 enum ClientState 
+	int32_t m_state; //0x0150 enum ClientState 
 	char pad3[132];
-	int m_gameType; //0x01D8  
+	int32_t m_gameType; //0x01D8  
 	int m_quit; //0x01DC  
 	int m_wantsToQuit; //0x01DD  
 	int m_pauseOnStartup; //0x01DE  
@@ -4143,8 +4150,8 @@ public:
 	void* m_juiceScreenshotModule; // 0x168
 	bool m_createdOk;
 	bool m_playerHasEntered;
-	int m_quitHelper;
-	int m_settingsManagerService;
+	int32_t m_quitHelper;
+	int32_t m_settingsManagerService;
 
 	static Main* GetInstance()
 	{
@@ -4167,6 +4174,24 @@ public:
 	unsigned char m_ShooterIsAIPlayer; //0x0044 
 
 };//Size=0x0080
+class RenderViewDesc
+{
+public:
+	Matrix transform;				// 0x00
+	int32_t type;								// 0x40
+	char pad[0x4];								// 0x44
+	float fovY;								// 0x48
+	float defaultFovY;						// 0x4C
+	float nearPlane;						// 0x50
+	float farPlane;							// 0x54
+	float aspect;							// 0x58
+	float orthoWidth;						// 0x5C
+	float orthoHeight;						// 0x60
+	float stereoSeparation;					// 0x64
+	float stereoConvergence;				// 0x68
+	Vector2 viewportOffset;					// 0x6C
+	Vector2 viewportScale;						// 0x74
+};
 
 struct TransformAABBStruct
 {
@@ -4189,24 +4214,23 @@ struct ScreenshotStatus
 class ScreenshotCroppingParams
 {
 public:
-	int width; //0x0000  
-	int height; //0x0004  
-	int left; //0x0008  
-	int top; //0x000C  
-	int right; //0x0010  
-	int bottom; //0x0014  
+	uint32_t width; //0x0000  
+	uint32_t height; //0x0004  
+	uint32_t left; //0x0008  
+	uint32_t top; //0x000C  
+	uint32_t right; //0x0010  
+	uint32_t bottom; //0x0014  
 };//Size=0x0018(24)
-
 class ScreenshotParams
 {
 public:
-	int source; //0x0000 enum ScreenshotSource 
+	int32_t source; //0x0000 enum ScreenshotSource 
 	const char* explicitFilename; //0x0004  
 	char _ScreenshotParams_string_data[12]; //0x0008  
 	ScreenshotCroppingParams croppingParams; //0x0014  
-	int resolutionMultiplier; //0x002C  
-	int antialiasMultiplier; //0x0030  
-	int format; //0x0034 enum ScreenshotFormat 
+	uint32_t resolutionMultiplier; //0x002C  
+	uint32_t antialiasMultiplier; //0x0030  
+	uint32_t format; //0x0034 enum ScreenshotFormat 
 	bool alphaEnable; //0x0038  
 	bool orthoEnable; //0x0039  
 	char _ScreenshotParams_skipped_0[2]; //0x003A  
@@ -4216,14 +4240,14 @@ class ScreenshotModule
 {
 public:
 	char _ScreenshotModule_skip_0[8];		//0x0000  
-	int m_delayFrame;						//0x0008 
-	int m_resolutionFrameIndex;			//0x000C  
-	int m_antialiasFrameIndex;			//0x0010  
-	int m_lineCount;					//0x0014  
+	int32_t m_delayFrame;						//0x0008 
+	int32_t m_resolutionFrameIndex;			//0x000C  
+	int32_t m_antialiasFrameIndex;			//0x0010  
+	int32_t m_lineCount;					//0x0014  
 	const char* m_tempPath;					//0x0018  
 	const char* m_outputPath;				//0x001C  
 	char _ScreenshotModule_skipped_1[12];	//0x0024  
-	int m_counter;						//0x002C
+	uint32_t m_counter;						//0x002C
 	ScreenshotParams m_params;			//0x0030  
 	void* m_stagingTexture;					//0x0070 DxTexture 
 	char _ScreenshotModule_skipped_2[160];	//0x0074  
@@ -4298,9 +4322,9 @@ public:
 	virtual float GetValue(unsigned int);    // 0x0038 
 
 	char pad_0004[88]; //0x0004
-	int m_HWND; //0x005C
+	int32_t m_HWND; //0x005C
 	void* m_pWindowProcedure; //0x0060
-	int m_Current; //0x0064
+	int8_t m_Current; //0x0064
 }; //Size: 0x0444
 
 class Keyboard
@@ -4314,9 +4338,9 @@ public:
 class MouseState
 {
 public:
-	int X; //0x0000
-	int Y; //0x0004
-	int Z; //0x0008
+	int32_t X; //0x0000
+	int32_t Y; //0x0004
+	int32_t Z; //0x0008
 	char m_Buttons[8]; //0x000C
 }; //Size: 0x0016
 
@@ -4333,16 +4357,16 @@ public:
 	virtual float GetValue(unsigned int);    // 0x0038 
 
 	char pad_0004[88]; //0x0004
-	int m_HWND; //0x005C
+	int32_t m_HWND; //0x005C
 	void* m_pWindowProcedure; //0x0060
 	char pad_0064[20]; //0x0064
-	int m_CursorMode; //0x0078
-	int m_UIOwnsInput; //0x0079
-	int m_ShowCursor; //0x007A
-	int m_CursorConfined; //0x007B
-	int m_HasOverflowed; //0x007C
-	int m_UseRawMouseInput; //0x007D
-	int m_WindowActive; //0x007E
+	int8_t m_CursorMode; //0x0078
+	int8_t m_UIOwnsInput; //0x0079
+	int8_t m_ShowCursor; //0x007A
+	int8_t m_CursorConfined; //0x007B
+	int8_t m_HasOverflowed; //0x007C
+	uint8_t m_UseRawMouseInput; //0x007D
+	uint8_t m_WindowActive; //0x007E
 	char pad_007F[25]; //0x007F
 	MouseState m_Current; //0x0098
 	MouseState m_Buffer; //0x00AE

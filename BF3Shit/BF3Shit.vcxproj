@@ -249,6 +249,7 @@
   <ItemGroup>
     <ClCompile Include="Detour.cpp" />
     <ClCompile Include="Drawing.cpp" />
+    <ClCompile Include="Functions.cpp" />
     <ClCompile Include="GameDrawing.cpp" />
     <ClCompile Include="Hooks.cpp" />
     <ClCompile Include="main.cpp" />
@@ -260,6 +261,7 @@
   <ItemGroup>
     <ClInclude Include="Detour.h" />
     <ClInclude Include="Drawing.h" />
+    <ClInclude Include="Functions.h" />
     <ClInclude Include="GameDrawing.h" />
     <ClInclude Include="Hooks.h" />
     <ClInclude Include="main.h" />

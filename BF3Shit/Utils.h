@@ -74,6 +74,7 @@ extern "C"
 DWORD GetAddr(DWORD dwModuleBaseAddr, int Ordinal);
 HRESULT CreateSymbolicLink(PCHAR szDrive, PCHAR szDeviceName, BOOL System);
 void CreateSystemThread(void* Function, void* Param);
+bool MmIsAddressValidPtr(void * ptr);
 BOOL FileExists(LPCSTR lpFileName);
 int GetAsyncKeyState(DWORD KEY);
 void Wait(int time);

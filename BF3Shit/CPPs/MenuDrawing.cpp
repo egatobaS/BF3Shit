@@ -1,76 +1,5 @@
 #include "main.h"
 
-
-//bool worldToScreenCalculated(Vector3 vWorldLocationVec3, Vector3* vOut)
-//{
-//	int height = 720;
-//	int width = 1280;
-//	float aspect = (float)width / (float)height;
-//
-//
-//	GameRenderer* renderer = GameRenderer::Singleton();
-//
-//	if (renderer == NULL)
-//		return false;
-//
-//	
-//
-//	D3DXVECTOR3 vOrigin = D3DXVECTOR3(renderer->m_viewParams.firstPersonTransform.data[3][0], renderer->m_viewParams.firstPersonTransform.data[3][1], renderer->m_viewParams.firstPersonTransform.data[3][2]);
-//	D3DXVECTOR3  vLeft = D3DXVECTOR3(renderer->m_viewParams.firstPersonTransform.data[0][0], renderer->m_viewParams.firstPersonTransform.data[0][1], renderer->m_viewParams.firstPersonTransform.data[0][2]);
-//	D3DXVECTOR3 vUp = D3DXVECTOR3(renderer->m_viewParams.firstPersonTransform.data[1][0], renderer->m_viewParams.firstPersonTransform.data[1][1], renderer->m_viewParams.firstPersonTransform.data[1][2]);
-//	D3DXVECTOR3 vForward = D3DXVECTOR3(renderer->m_viewParams.firstPersonTransform.data[2][0], renderer->m_viewParams.firstPersonTransform.data[2][1], renderer->m_viewParams.firstPersonTransform.data[2][2]);
-//
-//	D3DXMATRIX viewMatrix;
-//	D3DXMatrixIdentity(&viewMatrix);
-//	viewMatrix._11 = vLeft.x; viewMatrix._12 = vUp.x; viewMatrix._13 = vForward.x;
-//	viewMatrix._21 = vLeft.y; viewMatrix._22 = vUp.y; viewMatrix._23 = vForward.y;
-//	viewMatrix._31 = vLeft.z; viewMatrix._32 = vUp.z; viewMatrix._33 = vForward.z;
-//
-//	viewMatrix._41 = -D3DXVec3Dot(&vOrigin, &vLeft);
-//	viewMatrix._42 = -D3DXVec3Dot(&vOrigin, &vUp);
-//	viewMatrix._43 = -D3DXVec3Dot(&vOrigin, &vForward);
-//
-//	D3DXMATRIXA16 Proj;
-//	D3DXMatrixPerspectiveFovRH(&Proj, renderer->m_viewParams.view.m_desc.fovY, aspect, 0.1f, 10000.0f);
-//	D3DXMATRIXA16 viewProjectionMatrix = viewMatrix * Proj;
-//
-//	float mX = width * 0.5f;
-//	float mY = height * 0.5f;
-//
-//	float w =
-//		viewProjectionMatrix(0, 3) * vWorldLocationVec3.x +
-//		viewProjectionMatrix(1, 3) * vWorldLocationVec3.y +
-//		viewProjectionMatrix(2, 3) * vWorldLocationVec3.z +
-//		viewProjectionMatrix(3, 3);
-//
-//	if (w < 0.65f)
-//	{
-//		vOut->z = w;
-//
-//		return false;
-//	}
-//
-//	float x =
-//		viewProjectionMatrix(0, 0) * vWorldLocationVec3.x +
-//		viewProjectionMatrix(1, 0) * vWorldLocationVec3.y +
-//		viewProjectionMatrix(2, 0) * vWorldLocationVec3.z +
-//		viewProjectionMatrix(3, 0);
-//
-//	float y =
-//		viewProjectionMatrix(0, 1) * vWorldLocationVec3.x +
-//		viewProjectionMatrix(1, 1) * vWorldLocationVec3.y +
-//		viewProjectionMatrix(2, 1) * vWorldLocationVec3.z +
-//		viewProjectionMatrix(3, 1);
-//
-//	vOut->x = mX + mX * x / w;
-//	vOut->y = mY - mY * y / w;
-//	vOut->z = w;
-//
-//
-//
-//	return true;
-//}
-
 Vector4 White = Vector4(1, 1, 1, 1);
 Vector4 Red = Vector4(1, 0, 0, 1);
 Vector4 MenuColor = Vector4(0, 0.94901960784, 1, 1);
@@ -85,6 +14,55 @@ Vector4 InstructionsWhiteLines = Vector4(1, 1, 1, 0.6);
 Vector4 InstructionsBackGround = Vector4(0, 0, 0, 0.4);
 
 int(*g_snprintf)(char* _Dest, size_t Count, const char* _Format, ...) = (int(*)(char* _Dest, size_t Count, const char* _Format, ...))0x835376B8;
+
+bool WorldToScreen(Vector3 WorldPos, Vector3* ScreenPos)
+{
+	GameRenderer* renderer = GameRenderer::Singleton();
+
+	if (renderer == NULL)
+		return false;
+
+	if (renderer->m_viewParams.view.Update() == false)
+		return false;
+
+	LinearTransform ScreenTransform = renderer->m_viewParams.view.m_viewProjectionMatrix;
+
+	float mX = 1280.0f * 0.5f;
+	float mY = 720.0f * 0.5f;
+
+	float w =
+
+		ScreenTransform(0, 3) * WorldPos.x +
+		ScreenTransform(1, 3) * WorldPos.y +
+		ScreenTransform(2, 3) * WorldPos.z +
+		ScreenTransform(3, 3);
+
+
+	if (w < 0.65f)
+	{
+		return false;
+	}
+
+	float x =
+		ScreenTransform(0, 0) * WorldPos.x +
+		ScreenTransform(1, 0) * WorldPos.y +
+		ScreenTransform(2, 0) * WorldPos.z +
+		ScreenTransform(3, 0);
+
+	float y =
+		ScreenTransform(0, 1) * WorldPos.x +
+		ScreenTransform(1, 1) * WorldPos.y +
+		ScreenTransform(2, 1) * WorldPos.z +
+		ScreenTransform(3, 1);
+
+	ScreenPos->x = (mX + mX * x / w);
+	ScreenPos->y = (mY - mY * y / w);
+	ScreenPos->z = w;
+
+	if (ScreenPos->x < -3000.0f || ScreenPos->x > 6000.0f) return false;
+
+	return true;
+}
 
 Vector3 Origin = Vector3(13.977393, 92.163528, 533.447266);
 //
@@ -110,11 +88,6 @@ void DrawMenu()
 
 	if (MenuBase.isMenuOpened)
 	{
-
-
-
-
-
 		Vector3 Coords;
 
 		if (WorldToScreen(Origin, &Coords))
