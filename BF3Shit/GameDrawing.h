@@ -96,3 +96,7 @@ private:
 	SolidTextStyle * SelectedSolidStyle;
 	MovingTextStyle * SelectedMovingStyle;
 };
+
+
+
+extern int(*g_snprintf)(char* _Dest, size_t Count, const char* _Format, ...);

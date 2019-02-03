@@ -202,7 +202,7 @@ void DrawHealthBar(float Health, float MaxHealth)
 
 	char Buffer[255] = { 0 };
 
-	_snprintf(Buffer, 255, "Health (%0.f/%0.f)", Health, MaxHealth);
+	g_snprintf(Buffer, 255, "Health (%0.f/%0.f)", Health, MaxHealth);
 
 	if (CenterX < 0 || CenterY < 0) return;
 

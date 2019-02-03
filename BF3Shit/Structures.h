@@ -1235,9 +1235,7 @@ public:
 		{
 			if (m_ppComponents[i])
 			{
-				printf("Object %I64X", m_ppComponents[i]); // Pointer
-				printf(" Type: %I64X", m_ppComponents[i]->GetType());
-				printf(" (%s)\n", **(char***)m_ppComponents[i]->GetType());
+
 			}
 		}
 	}
