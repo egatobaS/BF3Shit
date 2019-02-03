@@ -86,10 +86,44 @@ const char* OptionArray[] = { "RAWR", "MKV", "MGL", "MGL[Infinite Ammo]", "M82A3
 const char* SpoofArray[] = { "Railgun", "RAWR", "MKV", "Hand Flare", "Cruise Missle", "Icicle", "AK-12", "Knife", "Ammo Bag", "Medic Bag", "Ballistic Shield", "Killed" };
 const char* SnapLineArray[] = { "TOP", "MIDDLE", "BOTTOM" };
 
+int(*sub_835F4878)(unsigned char* r3, unsigned char* r4) = (int(*)(unsigned char* r3, unsigned char* r4))0x835F4878;
+int(*sub_83D131D0)(unsigned char* r3, unsigned char* r4) = (int(*)(unsigned char* r3, unsigned char* r4))0x83D131D0;
 
 void SendChatMessage(wchar_t *Message)
 {
+	*(int*)(0x835F48BC) = 0x39000000;//force server id
+	*(int*)(0x835F48C8) = 0x38E0FFFF;//force all mask
+	*(int*)(0x835F48D0) = 0x38C00004;//for all chatchannel
+	*(int*)(0x835F48D8) = 0x38A00000;//Set is dead byte to 0
+	*(int*)(0x835F48B0) = 0x7FC4F378;//mr %r4, %r30
+	*(int*)(0x835F48B4) = 0x60000000;//nop next
 
+	unsigned char _0x50[0x200] = { 0 };
+
+	int r4 = sub_835F4878(_0x50, (unsigned char*)Message);
+
+
+	int r3 = *(int*)(0x84122028);
+
+	if (r3 == 0)
+		return;
+
+	r3 = *(int*)(r3 + 0x34);
+
+	if (MmIsAddressValidPtr((void*)r3))
+		return;
+
+	r3 = *(int*)(r3 + 0x18);
+
+	if (MmIsAddressValidPtr((void*)r3))
+		return;
+
+	r3 = *(int*)(r3 + 0x2E2C);
+
+	if (MmIsAddressValidPtr((void*)r3))
+		return;
+
+	sub_83D131D0((unsigned char*)r3, (unsigned char*)r4);
 }
 void SetPrimary()
 {
@@ -123,7 +157,7 @@ void AddMenuOptions()
 	MenuBase.AddSubMenuLink("Aimbot", "", &AimbotMenu);
 	MenuBase.AddSubMenuLink("Weapon mods", "", &WeaponMenu);
 	//MenuBase.AddSubMenuLink("Customization", "", &ClassCustomizationMenu);
-	//MenuBase.AddSubMenuLink("Chat messages", "", &SendChatMenu);
+	MenuBase.AddSubMenuLink("Chat messages", "", &SendChatMenu);
 	MenuBase.AddSubMenuLink("ESP", "", &ESPMenu);
 
 	MovementMenu = MenuBase.CreateSubMenu("Movement");
@@ -165,18 +199,18 @@ void AddMenuOptions()
 	//MenuBase.AddListBox("Set Grenade", "Sets your weapon to the selected option.", &GrenadeWeaponArrayEnumarator, OptionArray, 10, SetGrenade);		  //todo
 	//MenuBase.AddCall("Invisibility", "Makes your player invisible to other clients. [YOU HAVE TO RESPAWN]", DoInvisible);							  //todo
 
-	//SendChatMenu = MenuBase.CreateSubMenu("Chat Message");
-	//MenuBase.AddCall("Made by Trojan041 and Sabotage!", "Sends a chat message.", SendChatMessage, "s", 1, L"Made by Trojan041 and Sabotage!");				//todo
-	//MenuBase.AddCall("Trojan041#1337", "Sends a chat message.", SendChatMessage, "s", 1, L"Trojan041#1337");												//todo
-	//MenuBase.AddCall("Sabotage#1337", "Sends a chat message.", SendChatMessage, "s", 1, L"Sabotage#1337");													//todo
-	//MenuBase.AddCall("https://xbOnline.live/", "Sends a chat message.", SendChatMessage, "s", 1, L"https://xbOnline.live/");								//todo
-	//MenuBase.AddCall("Sabotage eats shoes", "Sends a chat message.", SendChatMessage, "s", 1, L"Sabotage eats shoes");										//todo
-	//MenuBase.AddCall("Fubc is dad", "Sends a chat message.", SendChatMessage, "s", 1, L"Fubc is dad");														//todo
-	//MenuBase.AddCall("I'm a nasty lil cheater", "Sends a chat message.", SendChatMessage, "s", 1, L"I'm a nasty lil cheater");								//todo
-	//MenuBase.AddCall("We always finish second.", "Sends a chat message.", SendChatMessage, "s", 1, L"We always finish second.");							//todo
-	//MenuBase.AddCall("Why do I have so many notification?", "Sends a chat message.", SendChatMessage, "s", 1, L"Why do I have so many notification?");		//todo
-	//MenuBase.AddCall("Shoutout windows defender", "Sends a chat message.", SendChatMessage, "s", 1, L"Shoutout windows defender");							//todo
-	//MenuBase.AddCall("El Carterino was here!", "Sends a chat message.", SendChatMessage, "s", 1, L"El Carterino was here!");								//todo
+	SendChatMenu = MenuBase.CreateSubMenu("Chat Message");
+	MenuBase.AddCall("Made by Trojan041 and Sabotage!", "Sends a chat message.", SendChatMessage, "s", 1, L"Made by Trojan041 and Sabotage!");				//todo
+	MenuBase.AddCall("Trojan041#1337", "Sends a chat message.", SendChatMessage, "s", 1, L"Trojan041#1337");												//todo
+	MenuBase.AddCall("Sabotage#1337", "Sends a chat message.", SendChatMessage, "s", 1, L"Sabotage#1337");													//todo
+	MenuBase.AddCall("https://xbOnline.live/", "Sends a chat message.", SendChatMessage, "s", 1, L"https://xbOnline.live/");								//todo
+	MenuBase.AddCall("Sabotage eats shoes", "Sends a chat message.", SendChatMessage, "s", 1, L"Sabotage eats shoes");										//todo
+	MenuBase.AddCall("Fubc is dad", "Sends a chat message.", SendChatMessage, "s", 1, L"Fubc is dad");														//todo
+	MenuBase.AddCall("I'm a nasty lil cheater", "Sends a chat message.", SendChatMessage, "s", 1, L"I'm a nasty lil cheater");								//todo
+	MenuBase.AddCall("We always finish second.", "Sends a chat message.", SendChatMessage, "s", 1, L"We always finish second.");							//todo
+	MenuBase.AddCall("Why do I have so many notification?", "Sends a chat message.", SendChatMessage, "s", 1, L"Why do I have so many notification?");		//todo
+	MenuBase.AddCall("Shoutout windows defender", "Sends a chat message.", SendChatMessage, "s", 1, L"Shoutout windows defender");							//todo
+	MenuBase.AddCall("El Carterino was here!", "Sends a chat message.", SendChatMessage, "s", 1, L"El Carterino was here!");								//todo
 
 	ESPMenu = MenuBase.CreateSubMenu("ESP");
 	MenuBase.AddListBox("ESP Type", "Choose the ESP Type.", &ESPType, ESPArray, 2);
