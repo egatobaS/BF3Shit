@@ -99,7 +99,6 @@ int AddMove(StreamManagerMoveClient* r3, IMoveObject* pMove)
 					pMove->m_EntryInput.m_WeaponAngles.y = (pSilent.y);
 
 					tCount++;
-					printf("Targeting player %i\n", tCount);
 
 					FixMovement(&pMove->m_EntryInput, pMove->m_EntryInput.m_WeaponAngles.x, OldAngle, pMove->m_EntryInput.m_analogInput[0], pMove->m_EntryInput.m_analogInput[1]);
 				}
@@ -108,7 +107,7 @@ int AddMove(StreamManagerMoveClient* r3, IMoveObject* pMove)
 	}
 
 	if (setBitFlag)
-		pMove->m_EntryInput.m_CustomBitFlags ^= (pMove->m_EntryInput.m_CustomBitFlags ^ -true) & 2;
+		pMove->m_EntryInput.m_CustomBitFlags ^= (pMove->m_EntryInput.m_CustomBitFlags ^ false) & 2;
 
 	return AddMoveOriginal(r3, pMove);
 }
@@ -136,8 +135,9 @@ int D3DDevice_PresentHook(D3DDevice* pDevice, unsigned long long r4, unsigned lo
 			if (bFlyHack)
 				MovementHack();
 
-			if (bHealSelf && GetLocalPlayer()->GetClientSoldier()->m_Health < 100.0f && GetAsyncKeyState(KEY_RT))
-				HealSelf(GetLocalPlayer());
+			if (!MmIsAddressValidPtr(GetLocalPlayer()->GetClientSoldier()))
+				if (bHealSelf && GetLocalPlayer()->GetClientSoldier()->m_Health < 100.0f && GetAsyncKeyState(KEY_RT))
+					HealSelf(GetLocalPlayer());
 
 			if (bTeamHeal)
 				HealTeam(GetLocalPlayer());
@@ -166,7 +166,7 @@ DWORD XamInputGetStateHook(DWORD dwUserIndex, DWORD r4, PXINPUT_STATE pState)
 		pState->Gamepad.wButtons &= ~XINPUT_GAMEPAD_B;
 	}
 
-	if (bAimbot &&  (NearestPlayer != -1 && !bSilentAimbot) && ((bAimingRequired && GetAsyncKeyState(0x5555)) || !bAimingRequired))
+	if (bAimbot && (NearestPlayer != -1 && !bSilentAimbot) && ((bAimingRequired && GetAsyncKeyState(0x5555)) || !bAimingRequired))
 	{
 		pState->Gamepad.sThumbRX = 0;
 		pState->Gamepad.sThumbRY = 0;

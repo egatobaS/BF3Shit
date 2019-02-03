@@ -961,50 +961,12 @@ int getKitID()
 
 UnlockAssetBase* getUA(ClientPlayer* localp)
 {
-	ClientSoldierEntity* localcse = localp->m_pControlledControllable;
-	if (!MmIsAddressValidPtr(localcse))
+	int(*GetWeaponID)(ClientWeapon*) = (int(*)(ClientWeapon*))0x836F4390;
+
+	if (!GetWeaponID(localp->GetClientSoldier()->m_pClientSoldierWeaponsComponent->GetActiveSoldierWeapon()->m_pWeapon))
 		return NULL;
 
-	ClientSoldierWeaponsComponent* cwep = localcse->m_pClientSoldierWeaponsComponent;
-	if (!MmIsAddressValidPtr(cwep))
-		return NULL;
-
-	ClientSoldierWeapon* cwepp = cwep->m_pHandler->m_WeaponList[cwep->m_activeSlot];
-	if (!MmIsAddressValidPtr(cwepp))
-		return NULL;
-
-	ClientWeapon* cwepreal = cwepp->m_pWeapon;
-	if (!MmIsAddressValidPtr(cwepreal))
-		return NULL;
-
-	WeaponModifier* WeapMod = cwepreal->m_pWeaponModifier;
-	if (!MmIsAddressValidPtr(cwepreal))
-		return NULL;
-
-	int modifiertest = (int)WeapMod;
-	int weapmodlist = *(int*)(modifiertest + 0x8);
-
-	if (weapmodlist > 0x5F000000 || weapmodlist < 0x41000000)
-		return NULL;
-
-	weapmodlist = weapmodlist + 0xC;
-
-	for (int i = 0; i < 5; i++)
-	{
-		int modifiertest = (weapmodlist + (i * 0x10));
-		int checkPTR = *(int*)(modifiertest);
-
-		if (!MmIsAddressValidPtr((void*)checkPTR))
-			continue;
-
-		int checkPTRVtable = *(int*)checkPTR;
-
-		if (!MmIsAddressValidPtr((void*)checkPTR))
-			continue;
-
-		if (checkPTRVtable == 0x82E6DC40)
-			return (UnlockAssetBase*)checkPTR;
-	}
+	return (UnlockAssetBase*)GetWeaponID(localp->GetClientSoldier()->m_pClientSoldierWeaponsComponent->GetActiveSoldierWeapon()->m_pWeapon);
 
 	return NULL;
 }
@@ -1156,7 +1118,14 @@ void Aimbot(ClientPlayer* LocalEntity)
 		if (GetAsyncKeyState(0x5555))
 		{
 			if (GetAsyncKeyState(KEY_RT) && bUnfairAimbot)
-				DamagePlayer(AimTarget, GetLocalPlayer(), 100.0f, getUA(GetLocalPlayer()), bHeadshots ? HitReactionType::HRT_Head : (HitReactionType)0);
+				DamagePlayer(AimTarget, GetLocalPlayer(), 100.0f, bSpoofTarget ? getUA(AimTarget) : getUA(GetLocalPlayer()), bHeadshots ? HitReactionType::HRT_Head : (HitReactionType)0);
+
+			Matrix* m = new Matrix;
+			bool l = false;
+
+			GetLocalPlayer()->GetClientSoldier()->m_pClientSoldierWeaponsComponent->GetActiveSoldierWeapon()->m_pPrimaryFiring->m_pSway->getDispersion(*m, true);
+
+			delete m;
 
 			if (!bSilentAimbot)
 			{
@@ -1168,7 +1137,7 @@ void Aimbot(ClientPlayer* LocalEntity)
 	else
 	{
 		if (GetAsyncKeyState(KEY_RT) && bUnfairAimbot)
-			DamagePlayer(AimTarget, GetLocalPlayer(), 100.0f, getUA(GetLocalPlayer()), bHeadshots ? HitReactionType::HRT_Head : (HitReactionType)0);
+			DamagePlayer(AimTarget, GetLocalPlayer(), 100.0f, bSpoofTarget ? getUA(AimTarget) : getUA(GetLocalPlayer()), bHeadshots ? HitReactionType::HRT_Head : (HitReactionType)0);
 
 		if (!bSilentAimbot)
 		{

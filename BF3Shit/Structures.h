@@ -4258,13 +4258,6 @@ public:
 	void* m_replayData;                     // 0x5CC
 };
 
-
-
-
-
-
-
-
 class VeniceSoldierCustomizationAsset
 {
 public:
@@ -4287,14 +4280,11 @@ public:
 	UnlockAssetBase* m_Camo; //0x0020 []
 };//Size=0x0440
 
-
-
 class ClientCharacterSpawnEntity
 {
 public:
 
 };
-
 
 class KeyboardDevice
 {
@@ -4358,7 +4348,6 @@ public:
 	MouseState m_Current; //0x0098
 	MouseState m_Buffer; //0x00AE
 
-
 }; //Size: 0x0468
 
 class Mouse
@@ -4417,7 +4406,6 @@ public:
 	virtual int preFrameUpdate(float fDeltaTime);
 	//virtual void postFrameUpdate(float);	
 	virtual void postFrameUpdate(float);	// V: 0x6C
-
 
 	char unknown0[4];
 	InputCache* m_inputCache;

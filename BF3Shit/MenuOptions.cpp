@@ -154,7 +154,7 @@ void AddMenuOptions()
 	MenuBase.AddBool("Silent Aimbot", "Curved bullets", &bSilentAimbot);//todo
 	MenuBase.AddBool("Unfair Aimbot", "Allows the user to shoot through some walls.", &bUnfairAimbot); //fix
 	MenuBase.AddBool("Headshots", "Sets if your damage type is a headshot.", &bHeadshots); //fix
-	//MenuBase.AddBool("Spoof WeaponID to Target", "Allows the user to spoof their kills to that of their target.", &bSpoofTarget); //todo
+	MenuBase.AddBool("Spoof WeaponID to Target", "Allows the user to spoof their kills to that of their target.", &bSpoofTarget); //todo
 	//MenuBase.AddBool("Spoof Kills", "Allows the user to spoof kills.", &bSpoofKills);//todo
 	//MenuBase.AddListBox("Spoof Weapon", "Sets your weapon to be spoofed.", &SpoofArrayEnumarator, SpoofArray, 12);//todo
 
