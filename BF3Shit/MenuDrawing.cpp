@@ -115,7 +115,7 @@ void DrawMenu()
 		Drawing.DrawRect(70.0f, 120.0f, 280.0f, 100.0f + (MenuBase.OptionCount[MenuBase.CurrentSubMenu] * 17.65f), &BackGround);
 		Drawing.DrawBorderBox(69.0f, 119.0f, 281.0f, 101.0f + (MenuBase.OptionCount[MenuBase.CurrentSubMenu] * 17.65f), 1, &Blue);
 
-		Drawing.DrawText("xbOffline Menu", 0.70, &MenuTitleCoords, &Blue);
+		Drawing.DrawText("xbOnline Menu", 0.70, &MenuTitleCoords, &Blue);
 		Drawing.DrawText(MenuBase.SubTitles[MenuBase.CurrentSubMenu].c_str(), 0.60, &TitleCoords, &White);
 
 		for (int i = 0; i < MenuBase.MaxScroll[MenuBase.CurrentSubMenu]; i++)

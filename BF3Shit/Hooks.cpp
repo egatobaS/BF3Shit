@@ -48,7 +48,6 @@ int RayCastingHook(UINT64 r3, UINT64 r4, UINT64 r5, UINT64 r6, UINT64 r7, UINT64
 				Aimbot(GetLocalPlayer());
 
 		}
-
 		WaitV2(5);
 	}
 
@@ -58,15 +57,13 @@ int RayCastingHook(UINT64 r3, UINT64 r4, UINT64 r5, UINT64 r6, UINT64 r7, UINT64
 int AddMove(StreamManagerMoveClient* r3, IMoveObject* pMove)
 {
 	if (setBitFlag)
-	{
 		pMove->m_EntryInput.m_CustomBitFlags ^= (pMove->m_EntryInput.m_CustomBitFlags ^ -true) & 2;
-	}
+
 	return AddMoveOriginal(r3, pMove);
 }
 
-int D3DDevice_PresentHook(D3DDevice* pDevice, unsigned long long r4, unsigned long long r5, unsigned long long r6, unsigned long long r7) 
+int D3DDevice_PresentHook(D3DDevice* pDevice, unsigned long long r4, unsigned long long r5, unsigned long long r6, unsigned long long r7)
 {
-
 	ATG::g_pd3dDevice = (D3DDevice*)*(int*)((((int)pDevice) + 0x18));
 
 	InitTexture();
@@ -79,16 +76,6 @@ int D3DDevice_PresentHook(D3DDevice* pDevice, unsigned long long r4, unsigned lo
 		{
 			DrawESP();
 
-			DrawHealthBar(GetLocalPlayer()->GetClientSoldier()->m_Health, GetLocalPlayer()->GetClientSoldier()->m_MaxHealth);
-
-			if (bHealSelf)
-				if (GetLocalPlayer()->GetClientSoldier()->m_Health < 100.0f)
-					if (GetAsyncKeyState(KEY_RT))
-						HealSelf(GetLocalPlayer());
-
-			if (bTeamHeal)
-				HealTeam(GetLocalPlayer());
-
 			*(int*)(0x836D01E4) = bNoBBobbing ? 0x39600000 : 0x39600001;//no bobbing
 			*(int*)(0x836FDAC8) = bNoSpreadFake ? 0x60000000 : 0x4E800421;//zero out recoil/spread
 			*(int*)(0x836bbf98) = 0x60000000;  //Force Bones to update
@@ -97,6 +84,12 @@ int D3DDevice_PresentHook(D3DDevice* pDevice, unsigned long long r4, unsigned lo
 
 			if (bFlyHack)
 				MovementHack();
+
+			if (bHealSelf && GetLocalPlayer()->GetClientSoldier()->m_Health < 100.0f && GetAsyncKeyState(KEY_RT))
+				HealSelf(GetLocalPlayer());
+
+			if (bTeamHeal)
+				HealTeam(GetLocalPlayer());
 
 			if (bUnlimitedAmmo)
 				DoAmmo();
@@ -122,7 +115,7 @@ DWORD XamInputGetStateHook(DWORD dwUserIndex, DWORD r4, PXINPUT_STATE pState)
 		pState->Gamepad.wButtons &= ~XINPUT_GAMEPAD_B;
 	}
 
-	if (bAimbot &&  NearestPlayer != -1 && (( bAimingRequired && GetAsyncKeyState(0x5555)) || !bAimingRequired))
+	if (bAimbot &&  NearestPlayer != -1 && ((bAimingRequired && GetAsyncKeyState(0x5555)) || !bAimingRequired))
 	{
 		pState->Gamepad.sThumbRX = 0;
 		pState->Gamepad.sThumbRY = 0;

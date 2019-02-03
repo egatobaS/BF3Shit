@@ -37,7 +37,7 @@ BOOL WINAPI DllMain(HANDLE ModuleHandle, unsigned int fdwReason, LPVOID lpReserv
 
 		ATG::g_pd3dDevice = NULL;
 
-		RayCastingOriginal = (RayCasting_t)RayCastingDetour.HookFunction(0x83116A38, (unsigned int)RayCastingHook);
+		RayCastingOriginal = (RayCasting_t)RayCastingDetour.HookFunction(0x83C44E30, (unsigned int)RayCastingHook);
 		TransmitPacketOriginal = (TransmitPacketStub)TransmitPacketDetour.HookFunction(0x83CFFAA0, (DWORD)TransmitPacketHook);
 		D3DDevice_PresentOriginal = (D3DDevice_Present_t)D3DDevice_PresentDetour.HookFunction(0x8315F850, (unsigned int)D3DDevice_PresentHook);
 		XamInputGetStateDetour.HookFunction(GetAddr(0x82D80000, 0x191), (unsigned int)XamInputGetStateHook);

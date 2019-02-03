@@ -501,6 +501,18 @@ float GetDistance(Vector3 c1, Vector3 c2)
 
 bool DrawESP() //TODO: BoneESP and a Visibility Check
 {
+	ClientPlayer* LocalPlayer = GetLocalPlayer();
+
+	if (MmIsAddressValidPtr(LocalPlayer))
+	{
+		ClientSoldierEntity* pCSE = LocalPlayer->GetClientSoldier();
+
+		if (MmIsAddressValidPtr(pCSE))
+		{
+			DrawHealthBar(pCSE->m_Health, pCSE->m_MaxHealth);
+		}
+	}
+
 	for (int i = 0; i < 24; i++)
 	{
 		ClientPlayer* Target = GetPlayerById(i);
