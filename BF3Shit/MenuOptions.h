@@ -22,6 +22,8 @@ extern int Gun[];
 
 extern int ESPType;
 
+extern int fPacketSpeed;
+extern bool bPacketHack;
 
 extern bool ServerCrash;
 extern bool BoolOption;

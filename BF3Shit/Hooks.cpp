@@ -27,8 +27,8 @@ int TransmitPacketHook(StreamManagerMoveClient* lol, int r4, int r5)
 {
 	__try
 	{
-		if (GetAsyncKeyState(XINPUT_GAMEPAD_LEFT_THUMB))
-			*(int*)((int)lol + 0x40) += 100;
+		if (GetAsyncKeyState(XINPUT_GAMEPAD_LEFT_THUMB) && bPacketHack)
+			*(int*)((int)lol + 0x40) += fPacketSpeed;
 	}
 	__except (1)
 	{

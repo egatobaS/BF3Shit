@@ -18,6 +18,7 @@ int SnapArrayEnumaratorE = 0;
 int SnapArrayEnumaratorF = 0;
 int SpoofArrayEnumarator = 0;
 
+bool bPacketHack = false;
 bool ServerCrash = false;
 bool BoolOption = false;
 bool bAimbot = false;
@@ -67,6 +68,7 @@ bool bDrawRadar = false;
 bool bECompass = false;
 bool bFCompass = false;
 
+int fPacketSpeed = 100;
 float damage = 100.0f;
 float FlySpeed = 10.0f;
 float fTeleHeight = 50.0f;
@@ -128,6 +130,8 @@ void AddMenuOptions()
 	//MenuBase.AddBool("Teleport To Crosshair [RB]", "Press RB to teleport to your crosshair.", &bTeleCrosshair);
 	//MenuBase.AddBool("Teleport in Air [RS & LS]", "Press the right thumb and left thumb button to teleport into the air.", &bTeleAir);
 	//MenuBase.AddFloat("Teleport Height", "Allows you to set how high you teleport.", &fTeleHeight, 20.0f, 0.0f, 2000.0f);
+	MenuBase.AddBool("Speed Hack", "Allows you to move fasts.", &bPacketHack);
+	MenuBase.AddInt("Speed Hack Interval", "Which speed you move.", &fPacketSpeed, 50, 100, 400);
 	MenuBase.AddBool("Flyhack", "Enables no-clip.", &bFlyHack);
 	MenuBase.AddFloat("Fly speed", "TEST DESCRIPTION 4", &FlySpeed, 2.f, 0.0f, 550.0f);
 
@@ -277,6 +281,7 @@ void LoadINI()
 		bFriendName = ini.GetBoolValue("Game", "bFriendName");
 		bEnemyName = ini.GetBoolValue("Game", "bEnemyName");
 		bDrawRadar = ini.GetBoolValue("Game", "bDrawRadar");
+		bPacketHack = ini.GetBoolValue("Game", "bPacketHack");
 	}
 	else
 	{
@@ -324,7 +329,7 @@ void LoadINI()
 		ini.SetValue("Game", "pAim", "false");
 		ini.SetValue("Game", "bFriendName", "false");
 		ini.SetValue("Game", "bEnemyName", "false");
-		bDrawRadar = ini.GetBoolValue("Game", "bDrawRadar", "false");
+		ini.SetValue("Game", "bPacketHack", "false");
 
 		ini.SaveFile("Nigel:\\xbOnline\\BF3.cfg");
 	}
@@ -392,6 +397,7 @@ void SetInit()
 		ini.SetValue("Game", "bFriendName", bFriendName ? "true" : "false");
 		ini.SetValue("Game", "bEnemyName", bEnemyName ? "true" : "false");
 		ini.SetValue("Game", "bDrawRadar", bDrawRadar ? "true" : "false");
+		ini.SetValue("Game", "bPacketHack", bPacketHack ? "true" : "false");
 
 		ini.SaveFile("Nigel:\\xbOnline\\BF3.cfg");
 	}

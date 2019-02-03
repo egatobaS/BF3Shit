@@ -559,11 +559,11 @@ bool DrawESP() //TODO: BoneESP and a Visibility Check
 
 		Vector3 LocalPosition = LocalpCSP->m_Position;
 
-		if (bEnemyName || bESPFriendly)
+		if ((bEnemyName && Target->m_teamId != GetLocalPlayer()->m_teamId) || (bESPFriendly && Target->m_teamId == GetLocalPlayer()->m_teamId))
 		{
-			float fFontSize = (0.3 - (GetDistance(LocalPosition, ClientPosition) / 100));
-			if (fFontSize < 0.2)
-				fFontSize = 0.2;
+			float fFontSize = (0.5 - (GetDistance(LocalPosition, ClientPosition) / 50));
+			if (fFontSize < 0.3)
+				fFontSize = 0.3;
 
 			Vector3 PlayerHead;
 
