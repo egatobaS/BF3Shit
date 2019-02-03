@@ -1,5 +1,6 @@
 #include "main.h"
 
+Vector3 pSilent;
 
 bool isClientWallable[24] = { 0 };
 bool setBitFlag = false;
@@ -186,13 +187,13 @@ bool IsClientAlive(ClientPlayer* pTarget)
 	if (!MmIsAddressValidPtr(pCW))
 		return false;
 
-	WeaponModifier* pWM = pCW->m_pWeaponModifier;
-	if (!MmIsAddressValidPtr(pWM))
-		return false;
-
-	UnlockAssetBase* pUAB = pWM->m_pWeaponUnlockAsset;
-	if (!MmIsAddressValidPtr(pUAB))
-		return false;
+	//WeaponModifier* pWM = pCW->m_pWeaponModifier;
+	//if (!MmIsAddressValidPtr(pWM))
+	//	return false;
+	//
+	//UnlockAssetBase* pUAB = pWM->m_pWeaponUnlockAsset;
+	//if (!MmIsAddressValidPtr(pUAB))
+	//	return false;
 
 	return true;
 }
@@ -1144,27 +1145,36 @@ void Aimbot(ClientPlayer* LocalEntity)
 
 	TempAng = Angles;
 
+	if (custom_isnan(Angles.x) || custom_isnan(Angles.y))
+		return;
+
+	pSilent.x = Angles.x;
+	pSilent.y = Angles.y;
+
 	if (bAimingRequired)
 	{
-		if (custom_isnan(Angles.x) || custom_isnan(Angles.y))
-			return;
-
 		if (GetAsyncKeyState(0x5555))
 		{
-			pCSW->m_pClientSoldierAimingSimulation->m_fpsAimer->m_pitch = Angles.y;
-			pCSW->m_pClientSoldierAimingSimulation->m_fpsAimer->m_yaw = Angles.x;
-
 			if (GetAsyncKeyState(KEY_RT) && bUnfairAimbot)
 				DamagePlayer(AimTarget, GetLocalPlayer(), 100.0f, getUA(GetLocalPlayer()), bHeadshots ? HitReactionType::HRT_Head : (HitReactionType)0);
+
+			if (!bSilentAimbot)
+			{
+				pCSW->m_pClientSoldierAimingSimulation->m_fpsAimer->m_pitch = Angles.y;
+				pCSW->m_pClientSoldierAimingSimulation->m_fpsAimer->m_yaw = Angles.x;
+			}
 		}
 	}
 	else
 	{
-		pCSW->m_pClientSoldierAimingSimulation->m_fpsAimer->m_pitch = Angles.y;
-		pCSW->m_pClientSoldierAimingSimulation->m_fpsAimer->m_yaw = Angles.x;
-
 		if (GetAsyncKeyState(KEY_RT) && bUnfairAimbot)
 			DamagePlayer(AimTarget, GetLocalPlayer(), 100.0f, getUA(GetLocalPlayer()), bHeadshots ? HitReactionType::HRT_Head : (HitReactionType)0);
+
+		if (!bSilentAimbot)
+		{
+			pCSW->m_pClientSoldierAimingSimulation->m_fpsAimer->m_pitch = Angles.y;
+			pCSW->m_pClientSoldierAimingSimulation->m_fpsAimer->m_yaw = Angles.x;
+		}
 	}
 
 }

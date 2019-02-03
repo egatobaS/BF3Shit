@@ -86,8 +86,6 @@ const char* OptionArray[] = { "RAWR", "MKV", "MGL", "MGL[Infinite Ammo]", "M82A3
 const char* SpoofArray[] = { "Railgun", "RAWR", "MKV", "Hand Flare", "Cruise Missle", "Icicle", "AK-12", "Knife", "Ammo Bag", "Medic Bag", "Ballistic Shield", "Killed" };
 const char* SnapLineArray[] = { "TOP", "MIDDLE", "BOTTOM" };
 
-int(*sub_835F4878)(unsigned char* r3, unsigned char* r4) = (int(*)(unsigned char* r3, unsigned char* r4))0x835F4878;
-int(*sub_83D131D0)(unsigned char* r3, unsigned char* r4) = (int(*)(unsigned char* r3, unsigned char* r4))0x83D131D0;
 
 void SendChatMessage(wchar_t *Message)
 {
@@ -98,33 +96,10 @@ void SendChatMessage(wchar_t *Message)
 	*(int*)(0x835F48B0) = 0x7FC4F378;//mr %r4, %r30
 	*(int*)(0x835F48B4) = 0x60000000;//nop next
 
-	unsigned char _0x50[0x200] = { 0 };
-
-	int r4 = sub_835F4878(_0x50, (unsigned char*)Message);
-
-
-	int r3 = *(int*)(0x84122028);
-
-	if (r3 == 0)
-		return;
-
-	r3 = *(int*)(r3 + 0x34);
-
-	if (MmIsAddressValidPtr((void*)r3))
-		return;
-
-	r3 = *(int*)(r3 + 0x18);
-
-	if (MmIsAddressValidPtr((void*)r3))
-		return;
-
-	r3 = *(int*)(r3 + 0x2E2C);
-
-	if (MmIsAddressValidPtr((void*)r3))
-		return;
-
-	sub_83D131D0((unsigned char*)r3, (unsigned char*)r4);
+	lstrcpyW((LPWSTR)0x8406041F, Message);
+	*(unsigned char*)0x840603E0 = 1;
 }
+
 void SetPrimary()
 {
 
@@ -176,7 +151,7 @@ void AddMenuOptions()
 	//MenuBase.AddBool("Spread Predicition", "The aimbot will automatically counter your recoil and spread.", &pAim); //todo
 	//MenuBase.AddBool("Aiming in Parachute", "This will allow you to rotate 360 degrees while in a parachute.", &bAntiParachute); //todo
 	MenuBase.AddBool("Auto Shoot", "Shoots automatically when target is in sight.", &bAutoShoot); //todo
-	//MenuBase.AddBool("Silent Aimbot", "Curved bullets", &bSilentAimbot);//todo
+	MenuBase.AddBool("Silent Aimbot", "Curved bullets", &bSilentAimbot);//todo
 	MenuBase.AddBool("Unfair Aimbot", "Allows the user to shoot through some walls.", &bUnfairAimbot); //fix
 	MenuBase.AddBool("Headshots", "Sets if your damage type is a headshot.", &bHeadshots); //fix
 	//MenuBase.AddBool("Spoof WeaponID to Target", "Allows the user to spoof their kills to that of their target.", &bSpoofTarget); //todo

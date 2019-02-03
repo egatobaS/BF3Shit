@@ -1,5 +1,6 @@
 #pragma once
 
+extern Vector3 pSilent;
 extern bool setBitFlag;
 
 extern WeaponSway::Deviation* pRecoil	;

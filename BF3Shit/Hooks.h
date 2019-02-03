@@ -14,8 +14,14 @@ extern D3DDevice_Present_t D3DDevice_PresentOriginal;
 typedef int(*AddMoveStub)(StreamManagerMoveClient* r3, IMoveObject* r4);
 extern AddMoveStub AddMoveOriginal;
 
-extern Detour XamInputGetStateDetour, D3DDevice_PresentDetour, RayCastingDetour, TransmitPacketDetour, AddMoveHook;
+typedef int(*sub_834F63C8_t)(UINT64 r3, UINT64 r4, UINT64 r5, UINT64 r6, UINT64 r7, UINT64 r8, UINT64 r9, UINT64 r10, float f1, float f2, float f3);
+extern sub_834F63C8_t sub_834F63C8Original;
 
+
+extern Detour XamInputGetStateDetour, D3DDevice_PresentDetour, RayCastingDetour, TransmitPacketDetour, AddMoveHook, sub_834F63C8Detour;
+
+
+int sub_834F63C8Hook(UINT64 r3, UINT64 r4, UINT64 r5, UINT64 r6, UINT64 r7, UINT64 r8, UINT64 r9, UINT64 r10, float f1, float f2, float f3);
 DWORD XamInputGetStateHook(DWORD dwUserIndex, DWORD r4, PXINPUT_STATE pState);
 int RayCastingHook(UINT64 r3, UINT64 r4, UINT64 r5, UINT64 r6, UINT64 r7, UINT64 r8, UINT64 r9, UINT64 r10, float f1, float f2, float f3);
 int AddMove(StreamManagerMoveClient * r3, IMoveObject * pMove);

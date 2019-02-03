@@ -1138,7 +1138,11 @@ public:
 		Vector4 pos;
 	};
 
-	char pad_0000[480]; //0x0000
+	LPVOID vftable;									// 0x00
+	PAD(0xC);										// 0x04
+	FLOAT m_analogInput[10];						// 0x10
+	FLOAT m_downTimes[100];							// 0x38
+	PAD(0x18);										// 0x1C8
 	long long m_DigitalBitFlags; //0x01E0
 	int m_CustomBitFlags; //0x01E8
 	float m_DeltaTime; //0x01EC
@@ -3137,8 +3141,8 @@ public:
 	class SprintInputHandler* m_pSprintInputHandler; //0x0374
 	int m_sprintInterruptAction; //0x0378
 	float m_timeSinceLastSprinted; //0x037C
-	int m_sprinting; //0x0380
-	int m_occluded; //0x0381
+	bool m_sprinting; //0x0380
+	bool m_occluded; //0x0381
 	char pad_0382[6]; //0x0382
 	float m_criticalHealthThreshold; //0x0388
 	char pad_038C[180]; //0x038C
