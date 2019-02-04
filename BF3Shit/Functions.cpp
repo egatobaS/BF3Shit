@@ -167,25 +167,21 @@ bool IsClientAlive(ClientPlayer* pTarget)
 	if (!MmIsAddressValidPtr(pCSP))
 		return false;
 
-	ClientSoldierReplication* pCSR = pCSE->m_pClientSoldierReplication;
-	if (!MmIsAddressValidPtr(pCSR))
-		return false;
-
 	if (pCSE->m_Health < 0.1f)
 		return false;
 
 	ClientBoneCollisionComponent* pCBCC = pCSE->m_pClientBoneCollisionComponent;
 	if (!MmIsAddressValidPtr(pCBCC))
 		return false;
-
+	
 	ClientSoldierWeaponsComponent* pCSWC = pCSE->m_pClientSoldierWeaponsComponent;
 	if (!MmIsAddressValidPtr(pCSWC))
 		return false;
-
+	
 	ClientSoldierWeapon* pCSW = pCSWC->GetActiveSoldierWeapon();
 	if (!MmIsAddressValidPtr(pCSW))
 		return false;
-
+	
 	ClientWeapon* pCW = pCSW->m_pWeapon;
 	if (!MmIsAddressValidPtr(pCW))
 		return false;
@@ -827,7 +823,7 @@ bool IsVisible(Vector4* vFrom, Vector4* vTo)
 
 	RayCastHit ray;
 
-	bool visible = !rayCaster->physicsRayQuery("OnGroundState::update", vFrom, vTo, &ray, 0x4 | 0x10 | 0x20 | 0x80, NULL);
+	bool visible = !rayCaster->physicsRayQuery("OnGroundState::update", vFrom, vTo, &ray, IPhysicsRayCaster::AimbotFlags, NULL);
 
 	return visible;
 }
