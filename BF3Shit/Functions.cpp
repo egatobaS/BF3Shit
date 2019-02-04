@@ -439,6 +439,8 @@ bool DrawPlayerHealthBar(ClientVehicleEntity* pEnt, float size)
 	pEnt->getTransform(trans);
 	Pos = Vector3(trans->operator()(3, 0), trans->operator()(3, 1), trans->operator()(3, 2));
 
+	Pos.y -= 0.1;
+
 	Vector3 aabbMin = Vector3(TransAABB->min.x, TransAABB->min.y, TransAABB->min.z);
 	Vector3 aabbMax = Vector3(TransAABB->max.x, TransAABB->max.y, TransAABB->max.z);
 	Vector3 min = aabbMin * size;
