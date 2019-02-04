@@ -128,28 +128,29 @@ bool IsLocalClientAlive()
 	if (!MmIsAddressValidPtr(pCSWC))
 		return false;
 
-	//ClientSoldierWeapon* pCSW = pCSWC->GetActiveSoldierWeapon();
-	//if (!MmIsAddressValidPtr(pCSW))
-	//	return false;
-	//
-	//ClientWeapon* pCW = pCSW->m_pWeapon;
-	//if (!MmIsAddressValidPtr(pCW))
-	//	return false;
-	//
-	//WeaponFiring* pWF = pCSW->m_pPrimaryFiring;
-	//if (!MmIsAddressValidPtr(pWF))
-	//	return false;
-	//ClientSoldierAimingSimulation* pCSAS = pCSW->m_pClientSoldierAimingSimulation;
-	//if (!MmIsAddressValidPtr(pCSAS))
-	//	return false;
-	//
-	//WeaponFiringData *pFireData = pCSWC->GetActiveSoldierWeapon()->m_pWeapon->m_pWeaponFiringData;
-	//if (pFireData == 0)
-	//	return false;
-	//
-	//BulletEntityData *pProjData = pFireData->m_pFiringFunctionData->m_pBulletEntityData;
-	//if (pProjData == 0)
-	//	return false;
+	ClientSoldierWeapon* pCSW = pCSWC->GetActiveSoldierWeapon();
+	if (!MmIsAddressValidPtr(pCSW))
+		return false;
+	
+	ClientWeapon* pCW = pCSW->m_pWeapon;
+	if (!MmIsAddressValidPtr(pCW))
+		return false;
+	
+	WeaponFiring* pWF = pCSW->m_pPrimaryFiring;
+	if (!MmIsAddressValidPtr(pWF))
+		return false;
+	ClientSoldierAimingSimulation* pCSAS = pCSW->m_pClientSoldierAimingSimulation;
+	if (!MmIsAddressValidPtr(pCSAS))
+		return false;
+	
+	WeaponFiringData *pFireData = pCSWC->GetActiveSoldierWeapon()->m_pWeapon->m_pWeaponFiringData;
+	if (!MmIsAddressValidPtr(pFireData))
+		return false;
+
+	
+	BulletEntityData *pProjData = pFireData->m_pFiringFunctionData->m_pBulletEntityData;
+	if (!MmIsAddressValidPtr(pProjData))
+		return false;
 
 	return true;
 }
