@@ -67,3 +67,5 @@ void Aimbot(ClientPlayer * LocalEntity);
 extern int NearestPlayer;
 
 extern bool isClientWallable[24];
+
+unsigned long long GetXuid(char* Name);

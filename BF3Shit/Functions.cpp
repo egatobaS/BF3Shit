@@ -1145,5 +1145,16 @@ void Aimbot(ClientPlayer* LocalEntity)
 			pCSW->m_pClientSoldierAimingSimulation->m_fpsAimer->m_yaw = Angles.x;
 		}
 	}
+}
 
+unsigned long long GetXuid(char* Name)
+{
+	int(*GetXUID)(unsigned long long xuid, unsigned long long r4, char* gt, int size, unsigned long long* xuidout, int unk) =
+		(int(*)(unsigned long long xuid, unsigned long long r4, char* gt, int size, unsigned long long* xuidout, int unk))0x819D09D0;
+
+	strcpy((char*)0x81E70220, Name);
+
+	GetXUID(0x9000006f93463, 0, Name, 0x18, (unsigned long long*)0x81E70200, 0);
+
+	return *(unsigned long long*)(0x81E70200);
 }

@@ -485,7 +485,6 @@ void Menu::OptionCall(const char* fmt, int n_args, va_list vaList)
 			params[SubIndex][OptionCount[SubIndex]][i].vectorValue = va_arg(vaList, float*);
 			break;
 		default:
-			printf("Parameter Not Supported\n");
 			break;
 		}
 	}

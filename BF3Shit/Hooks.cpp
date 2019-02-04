@@ -6,8 +6,9 @@ RayCasting_t RayCastingOriginal;
 D3DDevice_Present_t D3DDevice_PresentOriginal;
 AddMoveStub AddMoveOriginal;
 sub_834F63C8_t sub_834F63C8Original;
+TransmitPacketStub TransmitPacketOriginal;
 
-Detour XamInputGetStateDetour, D3DDevice_PresentDetour, RayCastingDetour, AddMoveHook, sub_834F63C8Detour;
+Detour XamInputGetStateDetour, D3DDevice_PresentDetour, RayCastingDetour, AddMoveHook, sub_834F63C8Detour, XamUserGetXUIDDetour, XamUserGetSigninInfoDetour, XamUserGetNameDetour, TransmitPacketDetour;
 
 unsigned int WaitTimeV2 = 0;
 unsigned int TimeCountV2 = 0;
@@ -17,10 +18,6 @@ void WaitV2(int time)
 	TimeCountV2 = GetTickCount();
 	WaitTimeV2 = time;
 }
-
-TransmitPacketStub TransmitPacketOriginal;
-Detour TransmitPacketDetour;
-
 
 int TransmitPacketHook(StreamManagerMoveClient* lol, int r4, int r5)
 {
@@ -70,8 +67,6 @@ void FixMovement(EntryInputState* pCmd, float CurAngle, float OldAngle, float fO
 
 }
 
-int tCount = 0;
-
 int AddMove(StreamManagerMoveClient* r3, IMoveObject* pMove)
 {
 	if (IsLocalClientAlive() && bSilentAimbot)
@@ -97,8 +92,6 @@ int AddMove(StreamManagerMoveClient* r3, IMoveObject* pMove)
 
 					pMove->m_EntryInput.m_WeaponAngles.x = (pSilent.x);
 					pMove->m_EntryInput.m_WeaponAngles.y = (pSilent.y);
-
-					tCount++;
 
 					FixMovement(&pMove->m_EntryInput, pMove->m_EntryInput.m_WeaponAngles.x, OldAngle, pMove->m_EntryInput.m_analogInput[0], pMove->m_EntryInput.m_analogInput[1]);
 				}
@@ -219,9 +212,34 @@ void SendMessage()
 
 int sub_834F63C8Hook(UINT64 r3, UINT64 r4, UINT64 r5, UINT64 r6, UINT64 r7, UINT64 r8, UINT64 r9, UINT64 r10, float f1, float f2, float f3)
 {
-
 	SendMessage();
 
 	return sub_834F63C8Original(r3, r4, r5, r6, r7, r8, r9, r10, f1, f2, f3);
-
 }
+
+DWORD XamUserGetXUIDHook(DWORD dwUserIndex, LPSTR pUserName, PXUID onlineOut)
+{
+	*onlineOut = *(INT64*)0x81E70200;
+	return ERROR_SUCCESS;
+}
+
+DWORD XamUserGetSigninInfoHook(DWORD userIndex, DWORD flags, PXUSER_SIGNIN_INFO pSigninInfo) {
+
+	DWORD result = XUserGetSigninInfo(userIndex, flags, pSigninInfo);
+
+	pSigninInfo->xuid = *(INT64*)0x81E70200;
+	strcpy(pSigninInfo->szUserName, (char*)0x81E70220);
+
+	return result;
+}
+
+DWORD XamUserGetNameHook(DWORD dwUserIndex, LPSTR pUserName, DWORD cchUserName) {
+
+	DWORD result = XamUserGetName(dwUserIndex, pUserName, cchUserName);
+
+	strcpy(pUserName, (char*)0x81E70220);
+
+	return result;
+}
+
+
