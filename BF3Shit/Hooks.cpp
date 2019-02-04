@@ -69,6 +69,10 @@ void FixMovement(EntryInputState* pCmd, float CurAngle, float OldAngle, float fO
 
 int AddMove(StreamManagerMoveClient* r3, IMoveObject* pMove)
 {
+	if (setBitFlag) {
+		pMove->m_EntryInput.m_CustomBitFlags ^= (pMove->m_EntryInput.m_CustomBitFlags ^ -true) & 2;
+	}
+
 	if (IsLocalClientAlive() && bSilentAimbot)
 	{
 
@@ -99,8 +103,6 @@ int AddMove(StreamManagerMoveClient* r3, IMoveObject* pMove)
 		}
 	}
 
-	if (setBitFlag)
-		pMove->m_EntryInput.m_CustomBitFlags ^= (pMove->m_EntryInput.m_CustomBitFlags ^ false) & 2;
 
 	return AddMoveOriginal(r3, pMove);
 }
@@ -137,7 +139,7 @@ int D3DDevice_PresentHook(D3DDevice* pDevice, unsigned long long r4, unsigned lo
 				if (MmIsAddressValidPtr(LocalClientSoldierEntity))
 				{
 					if (bHealSelf && LocalClientSoldierEntity->m_Health < 100.0f && GetAsyncKeyState(KEY_RT))
-						HealSelf(GetLocalPlayer());		
+						HealSelf(LocalClientPlayer);
 				}
 			}
 
