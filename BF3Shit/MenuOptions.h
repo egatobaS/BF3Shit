@@ -72,9 +72,11 @@ extern bool bEnemyName;
 extern bool bDrawRadar;
 extern bool bECompass;
 extern bool bFCompass;
-
+extern bool bAutoSpot;
+extern bool bForceSquadSpawn;
 extern bool bOHK;
-
+extern bool bClientHealthBarF;
+extern bool bClientHealthBarE;
 
 void AddMenuOptions();
 

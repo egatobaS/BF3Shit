@@ -1,7 +1,10 @@
 #include "main.h"
 
+
 Vector3 pSilent;
 
+unsigned int WaitTimSendSpot = 0;
+unsigned int TimeCountSendSpot = 0;
 bool isClientWallable[24] = { 0 };
 bool setBitFlag = false;
 bool bShoot = false;
@@ -14,12 +17,22 @@ int UACounterInt = 0;
 WeaponSway::Deviation* pRecoil = 0;
 WeaponSway::Deviation *pSpread = 0;
 
+DWORD playerWeakPtrs[24];
+eastl::fixed_vector<DWORD *, 8, 0> controllablesToSpot;
+
 int(*GetAmmoPtr)(int x, int y, int z) = (int(*)(int x, int y, int z))0x83266AC0;
 int(*CCMessage)(ClientConnection*, Message*) = (int(*)(ClientConnection*, Message*))0x831FAD00;
 int(*ReloadMessageFunction)(int r3, int r4, int r5) = (int(*)(int r3, int r4, int r5))0x834CC888;
 int(*AddDamageData)(ClientConnection*, ClientDamageStream::DamageData*) = (int(*)(ClientConnection*, ClientDamageStream::DamageData*))0x831FB1D8;
 int(*GetPlayerScore)(ClientPlayerScoreManager*, ClientPlayer*) = (int(*)(ClientPlayerScoreManager*, ClientPlayer*))0x83212338;
 UnlockAssetBase(*GetWeaponID)(ClientWeapon*) = (UnlockAssetBase(*)(ClientWeapon*))0x836F4390;
+int(*sendSpottingMessage)(ClientSpottingComponent* thisClientSpottingComponent, ClientPlayer* MyClientPlayer, eastl::fixed_vector<DWORD *, 8, 0> *controllablesToSpot, int type) = (int(*)(ClientSpottingComponent* thisClientSpottingComponent, ClientPlayer* MyClientPlayer, eastl::fixed_vector<DWORD *, 8, 0> *controllablesToSpot, int type))0x8340E610;
+
+void SendSpotWait(int time)
+{
+	TimeCountSendSpot = GetTickCount();
+	WaitTimSendSpot = time;
+}
 
 bool WorldToScreen(Vector3 WorldPos, Vector3* ScreenPos)
 {
@@ -131,23 +144,23 @@ bool IsLocalClientAlive()
 	ClientSoldierWeapon* pCSW = pCSWC->GetActiveSoldierWeapon();
 	if (!MmIsAddressValidPtr(pCSW))
 		return false;
-	
+
 	ClientWeapon* pCW = pCSW->m_pWeapon;
 	if (!MmIsAddressValidPtr(pCW))
 		return false;
-	
+
 	WeaponFiring* pWF = pCSW->m_pPrimaryFiring;
 	if (!MmIsAddressValidPtr(pWF))
 		return false;
 	ClientSoldierAimingSimulation* pCSAS = pCSW->m_pClientSoldierAimingSimulation;
 	if (!MmIsAddressValidPtr(pCSAS))
 		return false;
-	
+
 	WeaponFiringData *pFireData = pCSWC->GetActiveSoldierWeapon()->m_pWeapon->m_pWeaponFiringData;
 	if (!MmIsAddressValidPtr(pFireData))
 		return false;
 
-	
+
 	BulletEntityData *pProjData = pFireData->m_pFiringFunctionData->m_pBulletEntityData;
 	if (!MmIsAddressValidPtr(pProjData))
 		return false;
@@ -177,15 +190,15 @@ bool IsClientAlive(ClientPlayer* pTarget)
 	ClientBoneCollisionComponent* pCBCC = pCSE->m_pClientBoneCollisionComponent;
 	if (!MmIsAddressValidPtr(pCBCC))
 		return false;
-	
+
 	ClientSoldierWeaponsComponent* pCSWC = pCSE->m_pClientSoldierWeaponsComponent;
 	if (!MmIsAddressValidPtr(pCSWC))
 		return false;
-	
+
 	ClientSoldierWeapon* pCSW = pCSWC->GetActiveSoldierWeapon();
 	if (!MmIsAddressValidPtr(pCSW))
 		return false;
-	
+
 	ClientWeapon* pCW = pCSW->m_pWeapon;
 	if (!MmIsAddressValidPtr(pCW))
 		return false;
@@ -294,6 +307,64 @@ Vector3 Multiply(Vector3 vec, Matrix* mat)
 		mat->operator()(0, 2)* vec.x + mat->operator()(1, 2)* vec.y + mat->operator()(2, 2)* vec.z);
 }
 
+void DrawClientOnWorldHealthBar(float x, float y, float w, float health, float max)
+{
+	D3DCOLOR col = (health >= (max / 2) ? D3DCOLOR_RGBA(0, 255, 0, 60) : D3DCOLOR_RGBA(255, 0, 0, 60));
+
+	float step = (w / max);
+	float draw = (step * health);
+
+	//DrawBox(x, y, w, 4, D3DCOLOR_RGBA(0, 0, 0, 255));
+	DrawBox(x, y, w, 4, D3DCOLOR_RGBA(0, 0, 0, 100));
+	DrawBox(x, y, draw, 4, col);
+
+}
+
+bool GetBone(ClientSoldierEntity* pEnt, Vector3 *vOut, int iBone)
+{
+	if (iBone == -1)
+		return false;
+
+	if (!MmIsAddressValidPtr(pEnt))
+		return false;
+
+	if (!iBone)
+		return false;
+
+	if (!MmIsAddressValidPtr(vOut))
+		return false;
+
+	ClientAntAnimatableComponent* pAnt = pEnt->m_pAntAnimatable2;
+	if (!MmIsAddressValidPtr(pAnt))
+		return false;
+
+	pAnt->m_handler.m_hadVisualUpdate = true;
+
+	ClientRagDollComponent * pCRC = pEnt->m_pClientRagdollComponent;
+
+	if (!MmIsAddressValidPtr(pCRC))
+		return false;
+
+	if (pCRC->m_UpdatePoseResultData.m_ValidTransforms)
+	{
+
+		QuatTransform* pQuat = pCRC->m_UpdatePoseResultData.m_ActiveWorldTransforms;
+
+		if (!MmIsAddressValidPtr(pQuat))
+			return false;
+
+		Vector4 vTmp = pQuat[iBone].m_TransAndScale;
+
+		vOut->x = vTmp.x;
+		vOut->y = vTmp.y;
+		vOut->z = vTmp.z;
+
+		return true;
+	}
+
+	return false;
+}
+
 bool Draw2DBox(ClientVehicleEntity* pEnt, D3DCOLOR color, float size)
 {
 	Matrix* trans = new Matrix;
@@ -347,6 +418,125 @@ bool Draw2DBox(ClientVehicleEntity* pEnt, D3DCOLOR color, float size)
 
 	}
 
+	delete trans;
+	delete TransAABB;
+
+	return true;
+}
+
+bool DrawPlayerHealthBar(ClientVehicleEntity* pEnt, float size)
+{
+	Matrix* trans = new Matrix;
+	Vector3 Pos;
+
+	AxisAlignedBox* TransAABB = new AxisAlignedBox;
+
+	if (!MmIsAddressValidPtr(pEnt))
+		return false;
+
+	pEnt->computeBoundingBox(TransAABB);
+
+	pEnt->getTransform(trans);
+	Pos = Vector3(trans->operator()(3, 0), trans->operator()(3, 1), trans->operator()(3, 2));
+
+	Vector3 aabbMin = Vector3(TransAABB->min.x, TransAABB->min.y, TransAABB->min.z);
+	Vector3 aabbMax = Vector3(TransAABB->max.x, TransAABB->max.y, TransAABB->max.z);
+	Vector3 min = aabbMin * size;
+	Vector3 max = aabbMax * size;
+	Vector3 crnr2 = Pos + Multiply(Vector3(max.x, min.y, min.z), trans);
+	Vector3 crnr3 = Pos + Multiply(Vector3(max.x, min.y, max.z), trans);
+	Vector3 crnr4 = Pos + Multiply(Vector3(min.x, min.y, max.z), trans);
+	Vector3 crnr5 = Pos + Multiply(Vector3(min.x, max.y, max.z), trans);
+	Vector3 crnr6 = Pos + Multiply(Vector3(min.x, max.y, min.z), trans);
+	Vector3 crnr7 = Pos + Multiply(Vector3(max.x, max.y, min.z), trans);
+
+	min = Pos + Multiply(min, trans);
+	max = Pos + Multiply(max, trans);
+
+	if (WorldToScreen(min, &min) && WorldToScreen(max, &max) && WorldToScreen(crnr2, &crnr2) && WorldToScreen(crnr3, &crnr3) && WorldToScreen(crnr4, &crnr4) && WorldToScreen(crnr5, &crnr5) && WorldToScreen(crnr6, &crnr6) && WorldToScreen(crnr7, &crnr7))
+	{
+		Vector3 arr[] = { min, max, crnr2, crnr3, crnr4, crnr5, crnr6, crnr7 };
+
+		float l = min.x;
+		float t = min.y;
+		float r = min.x;
+		float b = min.y;
+
+		for (int i = 0; i < 8; i++)
+		{
+			if (l > arr[i].x) l = arr[i].x;
+			if (t < arr[i].y) t = arr[i].y;
+			if (r < arr[i].x) r = arr[i].x;
+			if (b > arr[i].y) b = arr[i].y;
+		}
+
+		Vector3 vPos;
+
+		if (GetBone((ClientSoldierEntity*)pEnt, &vPos, UpdatePoseResultData::Head))
+		{
+			float w = abs(r - l);
+			DrawClientOnWorldHealthBar(l, t, w, ((ClientSoldierEntity*)pEnt)->m_Health, ((ClientSoldierEntity*)pEnt)->m_MaxHealth);
+
+		}
+	}
+	delete trans;
+	delete TransAABB;
+
+	return true;
+}
+
+bool DrawNameESP(ClientPlayer* Enemy, float fFontSize, ClientVehicleEntity* pEnt, float size)
+{
+	Matrix* trans = new Matrix;
+	Vector3 Pos;
+
+	AxisAlignedBox* TransAABB = new AxisAlignedBox;
+
+	if (!MmIsAddressValidPtr(pEnt))
+		return false;
+
+	pEnt->computeBoundingBox(TransAABB);
+
+	pEnt->getTransform(trans);
+	Pos = Vector3(trans->operator()(3, 0), trans->operator()(3, 1), trans->operator()(3, 2));
+
+	Pos.y += 0.5 * size;
+
+	Vector3 aabbMin = Vector3(TransAABB->min.x, TransAABB->min.y, TransAABB->min.z);
+	Vector3 aabbMax = Vector3(TransAABB->max.x, TransAABB->max.y, TransAABB->max.z);
+	Vector3 min = aabbMin * size;
+	Vector3 max = aabbMax * size;
+	Vector3 crnr2 = Pos + Multiply(Vector3(max.x, min.y, min.z), trans);
+	Vector3 crnr3 = Pos + Multiply(Vector3(max.x, min.y, max.z), trans);
+	Vector3 crnr4 = Pos + Multiply(Vector3(min.x, min.y, max.z), trans);
+	Vector3 crnr5 = Pos + Multiply(Vector3(min.x, max.y, max.z), trans);
+	Vector3 crnr6 = Pos + Multiply(Vector3(min.x, max.y, min.z), trans);
+	Vector3 crnr7 = Pos + Multiply(Vector3(max.x, max.y, min.z), trans);
+
+	min = Pos + Multiply(min, trans);
+	max = Pos + Multiply(max, trans);
+
+	if (WorldToScreen(min, &min) && WorldToScreen(max, &max) && WorldToScreen(crnr2, &crnr2) && WorldToScreen(crnr3, &crnr3) && WorldToScreen(crnr4, &crnr4) && WorldToScreen(crnr5, &crnr5) && WorldToScreen(crnr6, &crnr6) && WorldToScreen(crnr7, &crnr7))
+	{
+		Vector3 arr[] = { min, max, crnr2, crnr3, crnr4, crnr5, crnr6, crnr7 };
+
+		float l = min.x;
+		float t = min.y;
+		float r = min.x;
+		float b = min.y;
+
+		for (int i = 0; i < 8; i++)
+		{
+			if (l > arr[i].x) l = arr[i].x;
+			if (t < arr[i].y) t = arr[i].y;
+			if (r < arr[i].x) r = arr[i].x;
+			if (b > arr[i].y) b = arr[i].y;
+		}
+
+		float w = abs(r - l);
+
+		DrawText(Enemy->m_Name, l + (w / 2), b, fFontSize, D3DCOLOR_RGBA(255, 255, 255, 255), ATGFONT_CENTER_X | ATGFONT_CENTER_Y);
+	}
 	delete trans;
 	delete TransAABB;
 
@@ -413,51 +603,6 @@ bool TransformDrawAABB(ClientVehicleEntity* pEnt, D3DCOLOR color, float size)
 	return true;
 }
 
-bool GetBone(ClientSoldierEntity* pEnt, Vector3 *vOut, int iBone)
-{
-	if (iBone == -1)
-		return false;
-
-	if (!MmIsAddressValidPtr(pEnt))
-		return false;
-
-	if (!iBone)
-		return false;
-
-	if (!MmIsAddressValidPtr(vOut))
-		return false;
-
-	ClientAntAnimatableComponent* pAnt = pEnt->m_pAntAnimatable2;
-	if (!MmIsAddressValidPtr(pAnt))
-		return false;
-
-	pAnt->m_handler.m_hadVisualUpdate = true;
-
-	ClientRagDollComponent * pCRC = pEnt->m_pClientRagdollComponent;
-
-	if (!MmIsAddressValidPtr(pCRC))
-		return false;
-
-	if (pCRC->m_UpdatePoseResultData.m_ValidTransforms)
-	{
-
-		QuatTransform* pQuat = pCRC->m_UpdatePoseResultData.m_ActiveWorldTransforms;
-
-		if (!MmIsAddressValidPtr(pQuat))
-			return false;
-
-		Vector4 vTmp = pQuat[iBone].m_TransAndScale;
-
-		vOut->x = vTmp.x;
-		vOut->y = vTmp.y;
-		vOut->z = vTmp.z;
-
-		return true;
-	}
-
-	return false;
-}
-
 void DrawBoneLine(ClientPlayer* entity, int tagname1, int tagname2, D3DCOLOR col)
 {
 	Vector3 Origin1, Origin2;
@@ -478,7 +623,7 @@ void DoAllBones(ClientPlayer* Client, D3DCOLOR boneESPCol)
 	//left arm
 	DrawBoneLine(Client, UpdatePoseResultData::Neck, UpdatePoseResultData::LeftShoulder, boneESPCol);
 	DrawBoneLine(Client, UpdatePoseResultData::LeftShoulder, UpdatePoseResultData::LeftElbowRoll, boneESPCol);
-	DrawBoneLine(Client, UpdatePoseResultData::LeftElbowRoll, UpdatePoseResultData::RightHand, boneESPCol);
+	DrawBoneLine(Client, UpdatePoseResultData::LeftElbowRoll, UpdatePoseResultData::LeftHand, boneESPCol);
 
 	//right arm
 	DrawBoneLine(Client, UpdatePoseResultData::Neck, UpdatePoseResultData::RightShoulder, boneESPCol);
@@ -502,6 +647,7 @@ float GetDistance(Vector3 c1, Vector3 c2)
 	Vector3 Sub = c1 - c2;
 	return (sqrt((float)((Sub.x * Sub.x) + (Sub.y * Sub.y) + (Sub.z * Sub.z))) / 55.0f);
 }
+
 
 bool DrawESP() //TODO: BoneESP and a Visibility Check
 {
@@ -528,6 +674,7 @@ bool DrawESP() //TODO: BoneESP and a Visibility Check
 
 		if (!MmIsAddressValidPtr(TargetClientSoldierEntity))
 			continue;
+
 
 		if (Target->isInVehicle())
 		{
@@ -580,25 +727,17 @@ bool DrawESP() //TODO: BoneESP and a Visibility Check
 
 		Vector3 LocalPosition = LocalpCSP->m_Position;
 
-		if ((bEnemyName && Target->m_teamId != GetLocalPlayer()->m_teamId) || (bESPFriendly && Target->m_teamId == GetLocalPlayer()->m_teamId))
+
+		if ((bClientHealthBarE && Target->m_teamId != GetLocalPlayer()->m_teamId) || (bClientHealthBarF && Target->m_teamId == GetLocalPlayer()->m_teamId))
 		{
-			float fFontSize = (0.5 - (GetDistance(LocalPosition, ClientPosition) / 50));
-			if (fFontSize < 0.3)
-				fFontSize = 0.3;
+			DrawPlayerHealthBar((ClientVehicleEntity*)pCSE, 0.8);
+		}
 
-			Vector3 PlayerHead;
+		if ((bEnemyName && Target->m_teamId != GetLocalPlayer()->m_teamId) || (bFriendName && Target->m_teamId == GetLocalPlayer()->m_teamId))
+		{
+			float fFontSize = (0.70 - (GetDistance(LocalPosition, ClientPosition) / 10));
 
-			if (GetBone(TargetClientSoldierEntity, &PlayerHead, UpdatePoseResultData::Head))
-			{
-				float fHeight = PlayerHead.y - ClientPosition.y;
-
-				Vector3 ScreenCoords;
-				if (WorldToScreen(PlayerHead, &ScreenCoords))
-				{
-					float y = ((ScreenCoords.y) - (fHeight + ((m_Font.GetFontHeight() * fFontSize) * 2)) + (m_Font.GetFontHeight() * fFontSize));
-					DrawTextCentered(Target->m_Name, ScreenCoords.x, y, fFontSize, D3DCOLOR_RGBA(255, 255, 255, 255), 0);
-				}
-			}
+			DrawNameESP(Target, fFontSize, (ClientVehicleEntity*)TargetClientSoldierEntity, 0.8);
 		}
 
 		if (Target->m_teamId == GetLocalPlayer()->m_teamId)
@@ -606,7 +745,22 @@ bool DrawESP() //TODO: BoneESP and a Visibility Check
 			if (bDrawSnapLinesF)
 			{
 				if (WorldToScreen(ClientPosition, &ClientPosition))
-					DrawLine(1280 / 2, 720 / 2, ClientPosition.x, ClientPosition.y, 1, D3DCOLOR_RGBA(0, 255, 0, 255));
+				{
+					switch (SnapArrayEnumaratorF)
+					{
+					case 0:
+						DrawLine(1280 / 2, 0, ClientPosition.x, (ClientPosition.y), 1, D3DCOLOR_RGBA(0, 255, 0, 255));
+						break;
+
+					case 1:
+						DrawLine(1280 / 2, 720 / 2, ClientPosition.x, (ClientPosition.y), 1, D3DCOLOR_RGBA(0, 255, 0, 255));
+						break;
+
+					case 2:
+						DrawLine(1280 / 2, 720, ClientPosition.x, (ClientPosition.y), 1, D3DCOLOR_RGBA(0, 255, 0, 255));
+						break;
+					}
+				}
 			}
 
 			if (bFCompass)
@@ -641,7 +795,22 @@ bool DrawESP() //TODO: BoneESP and a Visibility Check
 			if (bDrawSnapLinesE)
 			{
 				if (WorldToScreen(ClientPosition, &ClientPosition))
-					DrawLine(1280 / 2, 720 / 2, ClientPosition.x, ClientPosition.y, 1, ESPColor);
+				{
+					switch (SnapArrayEnumaratorE)
+					{
+					case 0:
+						DrawLine(1280 / 2, 0, ClientPosition.x, (ClientPosition.y), 1, ESPColor);
+						break;
+
+					case 1:
+						DrawLine(1280 / 2, 720 / 2, ClientPosition.x, (ClientPosition.y), 1, ESPColor);
+						break;
+
+					case 2:
+						DrawLine(1280 / 2, 720, ClientPosition.x, (ClientPosition.y), 1, ESPColor);
+						break;
+					}
+				}
 			}
 
 			if (bECompass)
@@ -1206,7 +1375,6 @@ void Aimbot(ClientPlayer* LocalEntity)
 	pSilent.x = Angles.x;
 	pSilent.y = Angles.y;
 
-
 	if (bAimingRequired)
 	{
 		if (GetAsyncKeyState(0x5555))
@@ -1257,4 +1425,142 @@ unsigned long long GetXuid(char* Name)
 	GetXUID(0x9000006f93463, 0, Name, 0x18, (unsigned long long*)0x81E70200, 0);
 
 	return *(unsigned long long*)(0x81E70200);
+}
+
+void SendSpot()
+{
+	if ((GetTickCount() - TimeCountSendSpot) > WaitTimSendSpot)
+	{
+		for (int i = 0; i < 24; i++) {
+
+			ClientPlayer* Target = GetPlayerById(i);
+
+			if (!IsLocalClientAlive())
+				continue;
+
+			if (!MmIsAddressValidPtr(Target))
+				continue;
+
+			if (!IsClientAlive(Target))
+				continue;
+
+			if (GetLocalPlayer() == Target)
+				continue;
+
+			if (!MmIsAddressValidPtr(Target->m_pControlledControllable))
+				continue;
+
+			if (!MmIsAddressValidPtr(Target->m_pControlledControllable->m_pClientSoldierPrediction))
+				continue;
+
+			if (!MmIsAddressValidPtr(GetLocalPlayer()->m_pControlledControllable))
+				continue;
+
+			ClientSpottingComponent* LocalClientSpottingComponent = GetLocalPlayer()->m_pControlledControllable->m_pClientSpottingComponent;
+
+			if (!MmIsAddressValidPtr(LocalClientSpottingComponent))
+				continue;
+
+			ClientSoldierEntity* controllable = Target->m_pControlledControllable;
+
+			if (Target->m_teamId != GetLocalPlayer()->m_teamId)
+			{
+				playerWeakPtrs[i] = (DWORD)controllable + 4;
+				DWORD *pointerToDword = &playerWeakPtrs[i];
+				controllablesToSpot.push_back(pointerToDword);
+			}
+
+			if (controllablesToSpot.size() == 2)
+			{
+				sendSpottingMessage(LocalClientSpottingComponent, GetLocalPlayer(), &controllablesToSpot, 1);
+
+				controllablesToSpot.clear();
+			}
+		}
+
+		SendSpotWait(100);
+	}
+}
+
+void FixMovement(EntryInputState* pCmd, float CurAngle, float OldAngle, float fOldForward, float fOldSidemove)
+{
+	float deltaView = CurAngle - OldAngle;
+
+	if (CurAngle < OldAngle)
+		deltaView = abs(CurAngle - OldAngle);
+	else
+		deltaView = 6.28319f - abs(OldAngle - CurAngle);
+
+	if (CurAngle > XM_PI)
+		deltaView = XM_2PI - deltaView;
+
+	pCmd->m_analogInput[0] = cosf(deltaView)*fOldForward + cosf((deltaView)+XM_PIDIV2)*fOldSidemove;
+	pCmd->m_analogInput[1] = sinf(deltaView)*fOldForward + sinf((deltaView)+XM_PIDIV2)*fOldSidemove;
+
+}
+
+void SelfHeal()
+{
+	ClientPlayer* LocalClientPlayer = GetLocalPlayer();
+
+	if (MmIsAddressValidPtr(LocalClientPlayer))
+	{
+		ClientSoldierEntity* LocalClientSoldierEntity = LocalClientPlayer->GetClientSoldier();
+
+		if (MmIsAddressValidPtr(LocalClientSoldierEntity))
+		{
+			ClientSoldierEntity* pCSE = LocalClientPlayer->GetClientSoldier();
+			if (!MmIsAddressValidPtr(pCSE))
+				return;
+
+			ClientSoldierReplication* pCSR = pCSE->m_pClientSoldierReplication;
+			if (!MmIsAddressValidPtr(pCSR))
+				return;
+
+			ClientSoldierWeaponsComponent* pCSWC = pCSE->m_pClientSoldierWeaponsComponent;
+			if (!MmIsAddressValidPtr(pCSWC))
+				return;
+
+			ClientSoldierWeapon* pCSW = pCSWC->GetActiveSoldierWeapon();
+			if (!MmIsAddressValidPtr(pCSW))
+				return;
+
+			ClientWeapon* pCW = pCSW->m_pWeapon;
+			if (!MmIsAddressValidPtr(pCW))
+				return;
+
+			WeaponFiring* pWF = pCSW->m_pPrimaryFiring;
+			if (!MmIsAddressValidPtr(pWF))
+				return;
+
+			if (LocalClientSoldierEntity->m_Health < 100.0f && pWF->m_weaponState == 9)
+				HealSelf(LocalClientPlayer);
+		}
+	}
+}
+
+void ForceSquadSpawn()
+{
+	for (int i = 0; i < 24; i++) {
+
+		ClientPlayer* Target = GetPlayerById(i);
+
+		if (!MmIsAddressValidPtr(Target))
+			continue;
+
+		if (!IsClientAlive(Target))
+			continue;
+
+		if (GetLocalPlayer() == Target)
+			continue;
+
+		if (!MmIsAddressValidPtr(Target->m_pControlledControllable))
+			continue;
+
+		if (!MmIsAddressValidPtr(Target->m_pControlledControllable->m_pClientSoldierPrediction))
+			continue;
+
+		Target->m_isAllowedToSpawnOn = true;
+
+	}
 }

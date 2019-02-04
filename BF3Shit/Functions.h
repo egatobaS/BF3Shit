@@ -73,3 +73,11 @@ extern int NearestPlayer;
 extern bool isClientWallable[24];
 
 unsigned long long GetXuid(char* Name);
+
+void SendSpot();
+
+void FixMovement(EntryInputState * pCmd, float CurAngle, float OldAngle, float fOldForward, float fOldSidemove);
+
+void SelfHeal();
+
+void ForceSquadSpawn();

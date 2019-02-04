@@ -372,6 +372,7 @@ namespace fb
 		}
 	};
 }
+class ClientSpottingComponent;
 class ClientScoreManager;
 class FixWeaponModifier;
 class IMoveObject;
@@ -3593,11 +3594,11 @@ public:
 	class ClientPlayerView* m_pOwnPlayerView; //0x0408
 	class ClientPlayerView* m_pPlayerView; //0x040C
 	char pad_0410[95]; //0x0410
-	int m_SquadId; //0x046F
-	int m_IsSquadLeader; //0x0470
-	int m_SquadClosed; //0x0471
-	int m_isAllowedToSpawnOn; //0x0472
-	int m_reviveAllowed; //0x0473
+	bool m_SquadId; //0x046F
+	bool m_IsSquadLeader; //0x0470
+	bool m_SquadClosed; //0x0471
+	bool m_isAllowedToSpawnOn; //0x0472
+	bool m_reviveAllowed; //0x0473
 	char pad_0474[28]; //0x0474
 	char m_FakeName[20]; //0x0490
 
@@ -3606,7 +3607,7 @@ public:
 		__try
 		{
 			
-			ClientSoldierEntity* Return  = m_Soldier.GetData();
+			ClientSoldierEntity* Return  = m_pControlledControllable;
 
 			if (!MmIsAddressValidPtr(Return))
 				return NULL;
@@ -3682,6 +3683,18 @@ public:
 	class ClientPlayer** m_ppPlayers; //0x00C0
 };
 
+class TypeInfoData
+{
+public:
+	const char *name; //0x0
+	unsigned short flags; //0x4
+	unsigned short totalSize; //0x6
+	void *module; //0x8
+	unsigned char alignment; //0xC
+	unsigned char fieldCount; //0xD
+	unsigned char pad[2]; //0xE
+};
+
 enum ChatChannelType
 {
 	CctSayAll,                     // constant 0x0
@@ -3695,17 +3708,7 @@ enum ChatChannelType
 class TypeInfo
 {
 public:
-	class TypeInfoData
-	{
-	public:
-		const char *name; //0x0
-		unsigned short flags; //0x4
-		unsigned short totalSize; //0x6
-		void *module; //0x8
-		unsigned char alignment; //0xC
-		unsigned char fieldCount; //0xD
-		unsigned char pad[2]; //0xE
-	};
+	
 	TypeInfoData *m_infoData;
 	TypeInfo *m_pNext; //0x4
 	unsigned short m_runtimeId; //0x8
@@ -4811,4 +4814,12 @@ public:
 	char pad001[0x1C0];
 	GFxDrawTextManager::TextParams  DefaultTextParams; // Offset = this + 0x1C0 Length = 0x2C
 
+};
+
+
+
+class _NetworkableMessage
+{
+public:
+	virtual TypeInfo* GetType();
 };

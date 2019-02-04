@@ -67,6 +67,10 @@ bool bEnemyName = false;
 bool bDrawRadar = false;
 bool bECompass = false;
 bool bFCompass = false;
+bool bAutoSpot = false;
+bool bForceSquadSpawn = false;
+bool bClientHealthBarF = false;
+bool bClientHealthBarE = false;
 
 int fPacketSpeed = 100;
 float damage = 100.0f;
@@ -75,7 +79,7 @@ float fTeleHeight = 50.0f;
 float fCompassSize = 120.0f;
 
 int ESPType = 0;
-int MainMenu = 0, MovementMenu = 0, AimbotMenu = 0, WeaponMenu = 0, ClassCustomizationMenu = 0, SendChatMenu = 0, ESPMenu = 0, EnemyESPMenu = 0, FriendlyESPMenu = 0, VehicleESPMenu = 0, EntityESPMenu = 0, CompassMenu = 0;
+int MainMenu = 0, MiscMenu = 0, AimbotMenu = 0, WeaponMenu = 0, ClassCustomizationMenu = 0, SendChatMenu = 0, ESPMenu = 0, EnemyESPMenu = 0, FriendlyESPMenu = 0, VehicleESPMenu = 0, EntityESPMenu = 0, CompassMenu = 0;
 int Gun[] = { 0x7ECAA648, 0x74E2BFBA, 0x449E68FC, 0x7475B83D, 0x66ACC2FE, 0x270013D1, 0xDE801D07, 0xDFC9E5A, 0x231EBF24, 0xA9BEFA95 };
 int Spoof[] = { 0xA6784811, 0x7ECAA648, 0x74E2BFBA, 0xADD2FC9A, 0x4BE5D515, 0x256F047E, 0x490A8A5F, 0xBF93FD19, 0x697AA0D0, 0xD1ABE5D3, 0xC25A2EB5, 0x6C6ACD2B };
 
@@ -128,7 +132,7 @@ void DoInvisible()
 void AddMenuOptions()
 {
 	MainMenu = MenuBase.CreateSubMenu("Main Menu");
-	MenuBase.AddSubMenuLink("Movement", "", &MovementMenu);
+	MenuBase.AddSubMenuLink("Misc", "", &MiscMenu);
 	MenuBase.AddSubMenuLink("Aimbot", "", &AimbotMenu);
 	MenuBase.AddSubMenuLink("Weapon mods", "", &WeaponMenu);
 	//MenuBase.AddSubMenuLink("Customization", "", &ClassCustomizationMenu);
@@ -137,14 +141,16 @@ void AddMenuOptions()
 	//MenuBase.AddCall("Test Option Set", "", GetXuid, "s", 1, "haloskinner");
 	//MenuBase.AddCall("Test Option Reset", "", GetXuid, "s", 1, "x goes over pi");
 
-	MovementMenu = MenuBase.CreateSubMenu("Movement");
+	MiscMenu = MenuBase.CreateSubMenu("Misc");
 	//MenuBase.AddBool("Teleport To Crosshair [RB]", "Press RB to teleport to your crosshair.", &bTeleCrosshair);
 	//MenuBase.AddBool("Teleport in Air [RS & LS]", "Press the right thumb and left thumb button to teleport into the air.", &bTeleAir);
 	//MenuBase.AddFloat("Teleport Height", "Allows you to set how high you teleport.", &fTeleHeight, 20.0f, 0.0f, 2000.0f);
 	MenuBase.AddBool("Speed Hack", "Allows you to move fasts.", &bPacketHack);
 	MenuBase.AddInt("Speed Hack Interval", "Which speed you move.", &fPacketSpeed, 50, 100, 400);
 	MenuBase.AddBool("Flyhack", "Enables no-clip.", &bFlyHack);
-	MenuBase.AddFloat("Fly speed", "TEST DESCRIPTION 4", &FlySpeed, 2.f, 0.0f, 550.0f);
+	MenuBase.AddFloat("Fly speed", "Player Flying Speed", &FlySpeed, 2.f, 0.0f, 550.0f);
+	MenuBase.AddBool("Auto Spot", "Automatically Spots Players.", &bAutoSpot);
+	MenuBase.AddBool("Force Squad Spawn", "Allows you to spawn on any squad member.", &bForceSquadSpawn);
 
 	AimbotMenu = MenuBase.CreateSubMenu("Aimbot");
 	MenuBase.AddBool("Aimbot", "Enables aimbot.", &bAimbot);
@@ -210,6 +216,7 @@ void AddMenuOptions()
 	MenuBase.AddBool("Draw Snaplines", "Draws lines from the crosshair to players.", &bDrawSnapLinesE);
 	MenuBase.AddListBox("Snapline position", "Positions snapline in the top/middle/bottom", &SnapArrayEnumaratorE, SnapLineArray, 3);
 	MenuBase.AddBool("Draw Bones", "Draw player bones.", &bDrawBonesE);
+	MenuBase.AddBool("Draw Health Bar", "Draws players health.", &bClientHealthBarE);
 	/*MenuBase.AddBool("Player Chams", "Enable for highlighted Players.", &bPlayerChamsE);*/
 
 	FriendlyESPMenu = MenuBase.CreateSubMenu("Friendly");
@@ -218,6 +225,7 @@ void AddMenuOptions()
 	MenuBase.AddBool("Draw Snaplines", "Draws lines from the crosshair to players.", &bDrawSnapLinesF);
 	MenuBase.AddListBox("Snapline position", "Positions snapline in the top/middle/bottom", &SnapArrayEnumaratorF, SnapLineArray, 3);
 	MenuBase.AddBool("Draw Bones", "Draw player bones.", &bDrawBonesF);
+	MenuBase.AddBool("Draw Health Bar", "Draws players health.", &bClientHealthBarF);
 	/*MenuBase.AddBool("Player Chams", "Enable for highlighted Players.", &bPlayerChamsF);*/
 
 	VehicleESPMenu = MenuBase.CreateSubMenu("Vehicles");
@@ -293,6 +301,10 @@ void LoadINI()
 		bEnemyName = ini.GetBoolValue("Game", "bEnemyName");
 		bDrawRadar = ini.GetBoolValue("Game", "bDrawRadar");
 		bPacketHack = ini.GetBoolValue("Game", "bPacketHack");
+		bAutoSpot = ini.GetBoolValue("Game", "bAutoSpot");
+		bForceSquadSpawn = ini.GetBoolValue("Game", "bForceSquadSpawn");
+		bClientHealthBarF = ini.GetBoolValue("Game", "bClientHealthBarF");
+		bClientHealthBarE = ini.GetBoolValue("Game", "bClientHealthBarE");
 	}
 	else
 	{
@@ -341,7 +353,10 @@ void LoadINI()
 		ini.SetValue("Game", "bFriendName", "false");
 		ini.SetValue("Game", "bEnemyName", "false");
 		ini.SetValue("Game", "bPacketHack", "false");
-
+		ini.SetValue("Game", "bAutoSpot", "false");
+		ini.SetValue("Game", "bForceSquadSpawn", "false");
+		ini.SetValue("Game", "bClientHealthBarF", "false");
+		ini.SetValue("Game", "bClientHealthBarE", "false");
 		ini.SaveFile("Nigel:\\xbOnline\\BF3.cfg");
 	}
 }
@@ -409,6 +424,10 @@ void SetInit()
 		ini.SetValue("Game", "bEnemyName", bEnemyName ? "true" : "false");
 		ini.SetValue("Game", "bDrawRadar", bDrawRadar ? "true" : "false");
 		ini.SetValue("Game", "bPacketHack", bPacketHack ? "true" : "false");
+		ini.SetValue("Game", "bAutoSpot", bAutoSpot ? "true" : "false");
+		ini.SetValue("Game", "bForceSquadSpawn", bForceSquadSpawn ? "true" : "false");
+		ini.SetValue("Game", "bClientHealthBarF", bClientHealthBarF ? "true" : "false");
+		ini.SetValue("Game", "bClientHealthBarE", bClientHealthBarE ? "true" : "false");
 
 		ini.SaveFile("Nigel:\\xbOnline\\BF3.cfg");
 	}

@@ -2,13 +2,20 @@
 
 UIRender Drawing;
 
+sub_83CFF480_t sub_83CFF480Original;
 RayCasting_t RayCastingOriginal;
 D3DDevice_Present_t D3DDevice_PresentOriginal;
 AddMoveStub AddMoveOriginal;
 sub_834F63C8_t sub_834F63C8Original;
 TransmitPacketStub TransmitPacketOriginal;
+ClientConnection_SendMessage_t ClientConnection_SendMessageOriginal;
 
-Detour XamInputGetStateDetour, D3DDevice_PresentDetour, RayCastingDetour, AddMoveHook, sub_834F63C8Detour, XamUserGetXUIDDetour, XamUserGetSigninInfoDetour, XamUserGetNameDetour, TransmitPacketDetour;
+Detour XamInputGetStateDetour, D3DDevice_PresentDetour, RayCastingDetour, AddMoveHook, sub_834F63C8Detour,
+XamUserGetXUIDDetour, XamUserGetSigninInfoDetour, XamUserGetNameDetour, TransmitPacketDetour, sub_83CFF480Detour,
+ClientConnection_SendMessageDetour;
+
+int(*sub_835F4878)(unsigned char* r3, unsigned char* r4) = (int(*)(unsigned char* r3, unsigned char* r4))0x835F4878;
+int(*sub_83D131D0)(unsigned char* r3, unsigned char* r4) = (int(*)(unsigned char* r3, unsigned char* r4))0x83D131D0;
 
 unsigned int WaitTimeV2 = 0;
 unsigned int TimeCountV2 = 0;
@@ -21,14 +28,10 @@ void WaitV2(int time)
 
 int TransmitPacketHook(StreamManagerMoveClient* lol, int r4, int r5)
 {
-	__try
+	if (MmIsAddressValidPtr(lol))
 	{
 		if (GetAsyncKeyState(XINPUT_GAMEPAD_LEFT_THUMB) && bPacketHack)
 			*(int*)((int)lol + 0x40) += fPacketSpeed;
-	}
-	__except (1)
-	{
-
 	}
 
 	return TransmitPacketOriginal((int)lol, (int)r4, (int)r5);
@@ -48,23 +51,6 @@ int RayCastingHook(UINT64 r3, UINT64 r4, UINT64 r5, UINT64 r6, UINT64 r7, UINT64
 	}
 
 	return RayCastingOriginal(r3, r4, r5, r6, r7, r8, r9, r10, f1, f2, f3);
-}
-
-void FixMovement(EntryInputState* pCmd, float CurAngle, float OldAngle, float fOldForward, float fOldSidemove)
-{
-	float deltaView = CurAngle - OldAngle;
-
-	if (CurAngle < OldAngle)
-		deltaView = abs(CurAngle - OldAngle);
-	else
-		deltaView = 6.28319f - abs(OldAngle - CurAngle);
-
-	if (CurAngle > XM_PI)
-		deltaView = XM_2PI - deltaView;
-
-	pCmd->m_analogInput[0] = cosf(deltaView)*fOldForward + cosf((deltaView)+XM_PIDIV2)*fOldSidemove;
-	pCmd->m_analogInput[1] = sinf(deltaView)*fOldForward + sinf((deltaView)+XM_PIDIV2)*fOldSidemove;
-
 }
 
 int AddMove(StreamManagerMoveClient* r3, IMoveObject* pMove)
@@ -107,6 +93,7 @@ int AddMove(StreamManagerMoveClient* r3, IMoveObject* pMove)
 	return AddMoveOriginal(r3, pMove);
 }
 
+
 int D3DDevice_PresentHook(D3DDevice* pDevice, unsigned long long r4, unsigned long long r5, unsigned long long r6, unsigned long long r7)
 {
 	ATG::g_pd3dDevice = (D3DDevice*)*(int*)((((int)pDevice) + 0x18));
@@ -121,33 +108,40 @@ int D3DDevice_PresentHook(D3DDevice* pDevice, unsigned long long r4, unsigned lo
 		{
 			DrawESP();
 
-			*(int*)(0x836D01E4) = bNoBBobbing ? 0x39600000 : 0x39600001;//no bobbing
-			*(int*)(0x836FDAC8) = bNoSpreadFake ? 0x60000000 : 0x4E800421;//zero out recoil/spread
 			*(int*)(0x836bbf98) = 0x60000000;  //Force Bones to update
 
+			*(int*)(0x836D01E4) = bNoBBobbing ? 0x39600000 : 0x39600001;//no bobbing
+			*(int*)(0x836FDAC8) = bNoSpreadFake ? 0x60000000 : 0x4E800421;//zero out recoil/spread
+			*(int*)(0x834FC41C) = bUAV ? 0x38600001 : 0x38600000;
+			*(int*)(0x834FB424) = bUAV ? 0x39600001 : 0x39600000;
+			*(int*)(0x834FB3D0) = bUAV ? 0x39600001 : 0x39600000;
+			*(int*)(0x83504BBC) = bUAV ? 0x42400020 : 0x4240004C;
+			*(int*)(0x835054C0) = bUAV ? 0x60000000 : 0x419A0B38;
+			*(int*)(0x83505268) = bUAV ? 0x60000000 : 0x409A0DA4;
+			*(int*)(0x835054FC) = bUAV ? 0x4800003C : 0x419A003C;
+			*(int*)(0x8350498C) = bUAV ? 0x39600001 : 0x89590035;
+			*(int*)(0x83504990) = bUAV ? 0x917F02A4 : 0x2B0A0000;
+			*(int*)(0x83504994) = bUAV ? 0x60000000 : 0x419A01AC;
 			setBitFlag = bFlyHack;
+
+
+			if (bHealSelf)
+				SelfHeal();
 
 			if (bFlyHack)
 				MovementHack();
-
-			ClientPlayer* LocalClientPlayer = GetLocalPlayer();
-
-			if (MmIsAddressValidPtr(LocalClientPlayer))
-			{
-				ClientSoldierEntity* LocalClientSoldierEntity = LocalClientPlayer->GetClientSoldier();
-
-				if (MmIsAddressValidPtr(LocalClientSoldierEntity))
-				{
-					if (bHealSelf && LocalClientSoldierEntity->m_Health < 100.0f && GetAsyncKeyState(KEY_RT))
-						HealSelf(LocalClientPlayer);
-				}
-			}
 
 			if (bTeamHeal)
 				HealTeam(GetLocalPlayer());
 
 			if (bUnlimitedAmmo)
 				DoAmmo();
+
+			if (bAutoSpot)
+				SendSpot();
+
+			if (bForceSquadSpawn)
+				ForceSquadSpawn();
 		}
 	}
 
@@ -205,9 +199,6 @@ DWORD XamInputGetStateHook(DWORD dwUserIndex, DWORD r4, PXINPUT_STATE pState)
 
 	return dwResult;
 }
-
-int(*sub_835F4878)(unsigned char* r3, unsigned char* r4) = (int(*)(unsigned char* r3, unsigned char* r4))0x835F4878;
-int(*sub_83D131D0)(unsigned char* r3, unsigned char* r4) = (int(*)(unsigned char* r3, unsigned char* r4))0x83D131D0;
 
 void SendMessage()
 {
@@ -280,4 +271,31 @@ DWORD XamUserGetNameHook(DWORD dwUserIndex, LPSTR pUserName, DWORD cchUserName) 
 	return result;
 }
 
+int sub_83CFF480Hook(unsigned long long r3, unsigned long long r4)
+{
+	if (!MmIsAddressValidPtr((void*)r4) || !MmIsAddressValidPtr((void*)r3))
+		return 0;
 
+	return sub_83CFF480Original(r3, r4);
+}
+
+int ClientConnection_SendMessageHook(ClientConnection* Connection, _NetworkableMessage* Message)
+{
+	if (MmIsAddressValidPtr(Message))
+	{
+
+		TypeInfo* Type = Message->GetType();
+
+
+
+		TypeInfoData * Data = Type->m_infoData;
+
+
+
+		printf("%s\n", Data->name);
+
+
+
+	}
+	return ClientConnection_SendMessageOriginal(Connection, Message);
+}

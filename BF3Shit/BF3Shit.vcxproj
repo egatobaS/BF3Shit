@@ -222,7 +222,7 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PreprocessorDefinitions>NDEBUG;_XBOX;LTCG</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Common\%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Common\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4172;4200;4800;4200;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
