@@ -77,6 +77,7 @@ extern bool bForceSquadSpawn;
 extern bool bOHK;
 extern bool bClientHealthBarF;
 extern bool bClientHealthBarE;
+extern bool bBlueTint;
 
 void AddMenuOptions();
 

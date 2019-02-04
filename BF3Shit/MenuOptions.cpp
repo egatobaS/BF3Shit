@@ -69,6 +69,7 @@ bool bECompass = false;
 bool bFCompass = false;
 bool bAutoSpot = false;
 bool bForceSquadSpawn = false;
+bool bBlueTint = false;
 bool bClientHealthBarF = false;
 bool bClientHealthBarE = false;
 
@@ -151,6 +152,7 @@ void AddMenuOptions()
 	MenuBase.AddFloat("Fly speed", "Player Flying Speed", &FlySpeed, 2.f, 0.0f, 550.0f);
 	MenuBase.AddBool("Auto Spot", "Automatically Spots Players.", &bAutoSpot);
 	MenuBase.AddBool("Force Squad Spawn", "Allows you to spawn on any squad member.", &bForceSquadSpawn);
+	MenuBase.AddBool("Blue Tint", "Removes the BF3 Blue tint over the screen", &bBlueTint);
 
 	AimbotMenu = MenuBase.CreateSubMenu("Aimbot");
 	MenuBase.AddBool("Aimbot", "Enables aimbot.", &bAimbot);
@@ -305,6 +307,7 @@ void LoadINI()
 		bForceSquadSpawn = ini.GetBoolValue("Game", "bForceSquadSpawn");
 		bClientHealthBarF = ini.GetBoolValue("Game", "bClientHealthBarF");
 		bClientHealthBarE = ini.GetBoolValue("Game", "bClientHealthBarE");
+		bBlueTint = ini.GetBoolValue("Game", "bBlueTint");
 	}
 	else
 	{
@@ -357,6 +360,7 @@ void LoadINI()
 		ini.SetValue("Game", "bForceSquadSpawn", "false");
 		ini.SetValue("Game", "bClientHealthBarF", "false");
 		ini.SetValue("Game", "bClientHealthBarE", "false");
+		ini.SetValue("Game", "bBlueTint", "false");
 		ini.SaveFile("Nigel:\\xbOnline\\BF3.cfg");
 	}
 }
@@ -428,7 +432,7 @@ void SetInit()
 		ini.SetValue("Game", "bForceSquadSpawn", bForceSquadSpawn ? "true" : "false");
 		ini.SetValue("Game", "bClientHealthBarF", bClientHealthBarF ? "true" : "false");
 		ini.SetValue("Game", "bClientHealthBarE", bClientHealthBarE ? "true" : "false");
-
+		ini.SetValue("Game", "bBlueTint", bBlueTint ? "true" : "false");
 		ini.SaveFile("Nigel:\\xbOnline\\BF3.cfg");
 	}
 }

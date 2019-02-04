@@ -89,6 +89,7 @@ ClientPlayer* GetLocalPlayer()
 	if (!MmIsAddressValidPtr(pCGC))
 		return NULL;
 
+
 	ClientPlayerManager* pCPM = pCGC->m_pClientPlayerManager;
 	if (!MmIsAddressValidPtr(pCPM))
 		return NULL;

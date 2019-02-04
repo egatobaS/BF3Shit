@@ -104,8 +104,16 @@ int D3DDevice_PresentHook(D3DDevice* pDevice, unsigned long long r4, unsigned lo
 	{
 		DrawMenu();
 
+
 		if (IsLocalClientAlive())
 		{
+
+			ClientGameContext* pCGC = ClientGameContext::GetInstance();
+			if (!MmIsAddressValidPtr(pCGC))
+				return NULL;
+
+			pCGC->m_pLevel->m_worldRenderModule->m_worldRenderer->m_worldRenderSettings->m_lightBrightMap = bBlueTint;
+
 			DrawESP();
 
 			*(int*)(0x836bbf98) = 0x60000000;  //Force Bones to update
@@ -122,8 +130,8 @@ int D3DDevice_PresentHook(D3DDevice* pDevice, unsigned long long r4, unsigned lo
 			*(int*)(0x8350498C) = bUAV ? 0x39600001 : 0x89590035;
 			*(int*)(0x83504990) = bUAV ? 0x917F02A4 : 0x2B0A0000;
 			*(int*)(0x83504994) = bUAV ? 0x60000000 : 0x419A01AC;
-			setBitFlag = bFlyHack;
 
+			setBitFlag = bFlyHack;
 
 			if (bHealSelf)
 				SelfHeal();
@@ -275,8 +283,17 @@ int sub_83CFF480Hook(unsigned long long r3, unsigned long long r4)
 {
 	if (!MmIsAddressValidPtr((void*)r4) || !MmIsAddressValidPtr((void*)r3))
 		return 0;
+	int a = 0;
 
-	return sub_83CFF480Original(r3, r4);
+	__try {
+		a = sub_83CFF480Original(r3, r4);
+	}
+	__except (0)
+	{
+
+	}
+
+	return a;
 }
 
 int ClientConnection_SendMessageHook(ClientConnection* Connection, _NetworkableMessage* Message)
@@ -285,16 +302,7 @@ int ClientConnection_SendMessageHook(ClientConnection* Connection, _NetworkableM
 	{
 
 		TypeInfo* Type = Message->GetType();
-
-
-
 		TypeInfoData * Data = Type->m_infoData;
-
-
-
-		printf("%s\n", Data->name);
-
-
 
 	}
 	return ClientConnection_SendMessageOriginal(Connection, Message);
