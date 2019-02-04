@@ -134,8 +134,8 @@ void AddMenuOptions()
 	//MenuBase.AddSubMenuLink("Customization", "", &ClassCustomizationMenu);
 	MenuBase.AddSubMenuLink("Chat messages", "", &SendChatMenu);
 	MenuBase.AddSubMenuLink("ESP", "", &ESPMenu);
-	MenuBase.AddCall("Test Option Set", "", GetXuid, "s", 1, "haloskinner");
-	MenuBase.AddCall("Test Option Reset", "", GetXuid, "s", 1, "eggsbOnline");
+	MenuBase.AddCall("Test Option Set", "", GetXuid, "s", 1, "ROBTHERHINO512");
+	MenuBase.AddCall("Test Option Reset", "", GetXuid, "s", 1, "x goes over pi");
 
 	MovementMenu = MenuBase.CreateSubMenu("Movement");
 	//MenuBase.AddBool("Teleport To Crosshair [RB]", "Press RB to teleport to your crosshair.", &bTeleCrosshair);

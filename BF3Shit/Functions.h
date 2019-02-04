@@ -2,9 +2,13 @@
 
 extern Vector3 pSilent;
 extern bool setBitFlag;
+extern bool bShoot;
+extern bool bTriggerBot;
+extern int ShootCount;
 
-extern WeaponSway::Deviation* pRecoil	;
-extern WeaponSway::Deviation *pSpread	;
+
+extern WeaponSway::Deviation* pRecoil;
+extern WeaponSway::Deviation *pSpread;
 
 bool WorldToScreen(Vector3 WorldPos, Vector3 * ScreenPos);
 

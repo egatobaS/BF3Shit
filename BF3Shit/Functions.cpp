@@ -4,6 +4,9 @@ Vector3 pSilent;
 
 bool isClientWallable[24] = { 0 };
 bool setBitFlag = false;
+bool bShoot = false;
+bool bTriggerBot = false;
+int ShootCount = 0;
 
 int NearestPlayer = -1;
 int UACounterInt = 0;
@@ -1075,6 +1078,7 @@ void Aimbot(ClientPlayer* LocalEntity)
 
 	if (NearestPlayer == -1)
 	{
+		bTriggerBot = false;
 		return;
 	}
 
@@ -1117,7 +1121,9 @@ void Aimbot(ClientPlayer* LocalEntity)
 	{
 		if (GetAsyncKeyState(0x5555))
 		{
-			if (GetAsyncKeyState(KEY_RT) && bUnfairAimbot)
+			bTriggerBot = true;
+
+			if (GetAsyncKeyState(KEY_RT) || GetLocalPlayer()->GetClientSoldier()->m_pClientSoldierWeaponsComponent->GetActiveSoldierWeapon()->m_pPrimaryFiring->m_weaponState == 9 && bUnfairAimbot)
 				DamagePlayer(AimTarget, GetLocalPlayer(), 100.0f, bSpoofTarget ? getUA(AimTarget) : getUA(GetLocalPlayer()), bHeadshots ? HitReactionType::HRT_Head : (HitReactionType)0);
 
 			Matrix* m = new Matrix;
@@ -1133,10 +1139,14 @@ void Aimbot(ClientPlayer* LocalEntity)
 				pCSW->m_pClientSoldierAimingSimulation->m_fpsAimer->m_yaw = Angles.x;
 			}
 		}
+		else
+			bTriggerBot = false;
 	}
 	else
 	{
-		if (GetAsyncKeyState(KEY_RT) && bUnfairAimbot)
+		bTriggerBot = true;
+
+		if (GetAsyncKeyState(KEY_RT) || GetLocalPlayer()->GetClientSoldier()->m_pClientSoldierWeaponsComponent->GetActiveSoldierWeapon()->m_pPrimaryFiring->m_weaponState == 9 && bUnfairAimbot)
 			DamagePlayer(AimTarget, GetLocalPlayer(), 100.0f, bSpoofTarget ? getUA(AimTarget) : getUA(GetLocalPlayer()), bHeadshots ? HitReactionType::HRT_Head : (HitReactionType)0);
 
 		if (!bSilentAimbot)

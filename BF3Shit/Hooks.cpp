@@ -159,6 +159,33 @@ DWORD XamInputGetStateHook(DWORD dwUserIndex, DWORD r4, PXINPUT_STATE pState)
 		pState->Gamepad.wButtons &= ~XINPUT_GAMEPAD_B;
 	}
 
+	if (bAutoShoot)
+	{
+		if (IsLocalClientAlive())
+		{
+			if (bTriggerBot)
+				pState->Gamepad.bRightTrigger = (bShoot ? 255 : 0);
+
+			if (MmIsAddressValidPtr(GetLocalPlayer()->m_pControlledControllable->m_pClientSoldierWeaponsComponent->GetActiveSoldierWeapon()))
+			{
+				if (MmIsAddressValidPtr(GetLocalPlayer()->m_pControlledControllable->m_pClientSoldierWeaponsComponent->GetActiveSoldierWeapon()->m_pWeapon))
+				{
+					if (MmIsAddressValidPtr(GetLocalPlayer()->m_pControlledControllable->m_pClientSoldierWeaponsComponent->GetActiveSoldierWeapon()->m_pWeapon->m_pWeaponFiringData))
+					{
+						if (MmIsAddressValidPtr(GetLocalPlayer()->m_pControlledControllable->m_pClientSoldierWeaponsComponent->GetActiveSoldierWeapon()->m_pWeapon->m_pWeaponFiringData->m_pFiringFunctionData))
+						{
+							if ((GetTickCount() - ShootCount) > GetLocalPlayer()->m_pControlledControllable->m_pClientSoldierWeaponsComponent->GetActiveSoldierWeapon()->m_pWeapon->m_pWeaponFiringData->m_pFiringFunctionData->m_RateOfFire / 60)
+							{
+								ShootCount = GetTickCount();
+								bShoot = !bShoot;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	if (bAimbot && (NearestPlayer != -1 && !bSilentAimbot) && ((bAimingRequired && GetAsyncKeyState(0x5555)) || !bAimingRequired))
 	{
 		pState->Gamepad.sThumbRX = 0;
