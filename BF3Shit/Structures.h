@@ -3605,7 +3605,13 @@ public:
 	{
 		__try
 		{
-			return	m_Soldier.GetData();
+			
+			ClientSoldierEntity* Return  = m_Soldier.GetData();
+
+			if (!MmIsAddressValidPtr(Return))
+				return NULL;
+
+			return	Return;
 		}
 		__except (1)
 		{

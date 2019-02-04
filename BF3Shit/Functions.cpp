@@ -105,6 +105,10 @@ ClientPlayer* GetPlayerById(unsigned int id)
 bool IsLocalClientAlive()
 {
 	ClientPlayer* pLocal = GetLocalPlayer();
+
+	if (!MmIsAddressValidPtr(pLocal))
+		return false;
+
 	ClientSoldierEntity* pCSE = pLocal->GetClientSoldier();
 	if (!MmIsAddressValidPtr(pCSE))
 		return false;
@@ -124,29 +128,28 @@ bool IsLocalClientAlive()
 	if (!MmIsAddressValidPtr(pCSWC))
 		return false;
 
-	ClientSoldierWeapon* pCSW = pCSWC->GetActiveSoldierWeapon();
-	if (!MmIsAddressValidPtr(pCSW))
-		return false;
-
-	ClientWeapon* pCW = pCSW->m_pWeapon;
-	if (!MmIsAddressValidPtr(pCW))
-		return false;
-
-	WeaponFiring* pWF = pCSW->m_pPrimaryFiring;
-	if (!MmIsAddressValidPtr(pWF))
-		return false;
-
-	ClientSoldierAimingSimulation* pCSAS = pCSW->m_pClientSoldierAimingSimulation;
-	if (!MmIsAddressValidPtr(pCSAS))
-		return false;
-
-	WeaponFiringData *pFireData = pCSWC->GetActiveSoldierWeapon()->m_pWeapon->m_pWeaponFiringData;
-	if (pFireData == 0)
-		return false;
-
-	BulletEntityData *pProjData = pFireData->m_pFiringFunctionData->m_pBulletEntityData;
-	if (pProjData == 0)
-		return false;
+	//ClientSoldierWeapon* pCSW = pCSWC->GetActiveSoldierWeapon();
+	//if (!MmIsAddressValidPtr(pCSW))
+	//	return false;
+	//
+	//ClientWeapon* pCW = pCSW->m_pWeapon;
+	//if (!MmIsAddressValidPtr(pCW))
+	//	return false;
+	//
+	//WeaponFiring* pWF = pCSW->m_pPrimaryFiring;
+	//if (!MmIsAddressValidPtr(pWF))
+	//	return false;
+	//ClientSoldierAimingSimulation* pCSAS = pCSW->m_pClientSoldierAimingSimulation;
+	//if (!MmIsAddressValidPtr(pCSAS))
+	//	return false;
+	//
+	//WeaponFiringData *pFireData = pCSWC->GetActiveSoldierWeapon()->m_pWeapon->m_pWeaponFiringData;
+	//if (pFireData == 0)
+	//	return false;
+	//
+	//BulletEntityData *pProjData = pFireData->m_pFiringFunctionData->m_pBulletEntityData;
+	//if (pProjData == 0)
+	//	return false;
 
 	return true;
 }
@@ -520,6 +523,11 @@ bool DrawESP() //TODO: BoneESP and a Visibility Check
 		if (!MmIsAddressValidPtr(Target))
 			continue;
 
+		ClientSoldierEntity* TargetClientSoldierEntity = Target->GetClientSoldier();
+
+		if (!MmIsAddressValidPtr(TargetClientSoldierEntity))
+			continue;
+
 		if (Target->isInVehicle())
 		{
 			if (!MmIsAddressValidPtr(Target->GetClientVehicleEntity()))
@@ -531,13 +539,13 @@ bool DrawESP() //TODO: BoneESP and a Visibility Check
 				{
 				case 1:
 				{
-					if (MmIsAddressValidPtr(Target->GetClientSoldier()))
+					if (MmIsAddressValidPtr(TargetClientSoldierEntity))
 						Draw2DBox(Target->GetClientVehicleEntity(), D3DCOLOR_RGBA(255, 255, 0, 255), 0.8);
 					break;
 				}
 				case 0:
 				{
-					if (MmIsAddressValidPtr(Target->GetClientSoldier()))
+					if (MmIsAddressValidPtr(TargetClientSoldierEntity))
 						TransformDrawAABB(Target->GetClientVehicleEntity(), D3DCOLOR_RGBA(255, 255, 0, 255), 0.8);
 					break;
 				}
@@ -579,7 +587,7 @@ bool DrawESP() //TODO: BoneESP and a Visibility Check
 
 			Vector3 PlayerHead;
 
-			if (GetBone(Target->GetClientSoldier(), &PlayerHead, UpdatePoseResultData::Head))
+			if (GetBone(TargetClientSoldierEntity, &PlayerHead, UpdatePoseResultData::Head))
 			{
 				float fHeight = PlayerHead.y - ClientPosition.y;
 
@@ -612,14 +620,14 @@ bool DrawESP() //TODO: BoneESP and a Visibility Check
 				{
 				case 1:
 				{
-					if (MmIsAddressValidPtr(Target->GetClientSoldier()))
-						Draw2DBox((ClientVehicleEntity*)Target->GetClientSoldier(), D3DCOLOR_RGBA(0, 255, 0, 255), 0.8);
+					if (MmIsAddressValidPtr(TargetClientSoldierEntity))
+						Draw2DBox((ClientVehicleEntity*)TargetClientSoldierEntity, D3DCOLOR_RGBA(0, 255, 0, 255), 0.8);
 					break;
 				}
 				case 0:
 				{
-					if (MmIsAddressValidPtr(Target->GetClientSoldier()))
-						TransformDrawAABB((ClientVehicleEntity*)Target->GetClientSoldier(), D3DCOLOR_RGBA(0, 255, 0, 255), 0.8);
+					if (MmIsAddressValidPtr(TargetClientSoldierEntity))
+						TransformDrawAABB((ClientVehicleEntity*)TargetClientSoldierEntity, D3DCOLOR_RGBA(0, 255, 0, 255), 0.8);
 					break;
 				}
 				}
@@ -647,14 +655,14 @@ bool DrawESP() //TODO: BoneESP and a Visibility Check
 				{
 				case 1:
 				{
-					if (MmIsAddressValidPtr(Target->GetClientSoldier()))
-						Draw2DBox((ClientVehicleEntity*)Target->GetClientSoldier(), ESPColor, 0.8);
+					if (MmIsAddressValidPtr(TargetClientSoldierEntity))
+						Draw2DBox((ClientVehicleEntity*)TargetClientSoldierEntity, ESPColor, 0.8);
 					break;
 				}
 				case 0:
 				{
-					if (MmIsAddressValidPtr(GetPlayerById(i)->GetClientSoldier()))
-						TransformDrawAABB((ClientVehicleEntity*)Target->GetClientSoldier(), ESPColor, 0.8);
+					if (MmIsAddressValidPtr(TargetClientSoldierEntity))
+						TransformDrawAABB((ClientVehicleEntity*)TargetClientSoldierEntity, ESPColor, 0.8);
 					break;
 				}
 				}
@@ -740,20 +748,49 @@ void DoAimCorrection(ClientSoldierEntity * mySoldier, ClientSoldierEntity * enem
 	if (!IsLocalClientAlive())
 		return;
 
-	ClientSoldierWeaponsComponent *pWeapComp = GetLocalPlayer()->m_pControlledControllable->m_pClientSoldierWeaponsComponent;
-	if (pWeapComp == 0)
+	ClientPlayer*  LocalClientPlayer = GetLocalPlayer();
+
+	if (!MmIsAddressValidPtr(LocalClientPlayer))
 		return;
 
-	WeaponFiringData *pFireData = pWeapComp->GetActiveSoldierWeapon()->m_pWeapon->m_pWeaponFiringData;
-	if (pFireData == 0)
+	ClientSoldierEntity* LocalClientSoldierEntity = LocalClientPlayer->m_pControlledControllable;
+
+	if (!MmIsAddressValidPtr(LocalClientSoldierEntity))
 		return;
 
-	BulletEntityData *pProjData = pFireData->m_pFiringFunctionData->m_pBulletEntityData;
-	if (pProjData == 0)
+	ClientSoldierWeaponsComponent* pWeapComp = LocalClientSoldierEntity->m_pClientSoldierWeaponsComponent;
+
+	if (!MmIsAddressValidPtr(pWeapComp))
+		return;
+
+	ClientSoldierWeapon* ActiveWeapon = pWeapComp->GetActiveSoldierWeapon();
+
+	if (!MmIsAddressValidPtr(ActiveWeapon))
+		return;
+
+	ClientWeapon* ClientWeapon = ActiveWeapon->m_pWeapon;
+
+	if (!MmIsAddressValidPtr(ClientWeapon))
+		return;
+
+	WeaponFiringData *pFireData = ClientWeapon->m_pWeaponFiringData;
+
+	if (!MmIsAddressValidPtr(pFireData))
+		return;
+
+	FiringFunctionData* FiringData = pFireData->m_pFiringFunctionData;
+
+	if (!MmIsAddressValidPtr(FiringData))
+		return;
+
+	BulletEntityData *pProjData = FiringData->m_pBulletEntityData;
+
+	if (!MmIsAddressValidPtr(pProjData))
 		return;
 
 	float Gravity = pProjData->m_gravity;
-	float Bulletspeed = pFireData->m_pFiringFunctionData->m_initialSpeed.z;
+
+	float Bulletspeed = FiringData->m_initialSpeed.z;
 
 	AimCorrection(&enemyVec, enemySoldier->m_pClientSoldierPrediction->m_Velocity, mySoldier->m_pClientSoldierPrediction->m_Velocity, mySoldier->m_pClientSoldierPrediction->m_Position.Distance(enemySoldier->m_pClientSoldierPrediction->m_Position), Bulletspeed, Gravity);
 }
@@ -962,7 +999,30 @@ UnlockAssetBase* getUA(ClientPlayer* localp)
 {
 	int(*GetWeaponID)(ClientWeapon*) = (int(*)(ClientWeapon*))0x836F4390;
 
-	if (!GetWeaponID(localp->GetClientSoldier()->m_pClientSoldierWeaponsComponent->GetActiveSoldierWeapon()->m_pWeapon))
+	ClientSoldierEntity* ClientSoldier = localp->GetClientSoldier();
+
+	if (!MmIsAddressValidPtr(ClientSoldier))
+		return NULL;
+
+	if (!MmIsAddressValidPtr(ClientSoldier->m_pClientSoldierWeaponsComponent))
+		return NULL;
+
+	ClientSoldierWeaponsComponent* ClientSoldierWeaponsComponent = ClientSoldier->m_pClientSoldierWeaponsComponent;
+
+	if (!MmIsAddressValidPtr(ClientSoldierWeaponsComponent))
+		return NULL;
+
+	ClientSoldierWeapon* ActiveSoldier = ClientSoldierWeaponsComponent->GetActiveSoldierWeapon();
+
+	if (!MmIsAddressValidPtr(ActiveSoldier))
+		return NULL;
+
+	ClientWeapon* pWeapon = ActiveSoldier->m_pWeapon;
+
+	if (!MmIsAddressValidPtr(pWeapon))
+		return NULL;
+
+	if (!GetWeaponID(pWeapon))
 		return NULL;
 
 	return (UnlockAssetBase*)GetWeaponID(localp->GetClientSoldier()->m_pClientSoldierWeaponsComponent->GetActiveSoldierWeapon()->m_pWeapon);
@@ -1067,6 +1127,48 @@ void HealTeam(ClientPlayer* LocalPlayer)
 
 void Aimbot(ClientPlayer* LocalEntity)
 {
+	ClientPlayer*  LocalClientPlayer = GetLocalPlayer();
+
+	if (!MmIsAddressValidPtr(LocalClientPlayer))
+		return;
+
+	ClientSoldierEntity* LocalClientSoldierEntity = LocalClientPlayer->m_pControlledControllable;
+
+	if (!MmIsAddressValidPtr(LocalClientSoldierEntity))
+		return;
+
+	ClientSoldierWeaponsComponent* pWeapComp = LocalClientSoldierEntity->m_pClientSoldierWeaponsComponent;
+
+	if (!MmIsAddressValidPtr(pWeapComp))
+		return;
+
+	ClientSoldierWeapon* ActiveWeapon = pWeapComp->GetActiveSoldierWeapon();
+
+	if (!MmIsAddressValidPtr(ActiveWeapon))
+		return;
+
+	ClientWeapon* ClientWeapon = ActiveWeapon->m_pWeapon;
+
+	if (!MmIsAddressValidPtr(ClientWeapon))
+		return;
+
+	WeaponFiringData *pFireData = ClientWeapon->m_pWeaponFiringData;
+
+	if (!MmIsAddressValidPtr(pFireData))
+		return;
+
+	FiringFunctionData* FiringData = pFireData->m_pFiringFunctionData;
+	if (!MmIsAddressValidPtr(FiringData))
+		return;
+
+	WeaponFiring* WeaponPrimaryFriring = ActiveWeapon->m_pPrimaryFiring;
+	if (!MmIsAddressValidPtr(WeaponPrimaryFriring))
+		return;
+
+	ClientSoldierAimingSimulation* ClientSoldierAimingSimulation = ActiveWeapon->m_pClientSoldierAimingSimulation;
+	if (!MmIsAddressValidPtr(ClientSoldierAimingSimulation))
+		return;
+
 	Vector2 Angles = Vector2(0, 0);
 	Vector2 TempAng = Vector2(0, 0);
 
@@ -1086,24 +1188,14 @@ void Aimbot(ClientPlayer* LocalEntity)
 	if (!GetAimPos(AimTarget, &Angles, &LocalOrigin, &Origin))
 		return;
 
-	ClientSoldierWeaponsComponent* pCSWC = LocalEntity->m_pControlledControllable->m_pClientSoldierWeaponsComponent;
-
-	if (!MmIsAddressValidPtr(pCSWC))
+	if (ActiveWeapon->m_pCorrectedFiring->m_weaponState == 11)
 		return;
 
-	ClientSoldierWeapon* pCSW = pCSWC->GetActiveSoldierWeapon();
-
-	if (!MmIsAddressValidPtr(pCSW))
+	if (ActiveWeapon->m_pSoldierWeaponData->isRocket())
 		return;
 
-	if (pCSW->m_pCorrectedFiring->m_weaponState == 11)
-		return;
-
-	if (pCSW->m_pSoldierWeaponData->isRocket())
-		return;
-
-	Angles.x -= pCSW->m_pClientSoldierAimingSimulation->m_sway.x;
-	Angles.y -= pCSW->m_pClientSoldierAimingSimulation->m_sway.y;
+	Angles.x -= ClientSoldierAimingSimulation->m_sway.x;
+	Angles.y -= ClientSoldierAimingSimulation->m_sway.y;
 
 	TempAng = Angles;
 
@@ -1113,26 +1205,27 @@ void Aimbot(ClientPlayer* LocalEntity)
 	pSilent.x = Angles.x;
 	pSilent.y = Angles.y;
 
+
 	if (bAimingRequired)
 	{
 		if (GetAsyncKeyState(0x5555))
 		{
 			bTriggerBot = true;
 
-			if (GetAsyncKeyState(KEY_RT) || GetLocalPlayer()->GetClientSoldier()->m_pClientSoldierWeaponsComponent->GetActiveSoldierWeapon()->m_pPrimaryFiring->m_weaponState == 9 && bUnfairAimbot)
-				DamagePlayer(AimTarget, GetLocalPlayer(), 100.0f, bSpoofTarget ? getUA(AimTarget) : getUA(GetLocalPlayer()), bHeadshots ? HitReactionType::HRT_Head : (HitReactionType)0);
+			if (GetAsyncKeyState(KEY_RT) || WeaponPrimaryFriring->m_weaponState == 9 && bUnfairAimbot)
+				DamagePlayer(AimTarget, LocalClientPlayer, 100.0f, bSpoofTarget ? getUA(AimTarget) : getUA(LocalClientPlayer), bHeadshots ? HitReactionType::HRT_Head : (HitReactionType)0);
 
 			Matrix* m = new Matrix;
 			bool l = false;
 
-			GetLocalPlayer()->GetClientSoldier()->m_pClientSoldierWeaponsComponent->GetActiveSoldierWeapon()->m_pPrimaryFiring->m_pSway->getDispersion(*m, true);
+			WeaponPrimaryFriring->m_pSway->getDispersion(*m, true);
 
 			delete m;
 
 			if (!bSilentAimbot)
 			{
-				pCSW->m_pClientSoldierAimingSimulation->m_fpsAimer->m_pitch = Angles.y;
-				pCSW->m_pClientSoldierAimingSimulation->m_fpsAimer->m_yaw = Angles.x;
+				ClientSoldierAimingSimulation->m_fpsAimer->m_pitch = Angles.y;
+				ClientSoldierAimingSimulation->m_fpsAimer->m_yaw = Angles.x;
 			}
 		}
 		else
@@ -1142,13 +1235,13 @@ void Aimbot(ClientPlayer* LocalEntity)
 	{
 		bTriggerBot = true;
 
-		if (GetAsyncKeyState(KEY_RT) || GetLocalPlayer()->GetClientSoldier()->m_pClientSoldierWeaponsComponent->GetActiveSoldierWeapon()->m_pPrimaryFiring->m_weaponState == 9 && bUnfairAimbot)
-			DamagePlayer(AimTarget, GetLocalPlayer(), 100.0f, bSpoofTarget ? getUA(AimTarget) : getUA(GetLocalPlayer()), bHeadshots ? HitReactionType::HRT_Head : (HitReactionType)0);
+		if (GetAsyncKeyState(KEY_RT) || WeaponPrimaryFriring->m_weaponState == 9 && bUnfairAimbot)
+			DamagePlayer(AimTarget, LocalClientPlayer, 100.0f, bSpoofTarget ? getUA(AimTarget) : getUA(LocalClientPlayer), bHeadshots ? HitReactionType::HRT_Head : (HitReactionType)0);
 
 		if (!bSilentAimbot)
 		{
-			pCSW->m_pClientSoldierAimingSimulation->m_fpsAimer->m_pitch = Angles.y;
-			pCSW->m_pClientSoldierAimingSimulation->m_fpsAimer->m_yaw = Angles.x;
+			ClientSoldierAimingSimulation->m_fpsAimer->m_pitch = Angles.y;
+			ClientSoldierAimingSimulation->m_fpsAimer->m_yaw = Angles.x;
 		}
 	}
 }

@@ -128,9 +128,18 @@ int D3DDevice_PresentHook(D3DDevice* pDevice, unsigned long long r4, unsigned lo
 			if (bFlyHack)
 				MovementHack();
 
-			if (!MmIsAddressValidPtr(GetLocalPlayer()->GetClientSoldier()))
-				if (bHealSelf && GetLocalPlayer()->GetClientSoldier()->m_Health < 100.0f && GetAsyncKeyState(KEY_RT))
-					HealSelf(GetLocalPlayer());
+			ClientPlayer* LocalClientPlayer = GetLocalPlayer();
+
+			if (MmIsAddressValidPtr(LocalClientPlayer))
+			{
+				ClientSoldierEntity* LocalClientSoldierEntity = LocalClientPlayer->GetClientSoldier();
+
+				if (MmIsAddressValidPtr(LocalClientSoldierEntity))
+				{
+					if (bHealSelf && LocalClientSoldierEntity->m_Health < 100.0f && GetAsyncKeyState(KEY_RT))
+						HealSelf(GetLocalPlayer());		
+				}
+			}
 
 			if (bTeamHeal)
 				HealTeam(GetLocalPlayer());

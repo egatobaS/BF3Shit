@@ -37,9 +37,9 @@ BOOL WINAPI DllMain(HANDLE ModuleHandle, unsigned int fdwReason, LPVOID lpReserv
 
 		ATG::g_pd3dDevice = NULL;
 
-		XamUserGetXUIDDetour.HookFunction((DWORD)GetAddr(0x82D80000, 0x20A), (DWORD)XamUserGetXUIDHook);
-		XamUserGetSigninInfoDetour.HookFunction((DWORD)GetAddr(0x82D80000, 551), (DWORD)XamUserGetSigninInfoHook);
-		XamUserGetNameDetour.HookFunction(GetAddr(0x82D80000, 0x20E), (DWORD)XamUserGetNameHook);
+		//XamUserGetXUIDDetour.HookFunction((DWORD)GetAddr(0x82D80000, 0x20A), (DWORD)XamUserGetXUIDHook);
+		//XamUserGetSigninInfoDetour.HookFunction((DWORD)GetAddr(0x82D80000, 551), (DWORD)XamUserGetSigninInfoHook);
+		//XamUserGetNameDetour.HookFunction(GetAddr(0x82D80000, 0x20E), (DWORD)XamUserGetNameHook);
 
 		sub_834F63C8Original = (sub_834F63C8_t)sub_834F63C8Detour.HookFunction(0x834F63C8, (unsigned int)sub_834F63C8Hook);
 		RayCastingOriginal = (RayCasting_t)RayCastingDetour.HookFunction(0x83116A38, (unsigned int)RayCastingHook);
@@ -56,9 +56,9 @@ BOOL WINAPI DllMain(HANDLE ModuleHandle, unsigned int fdwReason, LPVOID lpReserv
 
 		RunThread = false;
 
-		XamUserGetXUIDDetour.RestoreFunction();
-		XamUserGetSigninInfoDetour.RestoreFunction();
-		XamUserGetNameDetour.RestoreFunction();
+		//XamUserGetXUIDDetour.RestoreFunction();
+		//XamUserGetSigninInfoDetour.RestoreFunction();
+		//XamUserGetNameDetour.RestoreFunction();
 
 		sub_834F63C8Detour.RestoreFunction();
 		TransmitPacketDetour.RestoreFunction();
