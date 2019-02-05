@@ -691,13 +691,13 @@ bool DrawESP() //TODO: BoneESP and a Visibility Check
 				case 1:
 				{
 					if (MmIsAddressValidPtr(TargetClientSoldierEntity))
-						Draw2DBox(Target->GetClientVehicleEntity(), D3DCOLOR_RGBA(255, 255, 0, 255), 0.8);
+						Draw2DBox(Target->GetClientVehicleEntity(), D3DCOLOR_RGBA(231, 0, 245, 255), 0.8);
 					break;
 				}
 				case 0:
 				{
 					if (MmIsAddressValidPtr(TargetClientSoldierEntity))
-						TransformDrawAABB(Target->GetClientVehicleEntity(), D3DCOLOR_RGBA(255, 255, 0, 255), 0.8);
+						TransformDrawAABB(Target->GetClientVehicleEntity(), D3DCOLOR_RGBA(231, 0, 245, 255), 0.8);
 					break;
 				}
 				}
