@@ -312,10 +312,10 @@ typedef enum
 template< class T > class WeakPtr
 {
 public:
-	T** m_ptr;
+	T * * m_ptr;
 
 public:
-	T* GetData()
+	T * GetData()
 	{
 		if (!m_ptr)
 			return NULL;
@@ -349,7 +349,7 @@ namespace fb
 	template <typename T> class Array
 	{
 	private:
-		T* m_firstElement;
+		T * m_firstElement;
 
 	public:
 		T At(INT nIndex)
@@ -467,7 +467,15 @@ class ClientPlayerView;
 class FiringFunctionData;
 class FireLogicData;
 class ExtendableWideStringBuilder;
-
+class Entity;
+class EntityCreator;
+class EntityCollectionSegment;
+class ITypedObject;
+class DataContainer;
+class Asset;
+class PropertyConnection;
+class LinkConnection;
+class SubLevel;
 class ResourceManager;
 class ExplosiveData;
 class LinearTransform;
@@ -2026,7 +2034,7 @@ public:
 	class ClientAnimatedSoldierWeaponHandler
 	{
 	public:
-		ClientSoldierWeapon* m_WeaponList[10]; //0x0000 
+		ClientSoldierWeapon * m_WeaponList[10]; //0x0000 
 	};
 
 	enum WeaponSlot
@@ -2062,7 +2070,7 @@ public:
 	{
 		if (!MmIsAddressValidPtr(m_pActiveHandler))
 			return NULL;
-		
+
 		if (!MmIsAddressValidPtr(m_pActiveHandler->m_pActiveWeapon))
 			return NULL;
 
@@ -3757,8 +3765,8 @@ public:
 	{
 		__try
 		{
-			
-			ClientSoldierEntity* Return  = m_pControlledControllable;
+
+			ClientSoldierEntity* Return = m_pControlledControllable;
 
 			if (!MmIsAddressValidPtr(Return))
 				return NULL;
@@ -3859,8 +3867,8 @@ enum ChatChannelType
 class TypeInfo
 {
 public:
-	
-	TypeInfoData *m_infoData;
+
+	TypeInfoData * m_infoData;
 	TypeInfo *m_pNext; //0x4
 	unsigned short m_runtimeId; //0x8
 	unsigned short m_flags; //0xA
@@ -3921,77 +3929,382 @@ public:
 	virtual struct SafeQueryResult* asyncPhysicsRayQuery(const char *ident, Vector4 *from, Vector4 *to, unsigned int flags, void* excluded);
 
 };
+class EntityIterator;
+class EntityCollection;
+class RemovedEntityInfo;
+class SpatialSize;
+
+enum Realm
+{
+	Realm_Client,
+	Realm_Server,
+	Realm_ClientAndServer,
+	Realm_None,
+	Realm_Pipeline,
+};
+
+
+
+class EntityCreator
+{
+public:
+	enum RayCastTest
+	{
+		RCTDetailed = 0,
+		RCTCollision
+	};
+	LPVOID vftable;						// 0x00
+	EntityCreator* m_previousCreator;	// 0x04
+	EntityCreator* m_nextCreator;		// 0x08
+	Realm m_realm;						// 0x0C
+	INT m_linked;						// 0x10
+}; // 0x14
+
+class ITypedObject
+{
+public:
+	virtual TypeInfo * getType(); //v-00
+}; // 0x04
+
+
+class PropertyModificationListener
+	: public ITypedObject			// 0x00
+{
+	//new crashes when parsing through propmodlistener put back later i
+	/*	class PropertyModification
+	{
+	int name;                     // 0x0
+	void * value;                     // 0x4
+	}; // PropertyModification
+	*/
+}; // 0x04
+
+
+class EntityBusPeer
+	: public PropertyModificationListener		// 0x00
+{		//new
+		//			virtual class fb::EntityBus * getPeerBus();	// V: 0x1C
+		//			virtual const class fb::GameObjectData * getPeerData();	// V: 0x20
+		//			virtual void * __vecDelDtor(unsigned int);	// V: 0x24
+
+}; // 0x04
+
+class SupportsWeakPtr // Inherited class at offset 0x4
+{
+}; // fb::SupportsWeakPtr
+
+class ClientExplosionPackEntity;
+class ClientGameEntity;
+class GameEntity;
+class SpatialEntity;
+class Entity : public EntityBusPeer, SupportsWeakPtr			// 0x00
+{
+public:
+	DWORD m_weakTokenHolder;		// 0x04
+	DWORD m_flags;					// 0x08
+}; // 0x0C
+
+class DataContainer
+	: public ITypedObject		// 0x00
+{
+public:
+	WORD m_refCnt;				// 0x04
+	WORD m_flags;				// 0x06
+}; // 0x08
+
+
+class GameDataContainer
+	: public DataContainer			// 0x00
+{
+}; // 0x08
+
+class GameObjectData
+	: public GameDataContainer				// 0x00
+{
+public:
+	WORD m_indexInBlueprint;				// 0x08
+	BYTE m_isEventConnectionTarget;			// 0x0A
+	BYTE m_isPropertyConnectionTarget;		// 0x0B
+											//String m_name;  
+}; // 0x0C
+
+
+class EntityData
+	: public GameObjectData					// 0x00
+{
+}; // 0xC
+
+class SpatialEntityData
+	: public EntityData				// 0x00
+{
+public:
+	PAD(0x4);						// 0x0C
+	LinearTransform m_transform;	// 0x10
+}; // 0x50/ 0x08
+
+class GameEntityData
+	: public SpatialEntityData				// 0x00
+{
+public:
+	char* m_name;//	RefArray<GameObjectData> m_components;	// 0x50
+	BYTE m_enabled;							// 0x54
+	BYTE m_runtimeComponentCount;			// 0x55
+	PAD(0xA);								// 0x56
+
+											//unsigned char m_runtimeComponentCount;               // 0x75	
+											//class fb::Array<fb::WeaponStateData> m_weaponStates; // 0x80
+											//enum fb::WeaponClassEnum m_weaponClass;              // 0x84
+
+}; // 0x60
+
+
+class SpatialEntity
+	: public Entity				// 0x00
+{
+public:
+	virtual ~SpatialEntity();
+	virtual void propertyChanged(/*fb::PropertyModificationListener::PropertyModification const &*/);//1 // V: 0x0
+	virtual void listenToParentChanges(void);//2 // V: 0x4
+	virtual bool isPropertyChangedAllowed(void);//3 // V: 0x8
+	virtual void _event(/*fb::EntityEvent const *)*/);//4 // V: 0x0c
+	virtual void editEvent(/*fb::DataUpdateEvent const **/);//5 // V: 0x10
+	virtual void getDebugName(/*fb::StringBuilderBase &,bool*/);//6 // V: 0x14
+	virtual void getPeerBus(void);//7  // V: 0x18
+	virtual void getPeerData(void);//8  V: 0x1c
+	virtual void computeWorldTransform(LinearTransform &);//9 0x24
+	virtual void getPeerSubBus(void);//10 0x28
+	virtual void getRecordingData(/*fb::EntityRecordingData **/);//11  0x2c
+	virtual void onCreate(/*fb::EntityBusPeerCreationInfo &*/);//12 0x30
+	virtual void onDestroy(void);//13 0x34
+	virtual void Function14(); //14  0x38
+	virtual void onSaveCreate(/*fb::SaveOutStream &*/); //15 0x3c
+	virtual void onInit(/*fb::EntityInitInfo &*/); //16 0x40
+	virtual void onSaveInit(/*fb::SaveOutStream &*/);  //17  0x44
+	virtual void onDeinit(/*fb::EntityDeinitInfo &*/); //18 0x48
+	virtual void getTransform(LinearTransform &);//19 - 0x54
+	virtual void setTransform(LinearTransform const &);//20 - 58 
+	virtual void computeBoundingBoxWorldTransform(); // 21V: 0x5c
+	virtual void computeBoundingBox(); // V: 0x60 22
+	virtual void Dummy(); // 23V: 0x5c
+	virtual void Dummy1(); // V: 0x60 24
+
+	virtual void visualCullScreenArea(void); // V: 0x68 25
+	virtual void onHiddenToggled(bool); // V: 0x6C 26
+	virtual void spawn();//27- 0x70 
+	virtual void needPrePhysicsUpdate(void); // V: 0x74 28
+	virtual void prePhysicsUpdate(); // V: 0x78 29
+	virtual void prePhysicsQuery(); // V: 0x7c 30
+	virtual void needPostPhysicsUpdate(void); // V: 0x80 31
+	virtual void postPhysicsUpdate(); // V: 0x84  32
+	virtual void postPhysicsQuery(); // V: 0x88  33
+	virtual void needPostFrameUpdate(void); // V: 0x8c  34
+	virtual void postFrameUpdate(); // V: 0x90  35
+	virtual void postFrameQuery(); // V: 0x94  36
+	virtual void needFrameInterpolationUpdate(void); // V: 0x98  37
+	virtual void frameInterpolationUpdate(); // V: 0x9c  38
+	virtual void frameInterpolationQuery(); // V: 0x100  39
+	virtual void onSpawn(LPVOID);//(fb::GameEntity::SpawnInfo const &);  40
+	virtual void onUnSpawn(LPVOID);//(fb::GameEntity::UnSpawnInfo const &);  41 
+	virtual void onDeinit1(LPVOID);//(fb::GameEntity::GameEntityDeinitInfo &); 42
+	virtual void worldTransformChanged(); //43
+	//virtual void onComponentWorldTransformDirty(void); //44
+	//virtual void onComponentUpdateRequiredChanged(void); //45
+	//virtual void onComponentLocalBoundingBoxDirty(void); //46
+	virtual void createUpdater(LPVOID);//(fb::UpdatePass); //44
+	virtual void getUpdaters(void); //45
+	virtual void meshModel(void); //46
+	virtual void visualUpdate(float deltaTime);//fn 47 - 0xCC 
+	virtual void Function48(); //
+	virtual void fb__SoldierToComponentsInitializedMessage(); //
+
+	virtual float mass(); //
+	virtual void Function51(); //
+	virtual float invMass(); //
+	virtual const Vector3 &linearVelocity();//virtual void Function54(); // velocity
+	virtual DWORD Function55(); //
+	virtual DWORD Function56(); //
+	virtual DWORD Function57(); //
+	virtual DWORD onCollision(); //
+	virtual DWORD Function59(); //
+	virtual DWORD Function60(); //
+	virtual DWORD Function61(); //
+	virtual DWORD Function62(); //
+	virtual DWORD Function63(); //
+	virtual DWORD Function64(); //
+	virtual DWORD Function65(); //
+	virtual DWORD flgetHealth(); //
+	virtual DWORD flgetMaxHealth(); //
+	virtual DWORD entryInputstate(); //
+	virtual DWORD Function69(); //
+	virtual DWORD Function70(); //
+	virtual DWORD fb__ClientSoldierEntity__postPhysicsUpdateEntry(); //
+	virtual DWORD Function72(); //
+	virtual ClientControllableEntity *onPlayerEntersControllable(); //
+	virtual void UnlockComponentData(void);// ClientControllableEntity *onPlayerExitssControllable(); //
+	virtual DWORD Function75(); //
+	virtual DWORD Function76(); //
+	virtual DWORD Function77(); //
+	virtual DWORD Function78(); //
+	virtual DWORD Function79(); //
+	virtual DWORD Function80(); //
+	virtual DWORD Function81(); //
+	virtual DWORD Function82(); //
+	virtual DWORD Function83(); //
+	virtual DWORD ClientPlayer__applyCustomization(); //
+	virtual void Function84(); //
+	virtual void ClientPlayerKilledMessage();
+	virtual void nullsub_6444(); //
+	virtual void Function88(); //
+	virtual void Function89(); //
+	virtual void Function90(); //
+	virtual void Function91(); //
+	virtual DWORD InputState__getIsDown(); //
+	virtual void Function93(); //
+	virtual void Function94(); //
+	virtual bool somebool(); //
+	virtual void SoldierHealthModuleGS__writeGS(); //
+	virtual void Function95(); //
+	virtual DWORD Clientgamecontexplus16(); //
+	virtual int Function98(); //
+	virtual int Function99();
+
+
+	DWORD m_cullGridId;                    // 0x0C
+
+}; // 0x10
+
+class EntityBus
+{
+public:
+	LPVOID vftable;							// 0x00
+	void* m_subLevel;					// 0x04
+	EntityBus* m_parentBus;					// 0x08
+	INT m_dataId;							// 0x0C
+	INT m_refCount;							// 0x10
+	INT m_networkId;						// 0x14
+	SHORT m_realm;							// 0x18
+	CHAR m_parentPropertiesCanChange;		// 0x1A
+											//	PAD(0x1);								// 0x1B
+}; // 0x1C
+
+
+
+template <class T>
+class SpatialEntityWithBusAndData
+	: public SpatialEntity				// 0x00
+{
+public:
+	EntityBus * m_entityBus;				// 0x10
+	T* m_data;							// 0x14
+
+}; // 0x18
+
+
+class GameEntity
+	: public SpatialEntityWithBusAndData<GameEntityData>	// 0x00
+{
+public:
+	DWORD m_updateInterval;									// 0x18
+	int* m_collection;						// 0x1C
+
+
+	//LinearTransform * m_worldTransform;                     // 0x1C
+}; // 0x20
+
+class ClientGameEntity
+	: public GameEntity		// 0x00
+{
+public:
+	bool visulUpdate(float deltatime)
+	{
+		typedef bool(__thiscall* R_visualUpdate)(ClientGameEntity *pThis, float deltatime);
+		R_visualUpdate m_visualUpdate = (R_visualUpdate)0x01100610;
+
+		return m_visualUpdate(this, deltatime);
+	}
+}; // 0x20
+
+class ClientExplosionPackEntity
+	: public ClientGameEntity
+{
+public:
+	PAD(0x290);
+	// 	ClientExplosionPackState m_state; // this+0x288
+	//	float m_spottedTime;              // this+0x28C
+	int m_teamId;                     // this+0x290
+	int m_damageGiverPlayerId;        // this+0x294
+	bool m_isSpotted;                 // this+0x298
+};
+
+class ClientSupplySphereEntity
+	:public ClientExplosionPackEntity
+{
+public:
+};
+
+
 class EntityWorld
 {
 public:
 	class SpatialSize
 	{
 	public:
-		float halfSizeXZ;	// 0x00
-		float minY;			// 0x04
+		FLOAT halfSizeXZ;	// 0x00
+		FLOAT minY;			// 0x04
 	}; // 0x08
 
 	class RemovedEntityInfo
 	{
 	public:
-		void* entity;				// 0x00 Entity
-		int func;				// 0x04
-		void* creator;		// 0x08 EntityCreator
-		int userData;			// 0x0C
+		Entity * entity;				// 0x00
+		LPVOID func;				// 0x04
+		EntityCreator* creator;		// 0x08
+		LPVOID userData;			// 0x0C
 	}; // 0x10
-	class EntityCollectionSegment
-	{
-	public:
-		//vector<void *> m_Collection;//Entity
-		void * m_subLevel; // 0x10
-		EntityCollectionSegment * m_prev; // 0x14
-		EntityCollectionSegment * m_next; // 0x18
-		DWORD m_iterableSize; // 0x1C
-		DWORD m_collectionIndex; // 0x20
-	};
+
 	class EntityCollection
 	{
 	public:
-		EntityCollectionSegment* firstSegment;	// 0x00
-		void* creator;					// 0x04
+		EntityCollectionSegment * firstSegment;	// 0x00
+		EntityCreator* creator;					// 0x04
 	}; // 0x08
 
 	class EntityIterator
 	{
 	public:
-		//vector<EntityWorld::EntityCollection>* m_collections;    //offset = 0x0, length = 0x4
-		void* m_currentSegment;    //offset = 0x4, length = 0x4 	EntityCollectionSegment
+		eastl::vector<EntityWorld::EntityCollection>* m_collections;    //offset = 0x0, length = 0x4
+		EntityCollectionSegment* m_currentSegment;    //offset = 0x4, length = 0x4
 		unsigned int m_collectionIndexIt;    //offset = 0x8, length = 0x4
 		unsigned int m_collectionIndexEnd;    //offset = 0xC, length = 0x4
 		unsigned int m_entityIndexIt;    //offset = 0x10, length = 0x4
 		unsigned int m_entityIndexEnd;    //offset = 0x14, length = 0x4
-		int m_onlyIncludeIterable;    //offset = 0x18, length = 0x1
+		byte m_onlyIncludeIterable;    //offset = 0x18, length = 0x1
 		char pad_19[3];
 	};
 
-	void kindOfQuery(TypeInfo* typeId, EntityWorld::EntityIterator* result, bool onlyIncludeIterable = true)
+	void kindOfQuery(int* typeId, EntityWorld::EntityIterator* result, bool onlyIncludeIterable = true)
 	{
-		typedef void(__thiscall* kindOfQuery_t)(EntityWorld*, TypeInfo*, EntityWorld::EntityIterator*, bool);
+		typedef void(__thiscall* kindOfQuery_t)(EntityWorld*, int*, EntityWorld::EntityIterator*, bool);
 
-		kindOfQuery_t m_kindOfQuery = (kindOfQuery_t)0;//;
+		kindOfQuery_t m_kindOfQuery = (kindOfQuery_t)0x551790;//0x551790;
 
 		m_kindOfQuery(this, typeId, result, onlyIncludeIterable);
 	}
 
-	virtual void addSpatialEntity(void *);	// V: 0x0
-	virtual void removeSpatialEntity(void *);	// V: 0x4
-	virtual void updateSpatialEntity(void *);	// V: 0x8
+	virtual void addSpatialEntity(int *);	// V: 0x0
+	virtual void removeSpatialEntity(int *);	// V: 0x4
+	virtual void updateSpatialEntity(int *);	// V: 0x8
 
-												// 0x00
+														//LPVOID vftable;														// 0x00
 	SpatialSize m_spatialSize;											// 0x04
-	//fixed_vector<RemovedEntityInfo, 128, 2> m_removedEntities;	// 0x0C
-	//vector<EntityCollection> m_collections;						// 0x820
-	void* m_rootLevel;												// 0x830
+	eastl::fixed_vector<RemovedEntityInfo, 128, 2> m_removedEntities;	// 0x0C
+	eastl::vector<EntityCollection> m_collections;						// 0x820
+	SubLevel* m_rootLevel;												// 0x830
 	WORD m_entityRuntimeId;												// 0x834
-	char pad[2];															// 0x836
+	PAD(0x2);															// 0x836
 	CHAR m_isDeletingAllEntities;										// 0x838
 	CHAR m_isLoadingSaveGame;											// 0x839
-	char pad2[2];																// 0x83A
+	PAD(0x2);															// 0x83A
 }; // 0x840
 
 class GameWorld : public EntityWorld, public IPhysicsRayCaster
@@ -4110,6 +4423,8 @@ public:
 
 }; // network::StreamManagerMoveClient
 
+
+
 class ClientPeer
 {
 public:
@@ -4127,19 +4442,7 @@ public:
 
 };
 
-class EntityBus
-{
-public:
-	LPVOID vftable;							// 0x00
-	void* m_subLevel;					// 0x04
-	EntityBus* m_parentBus;					// 0x08
-	INT m_dataId;							// 0x0C
-	INT m_refCount;							// 0x10
-	INT m_networkId;						// 0x14
-	SHORT m_realm;							// 0x18
-	CHAR m_parentPropertiesCanChange;		// 0x1A
-											//	PAD(0x1);								// 0x1B
-}; // 0x1C
+
 
 class MaterialContainerPair
 	//	: public DataContainer			// 0x00
@@ -4150,6 +4453,66 @@ public:
 	int m_physicsMaterialIndex;	// 0x0D
 									//	PAD(0x2);						// 0x0E
 }; // 0x10
+
+
+
+class EntityCollectionSegment
+{
+public:
+	eastl::vector<Entity *> m_Collection;
+	void * m_subLevel; // 0x10
+	EntityCollectionSegment * m_prev; // 0x14
+	EntityCollectionSegment * m_next; // 0x18
+	DWORD m_iterableSize; // 0x1C
+	DWORD m_collectionIndex; // 0x20
+};
+
+
+
+class Asset
+	: public DataContainer	// 0x00
+{
+public:
+	const char* m_name;			// 0x08
+}; // 0x0C
+
+
+class PropertyConnection
+{
+public:
+	DataContainer * m_source;		// 0x00
+	DataContainer* m_target;		// 0x04
+	INT m_sourceFieldId;			// 0x08
+	INT m_targetFieldId;			// 0x0C
+}; // 0x10
+
+class LinkConnection
+	: public PropertyConnection		// 0x00
+{
+}; // 0x10
+
+
+
+
+class SubLevel
+{
+public:
+	LPVOID vftable;											// 0x00
+	eastl::vector<EntityCollectionSegment*> m_segments;		// 0x04
+	eastl::vector<UINT> m_deletedEntities;					// 0x14
+	DWORD* m_subLevelData;								// 0x24
+	SubLevel* m_parent;										// 0x28
+	SubLevel* m_child;										// 0x2C
+	SubLevel* m_sibling;									// 0x30
+	DWORD* m_arena;									// 0x34
+	DWORD m_compartment;						// 0x38
+	Realm m_realm;											// 0x3C
+	INT m_refCount;											// 0x40
+	BYTE m_isDestroyed;										// 0x44
+	PAD(3);									// 0x45
+}; // 0x48
+
+
 
 class ClientGameContext
 {
@@ -4424,7 +4787,7 @@ public:
 class WeaponCustomization
 {
 public:
-	UnlockAssetBase* m_Optics; //0x0000 []
+	UnlockAssetBase * m_Optics; //0x0000 []
 	UnlockAssetBase* m_Rail; //0x0008 []
 	UnlockAssetBase* m_Barrel; //0x0010 []
 	UnlockAssetBase* m_Grip; //0x0018 []

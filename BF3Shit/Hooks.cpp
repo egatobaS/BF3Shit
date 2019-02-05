@@ -43,6 +43,10 @@ int RayCastingHook(UINT64 r3, UINT64 r4, UINT64 r5, UINT64 r6, UINT64 r7, UINT64
 	{
 		if (IsLocalClientAlive())
 		{
+
+			if (bAutoSpot)
+				SendSpot();
+
 			if (bAimbot)
 				Aimbot(GetLocalPlayer());
 
@@ -102,9 +106,6 @@ int D3DDevice_PresentHook(D3DDevice* pDevice, unsigned long long r4, unsigned lo
 
 	if (IsFontInit && IsTextureInit)
 	{
-		DrawMenu();
-
-
 		if (IsLocalClientAlive())
 		{
 
@@ -145,12 +146,11 @@ int D3DDevice_PresentHook(D3DDevice* pDevice, unsigned long long r4, unsigned lo
 			if (bUnlimitedAmmo)
 				DoAmmo();
 
-			if (bAutoSpot)
-				SendSpot();
-
 			if (bForceSquadSpawn)
 				ForceSquadSpawn();
 		}
+
+		DrawMenu();
 	}
 
 	return D3DDevice_PresentOriginal(pDevice, r4, r5, r6, r7);;
@@ -172,6 +172,12 @@ DWORD XamInputGetStateHook(DWORD dwUserIndex, DWORD r4, PXINPUT_STATE pState)
 		pState->Gamepad.wButtons &= ~XINPUT_GAMEPAD_B;
 	}
 
+	if (bAimbot && (NearestPlayer != -1 && !bSilentAimbot) && ((bAimingRequired && GetAsyncKeyState(0x5555)) || !bAimingRequired))
+	{
+		pState->Gamepad.sThumbRX = 0;
+		pState->Gamepad.sThumbRY = 0;
+	}
+
 	if (bAutoShoot)
 	{
 		if (IsLocalClientAlive())
@@ -179,31 +185,46 @@ DWORD XamInputGetStateHook(DWORD dwUserIndex, DWORD r4, PXINPUT_STATE pState)
 			if (bTriggerBot)
 				pState->Gamepad.bRightTrigger = (bShoot ? 255 : 0);
 
-			if (MmIsAddressValidPtr(GetLocalPlayer()->m_pControlledControllable->m_pClientSoldierWeaponsComponent->GetActiveSoldierWeapon()))
+			ClientSoldierEntity* pCSE = GetLocalPlayer()->GetClientSoldier();
+			if (!MmIsAddressValidPtr(pCSE))
+				return dwResult;
+
+			ClientSoldierPrediction* pCSP = pCSE->m_pClientSoldierPrediction;
+			if (!MmIsAddressValidPtr(pCSP))
+				return dwResult;
+
+			ClientBoneCollisionComponent* pCBCC = pCSE->m_pClientBoneCollisionComponent;
+			if (!MmIsAddressValidPtr(pCBCC))
+				return dwResult;
+
+			ClientSoldierWeaponsComponent* pCSWC = pCSE->m_pClientSoldierWeaponsComponent;
+			if (!MmIsAddressValidPtr(pCSWC))
+				return dwResult;
+
+			ClientSoldierWeapon* pCSW = pCSWC->GetActiveSoldierWeapon();
+			if (!MmIsAddressValidPtr(pCSW))
+				return dwResult;
+
+			ClientWeapon* pWeapon = pCSW->m_pWeapon;
+			if (!MmIsAddressValidPtr(pWeapon))
+				return dwResult;
+
+			WeaponFiringData *pFireData = pWeapon->m_pWeaponFiringData;
+			if (!MmIsAddressValidPtr(pFireData))
+				return dwResult;
+
+			FiringFunctionData * FiringFunctionData = pFireData->m_pFiringFunctionData;
+			if (!MmIsAddressValidPtr(FiringFunctionData))
+				return dwResult;
+
+			if ((GetTickCount() - ShootCount) > FiringFunctionData->m_RateOfFire / 60)
 			{
-				if (MmIsAddressValidPtr(GetLocalPlayer()->m_pControlledControllable->m_pClientSoldierWeaponsComponent->GetActiveSoldierWeapon()->m_pWeapon))
-				{
-					if (MmIsAddressValidPtr(GetLocalPlayer()->m_pControlledControllable->m_pClientSoldierWeaponsComponent->GetActiveSoldierWeapon()->m_pWeapon->m_pWeaponFiringData))
-					{
-						if (MmIsAddressValidPtr(GetLocalPlayer()->m_pControlledControllable->m_pClientSoldierWeaponsComponent->GetActiveSoldierWeapon()->m_pWeapon->m_pWeaponFiringData->m_pFiringFunctionData))
-						{
-							if ((GetTickCount() - ShootCount) > GetLocalPlayer()->m_pControlledControllable->m_pClientSoldierWeaponsComponent->GetActiveSoldierWeapon()->m_pWeapon->m_pWeaponFiringData->m_pFiringFunctionData->m_RateOfFire / 60)
-							{
-								ShootCount = GetTickCount();
-								bShoot = !bShoot;
-							}
-						}
-					}
-				}
+				ShootCount = GetTickCount();
+				bShoot = !bShoot;
 			}
 		}
 	}
 
-	if (bAimbot && (NearestPlayer != -1 && !bSilentAimbot) && ((bAimingRequired && GetAsyncKeyState(0x5555)) || !bAimingRequired))
-	{
-		pState->Gamepad.sThumbRX = 0;
-		pState->Gamepad.sThumbRY = 0;
-	}
 
 	return dwResult;
 }

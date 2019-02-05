@@ -149,7 +149,7 @@ void AddMenuOptions()
 	MenuBase.AddBool("Speed Hack", "Allows you to move fasts.", &bPacketHack);
 	MenuBase.AddInt("Speed Hack Interval", "Which speed you move.", &fPacketSpeed, 50, 100, 400);
 	MenuBase.AddBool("Flyhack", "Enables no-clip.", &bFlyHack);
-	MenuBase.AddFloat("Fly speed", "Player Flying Speed", &FlySpeed, 2.f, 0.0f, 550.0f);
+	MenuBase.AddFloat("Fly speed", "Player Flying Speed", &FlySpeed, 10.f, 0.0f, 550.0f);
 	MenuBase.AddBool("Auto Spot", "Automatically Spots Players.", &bAutoSpot);
 	MenuBase.AddBool("Force Squad Spawn", "Allows you to spawn on any squad member.", &bForceSquadSpawn);
 	MenuBase.AddBool("Blue Tint", "Removes the BF3 Blue tint over the screen", &bBlueTint);

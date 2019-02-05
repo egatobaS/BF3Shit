@@ -157,7 +157,7 @@ bool IsLocalClientAlive()
 	if (!MmIsAddressValidPtr(pCSAS))
 		return false;
 
-	WeaponFiringData *pFireData = pCSWC->GetActiveSoldierWeapon()->m_pWeapon->m_pWeaponFiringData;
+	WeaponFiringData *pFireData = pCW->m_pWeaponFiringData;
 	if (!MmIsAddressValidPtr(pFireData))
 		return false;
 
@@ -740,6 +740,9 @@ bool DrawESP() //TODO: BoneESP and a Visibility Check
 		{
 			float fFontSize = (0.70 - (GetDistance(LocalPosition, ClientPosition) / 10));
 
+			if (fFontSize < 0)
+				fFontSize = 0.1;
+
 			DrawNameESP(Target, fFontSize, (ClientVehicleEntity*)TargetClientSoldierEntity, 0.8);
 		}
 
@@ -893,16 +896,36 @@ void AimCorrection(Vector3 * inVec, Vector3 enemyVelo, Vector3 myVelo, float Dis
 	if (!IsLocalClientAlive())
 		return;
 
-	ClientSoldierWeaponsComponent *pWeapComp = GetLocalPlayer()->m_pControlledControllable->m_pClientSoldierWeaponsComponent;
-	if (pWeapComp == 0)
+	ClientSoldierEntity* pCSE = GetLocalPlayer()->GetClientSoldier();
+	if (!MmIsAddressValidPtr(pCSE))
 		return;
 
-	WeaponFiringData *pFireData = pWeapComp->GetActiveSoldierWeapon()->m_pWeapon->m_pWeaponFiringData;
-	if (pFireData == 0)
+	ClientSoldierPrediction* pCSP = pCSE->m_pClientSoldierPrediction;
+	if (!MmIsAddressValidPtr(pCSP))
+		return;
+
+	ClientBoneCollisionComponent* pCBCC = pCSE->m_pClientBoneCollisionComponent;
+	if (!MmIsAddressValidPtr(pCBCC))
+		return;
+
+	ClientSoldierWeaponsComponent* pCSWC = pCSE->m_pClientSoldierWeaponsComponent;
+	if (!MmIsAddressValidPtr(pCSWC))
+		return;
+
+	ClientSoldierWeapon* pCSW = pCSWC->GetActiveSoldierWeapon();
+	if (!MmIsAddressValidPtr(pCSW))
+		return;
+
+	ClientWeapon* pWeapon =pCSW->m_pWeapon;
+	if (!MmIsAddressValidPtr(pWeapon))
+		return;
+
+	WeaponFiringData *pFireData = pWeapon->m_pWeaponFiringData;
+	if (!MmIsAddressValidPtr(pFireData))
 		return;
 
 	BulletEntityData *pProjData = pFireData->m_pFiringFunctionData->m_pBulletEntityData;
-	if (pProjData == 0)
+	if (!MmIsAddressValidPtr(pProjData))
 		return;
 
 	inVec->y -= atan2(pFireData->m_pFiringFunctionData->m_initialSpeed.y, pFireData->m_pFiringFunctionData->m_initialSpeed.z);
@@ -1011,6 +1034,7 @@ bool IsVisible(Vector4* vFrom, Vector4* vTo)
 {
 	ClientGameContext* g_pGameContext = ClientGameContext::GetInstance();
 
+	//EntityWorld::EntityCollection vehicle = g_pGameContext->m_pLevel->m_pGameWorld->m_collections.at(ENTITY_CLIENT_VEHICLE);
 
 	if (!MmIsAddressValidPtr(g_pGameContext))
 		return false;
@@ -1198,7 +1222,7 @@ UnlockAssetBase* getUA(ClientPlayer* localp)
 	if (!GetWeaponID(pWeapon))
 		return NULL;
 
-	return (UnlockAssetBase*)GetWeaponID(localp->GetClientSoldier()->m_pClientSoldierWeaponsComponent->GetActiveSoldierWeapon()->m_pWeapon);
+	return (UnlockAssetBase*)GetWeaponID(pWeapon);
 
 	return NULL;
 }
