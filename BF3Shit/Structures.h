@@ -4297,7 +4297,7 @@ public:
 
 														//LPVOID vftable;														// 0x00
 	SpatialSize m_spatialSize;											// 0x04
-	eastl::fixed_vector<RemovedEntityInfo, 128, 2> m_removedEntities;	// 0x0C
+	eastl::fixed_vector<RemovedEntityInfo, 128, (bool)2> m_removedEntities;	// 0x0C
 	eastl::vector<EntityCollection> m_collections;						// 0x820
 	SubLevel* m_rootLevel;												// 0x830
 	WORD m_entityRuntimeId;												// 0x834
@@ -5327,4 +5327,16 @@ class _NetworkableMessage
 {
 public:
 	virtual TypeInfo* GetType();
+};
+
+enum RayCastFlags
+{
+	CheckDetailMesh = 0x1,
+	IsAsyncRaycast = 0x2,
+	DontCheckWater = 0x4,
+	DontCheckTerrain = 0x8,
+	DontCheckRagdoll = 0x10,
+	DontCheckCharacter = 0x20,
+	DontCheckGroup = 0x40,
+	DontCheckPhantoms = 0x80,
 };

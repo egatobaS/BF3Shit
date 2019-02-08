@@ -77,6 +77,7 @@ void CreateSystemThread(void* Function, void* Param);
 bool MmIsAddressValidPtr(void * ptr);
 BOOL FileExists(LPCSTR lpFileName);
 int GetAsyncKeyState(DWORD KEY);
+bool CWriteFile(const char* FilePath, const void* Data, unsigned int Size);
 void Wait(int time);
 
 extern unsigned int WaitTime;

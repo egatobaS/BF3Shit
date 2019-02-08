@@ -15,5 +15,6 @@
   <!-- This will make it look like xosc9v2. -->
 
   <mfgmode mode = "aware"/>
-
+  <section file="Fonts.xpr" name="Fonts" memory="RO"/>
+  
 </xex>

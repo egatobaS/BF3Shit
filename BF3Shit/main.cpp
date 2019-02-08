@@ -1,12 +1,23 @@
 #include "main.h"
 
+HANDLE g_hModule;
+
 bool ShouldSetIni = false;
 bool RunThread = true;
+
+unsigned int WaitConfig = 0;
+unsigned int TimeConfig = 0;
+
+void ConfigWait(int time)
+{
+	TimeConfig = GetTickCount();
+	WaitConfig = time;
+}
+
 
 void MainThread()
 {
 	if (CreateSymbolicLink(NAME_MOUNT, NAME_HDD, TRUE) != ERROR_SUCCESS) {
-		printf("Could not create symbolic link!\n");
 	}
 
 	LoadINI();
@@ -20,15 +31,19 @@ void MainThread()
 			InitFont();
 		}
 
-		if (ShouldSetIni)
+		if ((GetTickCount() - TimeConfig) > WaitConfig)
 		{
-			SetInit();
-			ShouldSetIni = false;
+			if (ShouldSetIni)
+			{
+				SetInit();
+
+				ShouldSetIni = false;
+			}
+			ConfigWait(1000);
 		}
+
 		Sleep(10);
 	}
-
-	printf("Thread Exited\n");
 }
 
 BOOL WINAPI DllMain(HANDLE ModuleHandle, unsigned int fdwReason, LPVOID lpReserved)
@@ -37,10 +52,9 @@ BOOL WINAPI DllMain(HANDLE ModuleHandle, unsigned int fdwReason, LPVOID lpReserv
 
 		ATG::g_pd3dDevice = NULL;
 
-		//XamUserGetXUIDDetour.HookFunction((DWORD)GetAddr(0x82D80000, 0x20A), (DWORD)XamUserGetXUIDHook);
-		//XamUserGetSigninInfoDetour.HookFunction((DWORD)GetAddr(0x82D80000, 551), (DWORD)XamUserGetSigninInfoHook);
-		//XamUserGetNameDetour.HookFunction(GetAddr(0x82D80000, 0x20E), (DWORD)XamUserGetNameHook);
+		g_hModule = ModuleHandle;
 
+		onPostPhysicsUpdateSyncOriginal = (onPostPhysicsUpdateSync_t)onPostPhysicsUpdateSyncDetour.HookFunction(0x834162D8, (unsigned int)onPostPhysicsUpdateSyncHook);
 		ClientConnection_SendMessageOriginal = (ClientConnection_SendMessage_t)ClientConnection_SendMessageDetour.HookFunction(0x831FAD00, (unsigned int)ClientConnection_SendMessageHook);
 		sub_83CFF480Original = (sub_83CFF480_t)sub_83CFF480Detour.HookFunction(0x83CFF480, (unsigned int)sub_83CFF480Hook);
 		sub_834F63C8Original = (sub_834F63C8_t)sub_834F63C8Detour.HookFunction(0x834F63C8, (unsigned int)sub_834F63C8Hook);
@@ -57,11 +71,7 @@ BOOL WINAPI DllMain(HANDLE ModuleHandle, unsigned int fdwReason, LPVOID lpReserv
 	else if (fdwReason == DLL_PROCESS_DETACH) {
 
 		RunThread = false;
-
-		//XamUserGetXUIDDetour.RestoreFunction();
-		//XamUserGetSigninInfoDetour.RestoreFunction();
-		//XamUserGetNameDetour.RestoreFunction();
-
+		onPostPhysicsUpdateSyncDetour.RestoreFunction();
 		ClientConnection_SendMessageDetour.RestoreFunction();
 		sub_83CFF480Detour.RestoreFunction();
 		sub_834F63C8Detour.RestoreFunction();

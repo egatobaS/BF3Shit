@@ -172,7 +172,7 @@ void AddMenuOptions()
 	MenuBase.AddBool("Unlimited Ammo", "Gives your weapon unlimited ammo.", &bUnlimitedAmmo);
 	MenuBase.AddBool("Self Healing Gun", "Health regens whilst shooting.", &bHealSelf); //fix
 	MenuBase.AddBool("Team Healing Gun", "Regens your friendlies health whilst shooting.", &bTeamHeal); //fix
-	MenuBase.AddBool("One hit kill", "Sets the bullet damage.", &bOHK); //todo
+	//MenuBase.AddBool("One hit kill", "Sets the bullet damage.", &bOHK); //todo
 	MenuBase.AddBool("Remove View bobbing", "Enable and see what it does", &bNoBBobbing); //todo
 	MenuBase.AddBool("No Spread", "Enable and see what it does", &bNoSpreadFake); //todo
 

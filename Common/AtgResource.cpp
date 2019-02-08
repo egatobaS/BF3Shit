@@ -14,249 +14,336 @@ namespace ATG
 {
 
 
-// Global access to the main D3D device
-extern D3DDevice* g_pd3dDevice;
+	// Global access to the main D3D device
+	extern D3DDevice* g_pd3dDevice;
 
 
-//--------------------------------------------------------------------------------------
-// Magic values to identify XPR files
-//--------------------------------------------------------------------------------------
-struct XPR_HEADER
-{
-    DWORD dwMagic;
-    DWORD dwHeaderSize;
-    DWORD dwDataSize;
-};
+	//--------------------------------------------------------------------------------------
+	// Magic values to identify XPR files
+	//--------------------------------------------------------------------------------------
+	struct XPR_HEADER
+	{
+		DWORD dwMagic;
+		DWORD dwHeaderSize;
+		DWORD dwDataSize;
+	};
 
-const DWORD XPR2_MAGIC_VALUE = 0x58505232;
+	const DWORD XPR2_MAGIC_VALUE = 0x58505232;
 
-const DWORD eXALLOCAllocatorId_AtgResource = eXALLOCAllocatorId_GameMax;
-
-
-//--------------------------------------------------------------------------------------
-// Name: PackedResource
-//--------------------------------------------------------------------------------------
-PackedResource::PackedResource()
-{
-    m_pSysMemData = NULL;
-    m_dwSysMemDataSize = 0L;
-    m_pVidMemData = NULL;
-    m_dwVidMemDataSize = 0L;
-    m_pResourceTags = NULL;
-    m_dwNumResourceTags = 0L;
-    m_bInitialized = FALSE;
-}
+	const DWORD eXALLOCAllocatorId_AtgResource = eXALLOCAllocatorId_GameMax;
 
 
-//--------------------------------------------------------------------------------------
-// Name: PackedResource
-//--------------------------------------------------------------------------------------
-PackedResource::~PackedResource()
-{
-    Destroy();
-}
+	//--------------------------------------------------------------------------------------
+	// Name: PackedResource
+	//--------------------------------------------------------------------------------------
+	PackedResource::PackedResource()
+	{
+		m_pSysMemData = NULL;
+		m_dwSysMemDataSize = 0L;
+		m_pVidMemData = NULL;
+		m_dwVidMemDataSize = 0L;
+		m_pResourceTags = NULL;
+		m_dwNumResourceTags = 0L;
+		m_bInitialized = FALSE;
+	}
 
 
-//--------------------------------------------------------------------------------------
-// Name: GetData
-// Desc: Loads all the texture resources from the given XPR.
-//--------------------------------------------------------------------------------------
-VOID* PackedResource::GetData( const CHAR* strName ) const
-{
-    if( NULL == m_pResourceTags || NULL == strName )
-        return NULL;
-
-    for( DWORD i = 0; i < m_dwNumResourceTags; i++ )
-    {
-        if( !_stricmp( strName, m_pResourceTags[i].strName ) )
-        {
-            return &m_pSysMemData[m_pResourceTags[i].dwOffset];
-        }
-    }
-
-    return NULL;
-}
+	//--------------------------------------------------------------------------------------
+	// Name: PackedResource
+	//--------------------------------------------------------------------------------------
+	PackedResource::~PackedResource()
+	{
+		Destroy();
+	}
 
 
-//--------------------------------------------------------------------------------------
-// Name: AllocateContiguousMemory()
-// Desc: Wrapper for XMemAlloc
-//--------------------------------------------------------------------------------------
+	//--------------------------------------------------------------------------------------
+	// Name: GetData
+	// Desc: Loads all the texture resources from the given XPR.
+	//--------------------------------------------------------------------------------------
+	VOID* PackedResource::GetData(const CHAR* strName) const
+	{
+		if (NULL == m_pResourceTags || NULL == strName)
+			return NULL;
+
+		for (DWORD i = 0; i < m_dwNumResourceTags; i++)
+		{
+			if (!_stricmp(strName, m_pResourceTags[i].strName))
+			{
+				return &m_pSysMemData[m_pResourceTags[i].dwOffset];
+			}
+		}
+
+		return NULL;
+	}
 
 
-static __forceinline void* AllocateContiguousMemory( DWORD Size, DWORD Alignment,
-                                                     DWORD Protection = XALLOC_MEMPROTECT_WRITECOMBINE )
-{
-    return XMemAlloc( Size, MAKE_XALLOC_ATTRIBUTES( 0, 0, 0, 0, eXALLOCAllocatorId_XBOXKERNEL,
-                                                    Alignment, Protection, 0,
-                                                    XALLOC_MEMTYPE_PHYSICAL ) );
-}
+	//--------------------------------------------------------------------------------------
+	// Name: AllocateContiguousMemory()
+	// Desc: Wrapper for XMemAlloc
+	//--------------------------------------------------------------------------------------
 
 
-//--------------------------------------------------------------------------------------
-// Name: FreeContiguousMemory()
-// Desc: Wrapper for XMemFree
-//--------------------------------------------------------------------------------------
-static __forceinline VOID FreeContiguousMemory( VOID* pData )
-{
-    return XMemFree( pData, MAKE_XALLOC_ATTRIBUTES( 0, 0, 0, 0, eXALLOCAllocatorId_XBOXKERNEL,
-                                                    0, 0, 0, XALLOC_MEMTYPE_PHYSICAL ) );
-}
+	static __forceinline void* AllocateContiguousMemory(DWORD Size, DWORD Alignment,
+		DWORD Protection = XALLOC_MEMPROTECT_WRITECOMBINE)
+	{
+		return XMemAlloc(Size, MAKE_XALLOC_ATTRIBUTES(0, 0, 0, 0, eXALLOCAllocatorId_XBOXKERNEL,
+			Alignment, Protection, 0,
+			XALLOC_MEMTYPE_PHYSICAL));
+	}
 
 
-//--------------------------------------------------------------------------------------
-// Name: Create
-// Desc: Loads all the texture resources from the given XPR.
-//--------------------------------------------------------------------------------------
-HRESULT PackedResource::Create( const CHAR* strFilename )
-{
-    // Open the file
-    DWORD dwNumBytesRead;
-    HANDLE hFile = CreateFile( strFilename, GENERIC_READ, FILE_SHARE_READ, NULL,
-                               OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, NULL );
-    if( hFile == INVALID_HANDLE_VALUE )
-    {
-        ATG_PrintError( "File <%s> not found\n", strFilename );
-        return E_FAIL;
-    }
+	//--------------------------------------------------------------------------------------
+	// Name: FreeContiguousMemory()
+	// Desc: Wrapper for XMemFree
+	//--------------------------------------------------------------------------------------
+	static __forceinline VOID FreeContiguousMemory(VOID* pData)
+	{
+		return XMemFree(pData, MAKE_XALLOC_ATTRIBUTES(0, 0, 0, 0, eXALLOCAllocatorId_XBOXKERNEL,
+			0, 0, 0, XALLOC_MEMTYPE_PHYSICAL));
+	}
 
-    // Read in and verify the XPR magic header
-    XPR_HEADER xprh;
-    if( !ReadFile( hFile, &xprh, sizeof( XPR_HEADER ), &dwNumBytesRead, NULL ) )
-    {
-        ATG_PrintError( "Error reading XPR header in file <%s>\n", strFilename );
-        CloseHandle( hFile );
-        return E_FAIL;
-    }
 
-#ifdef _PC
-    XGEndianSwapMemory( &xprh, &xprh, XGENDIAN_8IN32, sizeof(DWORD), sizeof(XPR_HEADER)/sizeof(DWORD) );
-#endif
+	//--------------------------------------------------------------------------------------
+	// Name: Create
+	// Desc: Loads all the texture resources from the given XPR.
+	//--------------------------------------------------------------------------------------
+	HRESULT PackedResource::Create(const CHAR* strFilename)
+	{
+		// Open the file
+		DWORD dwNumBytesRead;
+		HANDLE hFile = CreateFile(strFilename, GENERIC_READ, FILE_SHARE_READ, NULL,
+			OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, NULL);
+		if (hFile == INVALID_HANDLE_VALUE)
+		{
+			ATG_PrintError("File <%s> not found\n", strFilename);
+			return E_FAIL;
+		}
 
-    if( xprh.dwMagic != XPR2_MAGIC_VALUE )
-    {
-        ATG_PrintError( "Invalid Xbox Packed Resource (.xpr) file: Magic = 0x%08lx\n", xprh.dwMagic );
-        CloseHandle( hFile );
-        return E_FAIL;
-    }
-
-    // Compute memory requirements
-    m_dwSysMemDataSize = xprh.dwHeaderSize;
-    m_dwVidMemDataSize = xprh.dwDataSize;
-
-    // Allocate memory
-    m_pSysMemData = new BYTE[m_dwSysMemDataSize];
-    if( m_pSysMemData == NULL )
-    {
-        ATG_PrintError( "Could not allocate system memory.\n" );
-        m_dwSysMemDataSize = 0;
-        return E_FAIL;
-    }
-    m_pVidMemData = ( BYTE* )AllocateContiguousMemory( m_dwVidMemDataSize, XALLOC_PHYSICAL_ALIGNMENT_4K );
-    if( m_pVidMemData == NULL )
-    {
-        ATG_PrintError( "Could not allocate physical memory.\n" );
-        m_dwSysMemDataSize = 0;
-        m_dwVidMemDataSize = 0;
-        delete[] m_pSysMemData;
-        m_pSysMemData = NULL;
-        return E_FAIL;
-    }
-
-    // Read in the data from the file
-    if( !ReadFile( hFile, m_pSysMemData, m_dwSysMemDataSize, &dwNumBytesRead, NULL ) ||
-        !ReadFile( hFile, m_pVidMemData, m_dwVidMemDataSize, &dwNumBytesRead, NULL ) )
-    {
-        ATG_PrintError( "Unable to read Xbox Packed Resource (.xpr) file\n" );
-        CloseHandle( hFile );
-        return E_FAIL;
-    }
-
-    // Done with the file
-    CloseHandle( hFile );
+		// Read in and verify the XPR magic header
+		XPR_HEADER xprh;
+		if (!ReadFile(hFile, &xprh, sizeof(XPR_HEADER), &dwNumBytesRead, NULL))
+		{
+			ATG_PrintError("Error reading XPR header in file <%s>\n", strFilename);
+			CloseHandle(hFile);
+			return E_FAIL;
+		}
 
 #ifdef _PC
-    XGEndianSwapData( m_pSysMemData, m_pSysMemData, XGENDIAN_8IN32 );
+		XGEndianSwapMemory(&xprh, &xprh, XGENDIAN_8IN32, sizeof(DWORD), sizeof(XPR_HEADER) / sizeof(DWORD));
 #endif
 
-    // Extract resource table from the header data
-    m_dwNumResourceTags = *( DWORD* )( m_pSysMemData + 0 );
-    m_pResourceTags = ( RESOURCE* )( m_pSysMemData + 4 );
+		if (xprh.dwMagic != XPR2_MAGIC_VALUE)
+		{
+			ATG_PrintError("Invalid Xbox Packed Resource (.xpr) file: Magic = 0x%08lx\n", xprh.dwMagic);
+			CloseHandle(hFile);
+			return E_FAIL;
+		}
+
+		// Compute memory requirements
+		m_dwSysMemDataSize = xprh.dwHeaderSize;
+		m_dwVidMemDataSize = xprh.dwDataSize;
+
+		// Allocate memory
+		m_pSysMemData = new BYTE[m_dwSysMemDataSize];
+		if (m_pSysMemData == NULL)
+		{
+			ATG_PrintError("Could not allocate system memory.\n");
+			m_dwSysMemDataSize = 0;
+			return E_FAIL;
+		}
+		m_pVidMemData = (BYTE*)AllocateContiguousMemory(m_dwVidMemDataSize, XALLOC_PHYSICAL_ALIGNMENT_4K);
+		if (m_pVidMemData == NULL)
+		{
+			ATG_PrintError("Could not allocate physical memory.\n");
+			m_dwSysMemDataSize = 0;
+			m_dwVidMemDataSize = 0;
+			delete[] m_pSysMemData;
+			m_pSysMemData = NULL;
+			return E_FAIL;
+		}
+
+		// Read in the data from the file
+		if (!ReadFile(hFile, m_pSysMemData, m_dwSysMemDataSize, &dwNumBytesRead, NULL) ||
+			!ReadFile(hFile, m_pVidMemData, m_dwVidMemDataSize, &dwNumBytesRead, NULL))
+		{
+			ATG_PrintError("Unable to read Xbox Packed Resource (.xpr) file\n");
+			CloseHandle(hFile);
+			return E_FAIL;
+		}
+
+		// Done with the file
+		CloseHandle(hFile);
 
 #ifdef _PC
-    XGEndianSwapMemory( m_pResourceTags, m_pResourceTags, XGENDIAN_8IN32, sizeof(DWORD), m_dwNumResourceTags * ( sizeof(RESOURCE) / sizeof(DWORD) ) );
+		XGEndianSwapData(m_pSysMemData, m_pSysMemData, XGENDIAN_8IN32);
 #endif
 
-    // Patch up the resources
-    for( DWORD i = 0; i < m_dwNumResourceTags; i++ )
-    {
-        m_pResourceTags[i].strName = ( CHAR* )( m_pSysMemData + ( DWORD )m_pResourceTags[i].strName );
+		// Extract resource table from the header data
+		m_dwNumResourceTags = *(DWORD*)(m_pSysMemData + 0);
+		m_pResourceTags = (RESOURCE*)(m_pSysMemData + 4);
 
-        // Fixup the texture memory
-        if( ( m_pResourceTags[i].dwType & 0xffff0000 ) == ( RESOURCETYPE_TEXTURE & 0xffff0000 ) )
-        {
-            D3DTexture* pTexture = ( D3DTexture* )&m_pSysMemData[m_pResourceTags[i].dwOffset];
 #ifdef _PC
-            XGEndianSwapTextureHeader( pTexture );
+		XGEndianSwapMemory(m_pResourceTags, m_pResourceTags, XGENDIAN_8IN32, sizeof(DWORD), m_dwNumResourceTags * (sizeof(RESOURCE) / sizeof(DWORD)));
 #endif
 
-            // Adjust Base address according to where memory was allocated
-            XGOffsetBaseTextureAddress( pTexture, m_pVidMemData, m_pVidMemData );
+		// Patch up the resources
+		for (DWORD i = 0; i < m_dwNumResourceTags; i++)
+		{
+			m_pResourceTags[i].strName = (CHAR*)(m_pSysMemData + (DWORD)m_pResourceTags[i].strName);
 
-            // Let PIX know the name of the texture
-            PIXSetTextureName(pTexture, m_pResourceTags[i].strName);
-        }
-    }
+			// Fixup the texture memory
+			if ((m_pResourceTags[i].dwType & 0xffff0000) == (RESOURCETYPE_TEXTURE & 0xffff0000))
+			{
+				D3DTexture* pTexture = (D3DTexture*)&m_pSysMemData[m_pResourceTags[i].dwOffset];
+#ifdef _PC
+				XGEndianSwapTextureHeader(pTexture);
+#endif
 
-    m_bInitialized = TRUE;
+				// Adjust Base address according to where memory was allocated
+				XGOffsetBaseTextureAddress(pTexture, m_pVidMemData, m_pVidMemData);
 
-    return S_OK;
-}
+				// Let PIX know the name of the texture
+				PIXSetTextureName(pTexture, m_pResourceTags[i].strName);
+			}
+		}
 
+		m_bInitialized = TRUE;
 
-//--------------------------------------------------------------------------------------
-// Name: GetResourceTags
-// Desc: Retrieves the resource tags
-//--------------------------------------------------------------------------------------
-VOID PackedResource::GetResourceTags( DWORD* pdwNumResourceTags,
-                                      RESOURCE** ppResourceTags ) const
-{
-    if( pdwNumResourceTags )
-        ( *pdwNumResourceTags ) = m_dwNumResourceTags;
-
-    if( ppResourceTags )
-        ( *ppResourceTags ) = m_pResourceTags;
-}
+		return S_OK;
+	}
 
 
-//--------------------------------------------------------------------------------------
-// Name: Destroy
-// Desc: Cleans up the packed resource data
-//--------------------------------------------------------------------------------------
-VOID PackedResource::Destroy()
-{
-    delete[] m_pSysMemData;
-    m_pSysMemData = NULL;
-    m_dwSysMemDataSize = 0L;
+	//--------------------------------------------------------------------------------------
+	// Name: Create
+	// Desc: Loads all the texture resources from the given XPR.
+	//--------------------------------------------------------------------------------------
+	HRESULT PackedResource::CreateFromMemory(BYTE* memoryBuffer)
+	{
+		// Read in and verify the XPR magic header
+		XPR_HEADER xprh;
+		memcpy(&xprh, memoryBuffer, sizeof(XPR_HEADER));
 
-    if( m_pVidMemData != NULL )
-        FreeContiguousMemory( m_pVidMemData );
-    m_pVidMemData = NULL;
-    m_dwVidMemDataSize = 0L;
+#ifdef _PC
+		XGEndianSwapMemory(&xprh, &xprh, XGENDIAN_8IN32, sizeof(DWORD), sizeof(XPR_HEADER) / sizeof(DWORD));
+#endif
 
-    m_pResourceTags = NULL;
-    m_dwNumResourceTags = 0L;
+		if (xprh.dwMagic != XPR2_MAGIC_VALUE)
+		{
+			ATG_PrintError("Invalid Xbox Packed Resource (.xpr) file: Magic = 0x%08lx\n", xprh.dwMagic);
+			return E_FAIL;
+		}
 
-    m_bInitialized = FALSE;
-}
+		// Compute memory requirements
+		m_dwSysMemDataSize = xprh.dwHeaderSize;
+		m_dwVidMemDataSize = xprh.dwDataSize;
 
-//--------------------------------------------------------------------------------------
-// Name: Initialized
-// Desc: Indicates whether the packed resource has been successfully initialized
-//--------------------------------------------------------------------------------------
-BOOL PackedResource::Initialized() const
-{
-    return m_bInitialized;
-}
+		// Allocate memory
+		m_pSysMemData = new BYTE[m_dwSysMemDataSize];
+		if (m_pSysMemData == NULL)
+		{
+			ATG_PrintError("Could not allocate system memory.\n");
+			m_dwSysMemDataSize = 0;
+			return E_FAIL;
+		}
+		m_pVidMemData = (BYTE*)AllocateContiguousMemory(m_dwVidMemDataSize, XALLOC_PHYSICAL_ALIGNMENT_4K);
+		if (m_pVidMemData == NULL)
+		{
+			ATG_PrintError("Could not allocate physical memory.\n");
+			m_dwSysMemDataSize = 0;
+			m_dwVidMemDataSize = 0;
+			delete[] m_pSysMemData;
+			m_pSysMemData = NULL;
+			return E_FAIL;
+		}
+
+		// Read in the data from the file
+		memcpy(m_pSysMemData, (void*)(((int)memoryBuffer) + sizeof(XPR_HEADER)), m_dwSysMemDataSize);
+		memcpy(m_pVidMemData, (void*)(((int)memoryBuffer) + sizeof(XPR_HEADER) + m_dwSysMemDataSize), m_dwVidMemDataSize);
+
+
+
+#ifdef _PC
+		XGEndianSwapData(m_pSysMemData, m_pSysMemData, XGENDIAN_8IN32);
+#endif
+
+		// Extract resource table from the header data
+		m_dwNumResourceTags = *(DWORD*)(m_pSysMemData + 0);
+		m_pResourceTags = (RESOURCE*)(m_pSysMemData + 4);
+
+#ifdef _PC
+		XGEndianSwapMemory(m_pResourceTags, m_pResourceTags, XGENDIAN_8IN32, sizeof(DWORD), m_dwNumResourceTags * (sizeof(RESOURCE) / sizeof(DWORD)));
+#endif
+
+		// Patch up the resources
+		for (DWORD i = 0; i < m_dwNumResourceTags; i++)
+		{
+			m_pResourceTags[i].strName = (CHAR*)(m_pSysMemData + (DWORD)m_pResourceTags[i].strName);
+
+			// Fixup the texture memory
+			if ((m_pResourceTags[i].dwType & 0xffff0000) == (RESOURCETYPE_TEXTURE & 0xffff0000))
+			{
+				D3DTexture* pTexture = (D3DTexture*)&m_pSysMemData[m_pResourceTags[i].dwOffset];
+#ifdef _PC
+				XGEndianSwapTextureHeader(pTexture);
+#endif
+
+				// Adjust Base address according to where memory was allocated
+				XGOffsetBaseTextureAddress(pTexture, m_pVidMemData, m_pVidMemData);
+
+				// Let PIX know the name of the texture
+				PIXSetTextureName(pTexture, m_pResourceTags[i].strName);
+			}
+		}
+
+		m_bInitialized = TRUE;
+
+		return S_OK;
+	}
+
+	//--------------------------------------------------------------------------------------
+	// Name: GetResourceTags
+	// Desc: Retrieves the resource tags
+	//--------------------------------------------------------------------------------------
+	VOID PackedResource::GetResourceTags(DWORD* pdwNumResourceTags,
+		RESOURCE** ppResourceTags) const
+	{
+		if (pdwNumResourceTags)
+			(*pdwNumResourceTags) = m_dwNumResourceTags;
+
+		if (ppResourceTags)
+			(*ppResourceTags) = m_pResourceTags;
+	}
+
+
+	//--------------------------------------------------------------------------------------
+	// Name: Destroy
+	// Desc: Cleans up the packed resource data
+	//--------------------------------------------------------------------------------------
+	VOID PackedResource::Destroy()
+	{
+		delete[] m_pSysMemData;
+		m_pSysMemData = NULL;
+		m_dwSysMemDataSize = 0L;
+
+		if (m_pVidMemData != NULL)
+			FreeContiguousMemory(m_pVidMemData);
+		m_pVidMemData = NULL;
+		m_dwVidMemDataSize = 0L;
+
+		m_pResourceTags = NULL;
+		m_dwNumResourceTags = 0L;
+
+		m_bInitialized = FALSE;
+	}
+
+	//--------------------------------------------------------------------------------------
+	// Name: Initialized
+	// Desc: Indicates whether the packed resource has been successfully initialized
+	//--------------------------------------------------------------------------------------
+	BOOL PackedResource::Initialized() const
+	{
+		return m_bInitialized;
+	}
 
 } // namespace ATG

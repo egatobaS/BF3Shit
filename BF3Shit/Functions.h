@@ -20,7 +20,7 @@ bool IsLocalClientAlive();
 
 bool IsClientAlive(ClientPlayer * pTarget);
 
-void setIsAuthoritativeMovementActive(EntryInputState * pEIS, bool active);
+void setIsAuthoritativeMovementActive(EntryInputState * pEIS, BOOL active);
 
 void MovementHack();
 
@@ -74,7 +74,7 @@ extern bool isClientWallable[24];
 
 unsigned long long GetXuid(char* Name);
 
-void SendSpot();
+void SendSpot(ClientSpottingComponent * Component, ClientPlayer * LocalClientPlayer);
 
 void FixMovement(EntryInputState * pCmd, float CurAngle, float OldAngle, float fOldForward, float fOldSidemove);
 

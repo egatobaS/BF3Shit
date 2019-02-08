@@ -1,6 +1,5 @@
 #include "main.h"
 
-
 Vector3 pSilent;
 
 unsigned int WaitTimSendSpot = 0;
@@ -215,7 +214,7 @@ bool IsClientAlive(ClientPlayer* pTarget)
 	return true;
 }
 
-void setIsAuthoritativeMovementActive(EntryInputState *pEIS, bool active)
+void setIsAuthoritativeMovementActive(EntryInputState *pEIS, BOOL active)
 {
 	pEIS->m_CustomBitFlags ^= (pEIS->m_CustomBitFlags ^ -active) & 2;
 }
@@ -308,9 +307,27 @@ Vector3 Multiply(Vector3 vec, Matrix* mat)
 		mat->operator()(0, 2)* vec.x + mat->operator()(1, 2)* vec.y + mat->operator()(2, 2)* vec.z);
 }
 
+
+#define min(a,b)            (((a) < (b)) ? (a) : (b))
+#define max(a,b)            (((a) > (b)) ? (a) : (b))
+
+void HealthBarColour(float Health, float MaxHealth, LPDWORD Color) {
+	BYTE NewColour[4] = { 0 };
+	Health = max(0, min(Health, MaxHealth));
+	Color[0] = (byte)min((510.f * (MaxHealth - Health)) / 100, 255);
+	Color[1] = (byte)min((510.f * Health) / 100, 255);
+	Color[2] = 0;
+	Color[3] = 60;
+	*Color = D3DCOLOR_RGBA(Color[0], Color[1], Color[2], Color[3]);
+}
+
 void DrawClientOnWorldHealthBar(float x, float y, float w, float health, float max)
 {
-	D3DCOLOR col = (health >= (max / 2) ? D3DCOLOR_RGBA(0, 255, 0, 60) : D3DCOLOR_RGBA(255, 0, 0, 60));
+
+	//D3DCOLOR col = (health >= (max / 2) ? D3DCOLOR_RGBA(0, 255, 0, 60) : D3DCOLOR_RGBA(255, 0, 0, 60));
+
+	D3DCOLOR col = 0;
+	HealthBarColour(health, max, &col);
 
 	float step = (w / max);
 	float draw = (step * health);
@@ -425,6 +442,7 @@ bool Draw2DBox(ClientVehicleEntity* pEnt, D3DCOLOR color, float size)
 	return true;
 }
 
+
 bool DrawPlayerHealthBar(ClientVehicleEntity* pEnt, float size)
 {
 	Matrix* trans = new Matrix;
@@ -503,7 +521,7 @@ bool DrawNameESP(ClientPlayer* Enemy, float fFontSize, ClientVehicleEntity* pEnt
 	pEnt->getTransform(trans);
 	Pos = Vector3(trans->operator()(3, 0), trans->operator()(3, 1), trans->operator()(3, 2));
 
-	Pos.y += 0.5 * size;
+	Pos.y += 0.5f * size;
 
 	Vector3 aabbMin = Vector3(TransAABB->min.x, TransAABB->min.y, TransAABB->min.z);
 	Vector3 aabbMax = Vector3(TransAABB->max.x, TransAABB->max.y, TransAABB->max.z);
@@ -738,12 +756,12 @@ bool DrawESP() //TODO: BoneESP and a Visibility Check
 
 		if ((bEnemyName && Target->m_teamId != GetLocalPlayer()->m_teamId) || (bFriendName && Target->m_teamId == GetLocalPlayer()->m_teamId))
 		{
-			float fFontSize = (0.70 - (GetDistance(LocalPosition, ClientPosition) / 10));
+			float fFontSize = (0.70f - (GetDistance(LocalPosition, ClientPosition) / 10.f));
 
-			if (fFontSize < 0)
-				fFontSize = 0.1;
+			if (fFontSize < 0.f)
+				fFontSize = 0.1f;
 
-			DrawNameESP(Target, fFontSize, (ClientVehicleEntity*)TargetClientSoldierEntity, 0.8);
+			DrawNameESP(Target, fFontSize, (ClientVehicleEntity*)TargetClientSoldierEntity, 0.8f);
 		}
 
 		if (Target->m_teamId == GetLocalPlayer()->m_teamId)
@@ -755,15 +773,15 @@ bool DrawESP() //TODO: BoneESP and a Visibility Check
 					switch (SnapArrayEnumaratorF)
 					{
 					case 0:
-						DrawLine(1280 / 2, 0, ClientPosition.x, (ClientPosition.y), 1, D3DCOLOR_RGBA(0, 255, 0, 255));
+						DrawLine(1280.f / 2.f, 0.f, ClientPosition.x, (ClientPosition.y), 1, D3DCOLOR_RGBA(0, 255, 0, 255));
 						break;
 
 					case 1:
-						DrawLine(1280 / 2, 720 / 2, ClientPosition.x, (ClientPosition.y), 1, D3DCOLOR_RGBA(0, 255, 0, 255));
+						DrawLine(1280 / 2.f, 720.f / 2.f, ClientPosition.x, (ClientPosition.y), 1, D3DCOLOR_RGBA(0, 255, 0, 255));
 						break;
 
 					case 2:
-						DrawLine(1280 / 2, 720, ClientPosition.x, (ClientPosition.y), 1, D3DCOLOR_RGBA(0, 255, 0, 255));
+						DrawLine(1280.f / 2.f, 720.f, ClientPosition.x, (ClientPosition.y), 1, D3DCOLOR_RGBA(0, 255, 0, 255));
 						break;
 					}
 				}
@@ -1018,23 +1036,9 @@ bool GetAimPos(ClientPlayer* _EnemyPlayer, Vector2* Angles, Vector3* LocalOrigin
 	return false;
 }
 
-enum RayCastFlags
-{
-	CheckDetailMesh = 0x1,
-	IsAsyncRaycast = 0x2,
-	DontCheckWater = 0x4,
-	DontCheckTerrain = 0x8,
-	DontCheckRagdoll = 0x10,
-	DontCheckCharacter = 0x20,
-	DontCheckGroup = 0x40,
-	DontCheckPhantoms = 0x80,
-};
-
 bool IsVisible(Vector4* vFrom, Vector4* vTo)
 {
 	ClientGameContext* g_pGameContext = ClientGameContext::GetInstance();
-
-	//EntityWorld::EntityCollection vehicle = g_pGameContext->m_pLevel->m_pGameWorld->m_collections.at(ENTITY_CLIENT_VEHICLE);
 
 	if (!MmIsAddressValidPtr(g_pGameContext))
 		return false;
@@ -1061,7 +1065,6 @@ bool IsVisible(Vector4* vFrom, Vector4* vTo)
 
 	return visible;
 }
-//ClientPlayer* 
 
 int ClosestClient(ClientPlayer* LocalPlayer)
 {
@@ -1158,7 +1161,7 @@ void DamagePlayer(ClientPlayer* Target, ClientPlayer* LocalPlayer, float damage,
 
 void HealSelf(ClientPlayer* LocalPlayer)
 {
-	DamagePlayer(LocalPlayer, LocalPlayer, -200.0f, NULL, HitReactionType::HRT_Body);
+	DamagePlayer(LocalPlayer, LocalPlayer, -200.0f, NULL, HRT_Body);
 }
 
 int getKitID()
@@ -1281,7 +1284,7 @@ void DoAmmo()
 		if (!MmIsAddressValidPtr(veniceFind))
 			return;
 
-		if (wepfPrimary->m_Ammo != 0x0 && UACounterInt != 0x0 && GetAsyncKeyState(XINPUT_GAMEPAD_X) != true)
+		if (wepfPrimary->m_Ammo != 0x0 && UACounterInt != 0x0 && GetAsyncKeyState(XINPUT_GAMEPAD_X) != 1)
 		{
 			UACounterInt = 0;
 			return;
@@ -1318,7 +1321,7 @@ void HealTeam(ClientPlayer* LocalPlayer)
 			continue;
 
 		if (GetAsyncKeyState(KEY_RT))
-			DamagePlayer(pTarget, LocalPlayer, -200.0f, NULL, HitReactionType::HRT_Head);
+			DamagePlayer(pTarget, LocalPlayer, -200.0f, NULL, HRT_Head);
 	}
 }
 
@@ -1409,7 +1412,7 @@ void Aimbot(ClientPlayer* LocalEntity)
 			bTriggerBot = true;
 
 			if (GetAsyncKeyState(KEY_RT) || WeaponPrimaryFriring->m_weaponState == 9 && bUnfairAimbot)
-				DamagePlayer(AimTarget, LocalClientPlayer, 100.0f, bSpoofTarget ? getUA(AimTarget) : getUA(LocalClientPlayer), bHeadshots ? HitReactionType::HRT_Head : (HitReactionType)0);
+				DamagePlayer(AimTarget, LocalClientPlayer, 100.0f, bSpoofTarget ? getUA(AimTarget) : getUA(LocalClientPlayer), bHeadshots ? HRT_Head : (HitReactionType)0);
 
 			Matrix* m = new Matrix;
 			bool l = false;
@@ -1432,7 +1435,7 @@ void Aimbot(ClientPlayer* LocalEntity)
 		bTriggerBot = true;
 
 		if (GetAsyncKeyState(KEY_RT) || WeaponPrimaryFriring->m_weaponState == 9 && bUnfairAimbot)
-			DamagePlayer(AimTarget, LocalClientPlayer, 100.0f, bSpoofTarget ? getUA(AimTarget) : getUA(LocalClientPlayer), bHeadshots ? HitReactionType::HRT_Head : (HitReactionType)0);
+			DamagePlayer(AimTarget, LocalClientPlayer, 100.0f, bSpoofTarget ? getUA(AimTarget) : getUA(LocalClientPlayer), bHeadshots ? HRT_Head : (HitReactionType)0);
 
 		if (!bSilentAimbot)
 		{
@@ -1454,7 +1457,7 @@ unsigned long long GetXuid(char* Name)
 	return *(unsigned long long*)(0x81E70200);
 }
 
-void SendSpot()
+void SendSpot(ClientSpottingComponent* Component, ClientPlayer* LocalClientPlayer)
 {
 	if ((GetTickCount() - TimeCountSendSpot) > WaitTimSendSpot)
 	{
@@ -1483,6 +1486,12 @@ void SendSpot()
 			if (!MmIsAddressValidPtr(GetLocalPlayer()->m_pControlledControllable))
 				continue;
 
+			if (!MmIsAddressValidPtr(Component))
+				continue;
+
+			if (!MmIsAddressValidPtr(LocalClientPlayer))
+				continue;
+
 			ClientSpottingComponent* LocalClientSpottingComponent = GetLocalPlayer()->m_pControlledControllable->m_pClientSpottingComponent;
 
 			if (!MmIsAddressValidPtr(LocalClientSpottingComponent))
@@ -1497,9 +1506,9 @@ void SendSpot()
 				controllablesToSpot.push_back(pointerToDword);
 			}
 
-			if (controllablesToSpot.size() == 2)
+			//if (controllablesToSpot.size() == 2)
 			{
-				sendSpottingMessage(LocalClientSpottingComponent, GetLocalPlayer(), &controllablesToSpot, 1);
+				sendSpottingMessage(Component, LocalClientPlayer, &controllablesToSpot, 1);
 
 				controllablesToSpot.clear();
 			}
@@ -1591,3 +1600,5 @@ void ForceSquadSpawn()
 
 	}
 }
+
+

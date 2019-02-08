@@ -401,6 +401,16 @@ namespace ATG
 		return Create(m_xprResource.GetTexture("FontTexture"), m_xprResource.GetData("FontData"));
 	}
 
+	//
+	HRESULT Font::CreateFromMemory(BYTE* memoryBuffer)
+	{
+		// Create the font
+		if (FAILED(m_xprResource.CreateFromMemory(memoryBuffer)))
+			return E_FAIL;
+
+		return Create(m_xprResource.GetTexture("FontTexture"), m_xprResource.GetData("FontData"));
+	}
+
 
 	//--------------------------------------------------------------------------------------
 	// Name: Create()

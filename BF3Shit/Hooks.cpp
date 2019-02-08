@@ -2,6 +2,7 @@
 
 UIRender Drawing;
 
+onPostPhysicsUpdateSync_t onPostPhysicsUpdateSyncOriginal;
 sub_83CFF480_t sub_83CFF480Original;
 RayCasting_t RayCastingOriginal;
 D3DDevice_Present_t D3DDevice_PresentOriginal;
@@ -12,7 +13,7 @@ ClientConnection_SendMessage_t ClientConnection_SendMessageOriginal;
 
 Detour XamInputGetStateDetour, D3DDevice_PresentDetour, RayCastingDetour, AddMoveHook, sub_834F63C8Detour,
 XamUserGetXUIDDetour, XamUserGetSigninInfoDetour, XamUserGetNameDetour, TransmitPacketDetour, sub_83CFF480Detour,
-ClientConnection_SendMessageDetour;
+ClientConnection_SendMessageDetour, onPostPhysicsUpdateSyncDetour;
 
 int(*sub_835F4878)(unsigned char* r3, unsigned char* r4) = (int(*)(unsigned char* r3, unsigned char* r4))0x835F4878;
 int(*sub_83D131D0)(unsigned char* r3, unsigned char* r4) = (int(*)(unsigned char* r3, unsigned char* r4))0x83D131D0;
@@ -44,9 +45,6 @@ int RayCastingHook(UINT64 r3, UINT64 r4, UINT64 r5, UINT64 r6, UINT64 r7, UINT64
 		if (IsLocalClientAlive())
 		{
 
-			if (bAutoSpot)
-				SendSpot();
-
 			if (bAimbot)
 				Aimbot(GetLocalPlayer());
 
@@ -60,7 +58,7 @@ int RayCastingHook(UINT64 r3, UINT64 r4, UINT64 r5, UINT64 r6, UINT64 r7, UINT64
 int AddMove(StreamManagerMoveClient* r3, IMoveObject* pMove)
 {
 	if (setBitFlag) {
-		pMove->m_EntryInput.m_CustomBitFlags ^= (pMove->m_EntryInput.m_CustomBitFlags ^ -true) & 2;
+		pMove->m_EntryInput.m_CustomBitFlags ^= (pMove->m_EntryInput.m_CustomBitFlags ^ -1) & 2;
 	}
 
 	if (IsLocalClientAlive() && bSilentAimbot)
@@ -145,10 +143,10 @@ int D3DDevice_PresentHook(D3DDevice* pDevice, unsigned long long r4, unsigned lo
 
 			if (bUnlimitedAmmo)
 				DoAmmo();
-
-			if (bForceSquadSpawn)
-				ForceSquadSpawn();
 		}
+
+		if (bForceSquadSpawn)
+			ForceSquadSpawn();
 
 		DrawMenu();
 	}
@@ -319,12 +317,14 @@ int sub_83CFF480Hook(unsigned long long r3, unsigned long long r4)
 
 int ClientConnection_SendMessageHook(ClientConnection* Connection, _NetworkableMessage* Message)
 {
-	if (MmIsAddressValidPtr(Message))
-	{
-
-		TypeInfo* Type = Message->GetType();
-		TypeInfoData * Data = Type->m_infoData;
-
-	}
 	return ClientConnection_SendMessageOriginal(Connection, Message);
+}
+
+
+void onPostPhysicsUpdateSyncHook(ClientSpottingComponent* Component, ClientPlayer* LocalClientPlayer)
+{
+	if (bAutoSpot)
+		SendSpot(Component, LocalClientPlayer);
+
+	onPostPhysicsUpdateSyncOriginal(Component, LocalClientPlayer);
 }

@@ -60,6 +60,8 @@ public:
     // Loads the resources out of the specified bundle
     HRESULT Create( const CHAR* strFilename );
 
+	HRESULT CreateFromMemory(BYTE* memoryBuffer);
+
     VOID    Destroy();
 
     BOOL    Initialized() const;

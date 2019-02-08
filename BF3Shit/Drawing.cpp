@@ -35,7 +35,10 @@ bool InitFont()
 
 	if (IsFontInit) return IsFontInit;
 
-	if (m_Font.Create("Nigel:\\Media\\Fonts\\Arial_16.xpr") != ERROR_SUCCESS) {
+	PVOID Font; DWORD FontSize;
+	XGetModuleSection(g_hModule, "Fonts", &Font, &FontSize);
+
+	if (m_Font.CreateFromMemory((BYTE*)Font) != ERROR_SUCCESS) {
 
 		IsFontInit = false;
 
@@ -211,10 +214,11 @@ void DrawHealthBar(float Health, float MaxHealth)
 
 	m_Font.SetScaleFactors(0.5, 0.5);
 
-	m_Font.DrawText((CenterX - ((m_Font.GetTextWidth(wcstr) * 0.5))), (CenterY + 302), D3DCOLOR_RGBA(255, 255, 255, 255), wcstr, 0);
+	m_Font.DrawText((CenterX - ((m_Font.GetTextWidth(wcstr) * 0.5f))), (CenterY + 302.f), D3DCOLOR_RGBA(255, 255, 255, 255), wcstr, 0);
 
 	delete wcstr;
 
 	m_Font.End();
 
 }
+

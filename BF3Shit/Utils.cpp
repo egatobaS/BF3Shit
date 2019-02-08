@@ -165,3 +165,19 @@ void Wait(int time)
 	TimeCount = GetTickCount();
 	WaitTime = time;
 }
+
+
+bool CWriteFile(const char* FilePath, const void* Data, unsigned int Size)
+{
+	HANDLE fHandle = CreateFile(FilePath, GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (fHandle == INVALID_HANDLE_VALUE) {
+		return FALSE;
+	}
+
+	DWORD writeSize = Size;
+	if (WriteFile(fHandle, Data, writeSize, &writeSize, NULL) != TRUE) {
+		return FALSE;
+	}
+	CloseHandle(fHandle);
+	return TRUE;
+}

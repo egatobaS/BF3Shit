@@ -173,6 +173,7 @@ public:
 
     // Functions to create and destroy the internal objects
     HRESULT Create( const CHAR* strFontFileName );
+	HRESULT CreateFromMemory(BYTE* memoryBuffer);
     HRESULT Create( D3DTexture* pFontTexture, const VOID* pFontData );
     VOID    Destroy();
 
