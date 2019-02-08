@@ -2,22 +2,11 @@
 
 HANDLE g_hModule;
 
-bool ShouldSetIni = false;
 bool RunThread = true;
-
-unsigned int WaitConfig = 0;
-unsigned int TimeConfig = 0;
-
-void ConfigWait(int time)
-{
-	TimeConfig = GetTickCount();
-	WaitConfig = time;
-}
-
 
 void MainThread()
 {
-	XNotify(L"xbOnline BF3 Cheats Loaded!");
+	XNotify(L"[1.0.4] xbOnline BF3 Cheats Loaded!");
 
 	if (CreateSymbolicLink(NAME_MOUNT, NAME_HDD, TRUE) != ERROR_SUCCESS) {
 	}
@@ -33,15 +22,16 @@ void MainThread()
 			InitFont();
 		}
 
-		if ((GetTickCount() - TimeConfig) > WaitConfig)
+		if (SetIni)
 		{
-			if (ShouldSetIni)
-			{
-				SetInit();
+			SetInit();
+			SetIni = false;
+		}
 
-				ShouldSetIni = false;
-			}
-			ConfigWait(1000);
+		if (GetIni)
+		{
+			LoadINI();
+			GetIni = false;
 		}
 
 		Sleep(10);

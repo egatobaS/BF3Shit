@@ -6,6 +6,36 @@ extern bool bShoot;
 extern bool bTriggerBot;
 extern int ShootCount;
 
+enum BoneType
+{
+	Bone_None,
+	Bone_Head,
+	Bone_Origin,
+	Right_Foot,
+	Left_Foot,
+	Bone_Hips,
+	Left_Knee,
+	Right_Knee
+};
+
+struct ClientBones
+{
+	Vector3 Head;
+	bool GotHead;
+	Vector3 Origin;
+	bool GotOrigin;
+	Vector3 RightKnee;
+	bool GotRightKnee;
+	Vector3 LeftKnee;
+	bool GotLeftKnee;
+	Vector3 LeftFoot;
+	bool GotLeftFoot;
+	Vector3 RightFoot;
+	bool GotRightFoot;
+	Vector3 Hips;
+	bool GotHips; 
+	BoneType Type;
+};
 
 extern WeaponSway::Deviation* pRecoil;
 extern WeaponSway::Deviation *pSpread;
@@ -32,7 +62,6 @@ bool Draw2DBox(ClientVehicleEntity * pEnt, D3DCOLOR color, float size);
 
 bool TransformDrawAABB(ClientVehicleEntity * pEnt, D3DCOLOR color, float size);
 
-bool GetBonePos(ClientSoldierEntity * pEnt, int iBone, Vector3 * vOut);
 
 void DrawBoneLine(ClientPlayer * entity, int tagname1, int tagname2, D3DCOLOR col);
 
@@ -66,7 +95,7 @@ void Aimbot(ClientPlayer * LocalEntity);
 
 extern int NearestPlayer;
 
-extern bool isClientWallable[24];
+extern int isClientWallable[24];
 
 unsigned long long GetXuid(char* Name);
 

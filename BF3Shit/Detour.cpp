@@ -121,7 +121,7 @@ unsigned int Detour::RelinkGPLR(unsigned int Offset, unsigned int SaveStubAddres
 
 void Detour::RestoreFunction()
 {
-	if (Hooked ) {
+	if (Hooked && MmIsAddressValid((PVOID)Address)) {
 		Hooked = false;
 
 		memcpy((void*)Address, (void*)OriginalBytes, 16);

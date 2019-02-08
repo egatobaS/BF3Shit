@@ -69,8 +69,6 @@
 #include "MenuDrawing.h"
 #include "Hooks.h"
 
-extern bool ShouldSetIni;
-
 extern HANDLE g_hModule;
 
 using namespace std;

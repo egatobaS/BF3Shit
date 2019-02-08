@@ -335,8 +335,6 @@ void Menu::GoBack()
 
 void Menu::SelectOption()
 {
-	ShouldSetIni = true;
-
 	switch (OptionKind[CurrentSubMenu][CurrentScroll[CurrentSubMenu]])
 	{
 	case TYPE_FUNCTION:
@@ -398,8 +396,6 @@ void Menu::SelectOption()
 
 void Menu::ScrollLeft()
 {
-
-	ShouldSetIni = true;
 	switch (OptionKind[CurrentSubMenu][CurrentScroll[CurrentSubMenu]])
 	{
 	case TYPE_FLOAT:
@@ -429,8 +425,6 @@ void Menu::ScrollLeft()
 
 void Menu::ScrollRight()
 {
-
-	ShouldSetIni = true;
 	switch (OptionKind[CurrentSubMenu][CurrentScroll[CurrentSubMenu]])
 	{
 	case TYPE_FLOAT:

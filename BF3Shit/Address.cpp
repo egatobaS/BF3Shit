@@ -302,6 +302,7 @@ void LoadAddresses()
 
 	if (Sys_Functions)
 	{
+
 		GetDetour = (Detour*(*)())Sys_Functions->GetDetours;
 		XNotify = (void(*)(wchar_t*))Sys_Functions->XNotify;
 		user_memcpy = (void*(*)(void*, void*, size_t))Sys_Functions->memcpy;

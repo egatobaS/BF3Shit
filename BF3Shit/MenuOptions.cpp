@@ -79,8 +79,10 @@ float FlySpeed = 10.0f;
 float fTeleHeight = 50.0f;
 float fCompassSize = 120.0f;
 
+bool SetIni = false, GetIni = false;
+
 int ESPType = 0;
-int MainMenu = 0, MiscMenu = 0, AimbotMenu = 0, WeaponMenu = 0, ClassCustomizationMenu = 0, SendChatMenu = 0, ESPMenu = 0, EnemyESPMenu = 0, FriendlyESPMenu = 0, VehicleESPMenu = 0, EntityESPMenu = 0, CompassMenu = 0;
+int MainMenu = 0, MiscMenu = 0, AimbotMenu = 0, WeaponMenu = 0, ClassCustomizationMenu = 0, SendChatMenu = 0, ESPMenu = 0, EnemyESPMenu = 0, FriendlyESPMenu = 0, VehicleESPMenu = 0, EntityESPMenu = 0, CompassMenu = 0, IniSettings = 0;
 int Gun[] = { 0x7ECAA648, 0x74E2BFBA, 0x449E68FC, 0x7475B83D, 0x66ACC2FE, 0x270013D1, 0xDE801D07, 0xDFC9E5A, 0x231EBF24, 0xA9BEFA95 };
 int Spoof[] = { 0xA6784811, 0x7ECAA648, 0x74E2BFBA, 0xADD2FC9A, 0x4BE5D515, 0x256F047E, 0x490A8A5F, 0xBF93FD19, 0x697AA0D0, 0xD1ABE5D3, 0xC25A2EB5, 0x6C6ACD2B };
 
@@ -105,40 +107,29 @@ void SendChatMessage(wchar_t *Message)
 	*(unsigned char*)0x840603E0 = 1;
 }
 
-void SetPrimary()
-{
 
-}
-void SetSecondary()
-{
 
-}
-void SetGadet1()
+void DoIniSet()
 {
-
+	SetIni = true;
 }
-void SetGadget2()
+
+void DoIniLoad()
 {
-
+	GetIni = true;
 }
-void SetGrenade()
-{
 
-}
-void DoInvisible()
-{
-
-}
 
 void AddMenuOptions()
 {
 	MainMenu = MenuBase.CreateSubMenu("Main Menu");
 	MenuBase.AddSubMenuLink("Misc", "", &MiscMenu);
 	MenuBase.AddSubMenuLink("Aimbot", "", &AimbotMenu);
-	MenuBase.AddSubMenuLink("Weapon mods", "", &WeaponMenu);
+	MenuBase.AddSubMenuLink("Weapon Mods", "", &WeaponMenu);
 	//MenuBase.AddSubMenuLink("Customization", "", &ClassCustomizationMenu);
-	MenuBase.AddSubMenuLink("Chat messages", "", &SendChatMenu);
+	MenuBase.AddSubMenuLink("Chat Messages", "", &SendChatMenu);
 	MenuBase.AddSubMenuLink("ESP", "", &ESPMenu);
+	MenuBase.AddSubMenuLink("Ini Settings", "", &IniSettings);
 	//MenuBase.AddCall("Test Option Set", "", GetXuid, "s", 1, "haloskinner");
 	//MenuBase.AddCall("Test Option Reset", "", GetXuid, "s", 1, "x goes over pi");
 
@@ -201,7 +192,7 @@ void AddMenuOptions()
 	MenuBase.AddListBox("ESP Type", "Choose the ESP Type.", &ESPType, ESPArray, 2);
 	MenuBase.AddBool("Target Info", "Enable this to display information about your client.", &bTargetInfo);
 	MenuBase.AddBool("UAV", "Shows all players on the minimap.", &bUAV);
-	MenuBase.AddSubMenuLink("Compass", "", &CompassMenu);
+	//MenuBase.AddSubMenuLink("Compass", "", &CompassMenu);
 	MenuBase.AddSubMenuLink("Enemies", "", &EnemyESPMenu);
 	MenuBase.AddSubMenuLink("Friendly", "", &FriendlyESPMenu);
 	MenuBase.AddSubMenuLink("Vehicles", "", &VehicleESPMenu);//todo
@@ -240,6 +231,10 @@ void AddMenuOptions()
 	//MenuBase.AddBool("Draw Supply Crates", "Draws medkits and ammoboxes.", &bDrawSupply);
 	//MenuBase.AddBool("Draw Explosives", "Draws claymores/c4/anti-tank.", &bDrawExplosive);
 	//MenuBase.AddBool("Draw Grenade", "Draws Grenades.", &bDrawGrenade);
+
+	IniSettings = MenuBase.CreateSubMenu("Ini Settings");
+	MenuBase.AddCall("Load Ini Settings", "Loads the settings saved in the INI", &DoIniLoad);
+	MenuBase.AddCall("Save Ini Settings", "Saves the settings saved in the INI", &DoIniSet);
 }
 
 
@@ -436,4 +431,5 @@ void SetInit()
 		ini.SaveFile("Nigel:\\xbOnline\\BF3.cfg");
 	}
 }
+
 

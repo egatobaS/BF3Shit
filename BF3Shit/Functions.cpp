@@ -4,7 +4,7 @@ Vector3 pSilent;
 
 unsigned int WaitTimSendSpot = 0;
 unsigned int TimeCountSendSpot = 0;
-bool isClientWallable[24] = { 0 };
+int isClientWallable[24] = { 0 };
 bool setBitFlag = false;
 bool bShoot = false;
 bool bTriggerBot = false;
@@ -26,6 +26,22 @@ void SendSpotWait(int time)
 {
 	TimeCountSendSpot = GetTickCount();
 	WaitTimSendSpot = time;
+}
+
+Vector3 GetLocalViewOrigin()
+{
+	Vector3 vOrigin;
+
+	GameRenderer* renderer = GameRenderer::Singleton();
+
+
+	if (renderer == NULL)
+		return vOrigin;
+
+	if (renderer->m_viewParams.view.Update() == false)
+		return vOrigin;
+
+	return  Vector3(renderer->m_viewParams.firstPersonTransform.data[3][0], renderer->m_viewParams.firstPersonTransform.data[3][1], renderer->m_viewParams.firstPersonTransform.data[3][2]);
 }
 
 bool WorldToScreen(Vector3 WorldPos, Vector3* ScreenPos)
@@ -228,7 +244,7 @@ void MovementHack()
 
 	MatrixD* Mat = (MatrixD*)(((int)renderer) + Addresses->_0xDB0);
 
-	Vector3 vOrigin = renderer->m_viewParams.firstPersonTransform.trans;
+	Vector3 vOrigin = GetLocalViewOrigin();//renderer->m_viewParams.firstPersonTransform.trans;
 	Vector3 vForward = Mat->Forward();
 	vForward.Normalize();
 	Vector3 vRayEnd = vOrigin + (vForward * FlySpeed);
@@ -237,7 +253,7 @@ void MovementHack()
 	float factor = 50.0f / sqrt(vDiff.x*vDiff.x + vDiff.y * vDiff.y + vDiff.z * vDiff.z);
 
 
-	if (GetAsyncKeyState(0x0100))
+	if (GetAsyncKeyState(XINPUT_GAMEPAD_DPAD_DOWN))
 	{
 
 		setBitFlag = true;
@@ -918,7 +934,7 @@ void AimCorrection(Vector3 * inVec, Vector3 enemyVelo, Vector3 myVelo, float Dis
 	if (!MmIsAddressValidPtr(pCSW))
 		return;
 
-	ClientWeapon* pWeapon =pCSW->m_pWeapon;
+	ClientWeapon* pWeapon = pCSW->m_pWeapon;
 	if (!MmIsAddressValidPtr(pWeapon))
 		return;
 
@@ -993,17 +1009,73 @@ void DoAimCorrection(ClientSoldierEntity * mySoldier, ClientSoldierEntity * enem
 	AimCorrection(&enemyVec, enemySoldier->m_pClientSoldierPrediction->m_Velocity, mySoldier->m_pClientSoldierPrediction->m_Velocity, mySoldier->m_pClientSoldierPrediction->m_Position.Distance(enemySoldier->m_pClientSoldierPrediction->m_Position), Bulletspeed, Gravity);
 }
 
-bool GetAimPos(ClientPlayer* _EnemyPlayer, Vector2* Angles, Vector3* LocalOrigin, Vector3* Origin)
+bool GetAimPos(int ClientNumber, ClientPlayer* _EnemyPlayer, Vector2* Angles, Vector3* LocalOrigin, Vector3* Origin)
 {
 	Vector3 Space;
 
 	if (_EnemyPlayer->m_pControlledControllable != 0)
 	{
+		*LocalOrigin = GetLocalViewOrigin();
 
-		if (!GetBone(_EnemyPlayer->m_pControlledControllable, Origin, UpdatePoseResultData::Neck) || !GetBone(GetLocalPlayer()->m_pControlledControllable, LocalOrigin, UpdatePoseResultData::Head)) {
-			*LocalOrigin = GetLocalPlayer()->m_pControlledControllable->m_pClientSoldierPrediction->m_Position;
+		if (isClientWallable[ClientNumber] == Bone_Head)
+		{
+			if (!GetBone(_EnemyPlayer->m_pControlledControllable, Origin, UpdatePoseResultData::Head)) {
 
+				*Origin = _EnemyPlayer->m_pControlledControllable->m_pClientSoldierPrediction->m_Position;
+				Origin->y += 1.8f;
+			}
+		}
+		else if (isClientWallable[ClientNumber] == Bone_Hips)
+		{
+			if (!GetBone(_EnemyPlayer->m_pControlledControllable, Origin, UpdatePoseResultData::Hips)) {
+
+				*Origin = _EnemyPlayer->m_pControlledControllable->m_pClientSoldierPrediction->m_Position;
+				Origin->y += 1.8f;
+			}
+		}
+		else if (isClientWallable[ClientNumber] == Left_Knee)
+		{
+			if (!GetBone(_EnemyPlayer->m_pControlledControllable, Origin, UpdatePoseResultData::LeftKneeRoll)) {
+
+				*Origin = _EnemyPlayer->m_pControlledControllable->m_pClientSoldierPrediction->m_Position;
+				Origin->y += 1.8f;
+			}
+		}
+		else if (isClientWallable[ClientNumber] == Right_Knee)
+		{
+			if (!GetBone(_EnemyPlayer->m_pControlledControllable, Origin, UpdatePoseResultData::RightKneeRoll)) {
+
+				*Origin = _EnemyPlayer->m_pControlledControllable->m_pClientSoldierPrediction->m_Position;
+				Origin->y += 1.8f;
+			}
+		}
+		else if (isClientWallable[ClientNumber] == Right_Foot)
+		{
+			if (!GetBone(_EnemyPlayer->m_pControlledControllable, Origin, UpdatePoseResultData::RightFoot)) {
+
+				*Origin = _EnemyPlayer->m_pControlledControllable->m_pClientSoldierPrediction->m_Position;
+				Origin->y += 1.8f;
+			}
+		}
+		else  if (isClientWallable[ClientNumber] == Left_Foot)
+		{
+			if (!GetBone(_EnemyPlayer->m_pControlledControllable, Origin, UpdatePoseResultData::LeftFoot)) {
+
+				*Origin = _EnemyPlayer->m_pControlledControllable->m_pClientSoldierPrediction->m_Position;
+				Origin->y += 1.8f;
+			}
+		}
+		else if (isClientWallable[ClientNumber] == Bone_Origin)
+		{
 			*Origin = _EnemyPlayer->m_pControlledControllable->m_pClientSoldierPrediction->m_Position;
+		}
+		else if (isClientWallable[ClientNumber] == Bone_None || bVisibility)
+		{
+			if (!GetBone(_EnemyPlayer->m_pControlledControllable, Origin, UpdatePoseResultData::Neck)) {
+
+				*Origin = _EnemyPlayer->m_pControlledControllable->m_pClientSoldierPrediction->m_Position;
+				Origin->y += 1.8f;
+			}
 		}
 
 		DoAimCorrection(GetLocalPlayer()->m_pControlledControllable, _EnemyPlayer->m_pControlledControllable, *Origin);
@@ -1020,7 +1092,7 @@ bool GetAimPos(ClientPlayer* _EnemyPlayer, Vector2* Angles, Vector3* LocalOrigin
 	return false;
 }
 
-bool IsVisible(Vector4* vFrom, Vector4* vTo)
+bool IsVisible(Vector3* vFrom, Vector3* vTo)
 {
 	ClientGameContext* g_pGameContext = ClientGameContext::GetInstance();
 
@@ -1045,10 +1117,15 @@ bool IsVisible(Vector4* vFrom, Vector4* vTo)
 
 	RayCastHit ray;
 
-	bool visible = !rayCaster->physicsRayQuery("OnGroundState::update", vFrom, vTo, &ray, IPhysicsRayCaster::AimbotFlags, NULL);
+	Vector4 Mine = Vector4(vFrom->x, vFrom->y, vFrom->z, 0), Theires = Vector4(vTo->x, vTo->y, vTo->z, 0);
+
+
+	bool visible = !rayCaster->physicsRayQuery("OnGroundState::update", &Mine, &Theires, &ray, IPhysicsRayCaster::AimbotFlags, NULL);
 
 	return visible;
 }
+
+
 
 int ClosestClient(ClientPlayer* LocalPlayer)
 {
@@ -1076,36 +1153,64 @@ int ClosestClient(ClientPlayer* LocalPlayer)
 		if (!MmIsAddressValidPtr(Target->m_pControlledControllable->m_pClientSoldierPrediction))
 			continue;
 
+		if (Target->m_teamId == LocalPlayer->m_teamId)
+			continue;
+
 		Vector3 Position, PositionL;
 
-		if (!GetBone(Target->m_pControlledControllable, &Position, UpdatePoseResultData::Neck) || !GetBone(LocalPlayer->m_pControlledControllable, &PositionL, UpdatePoseResultData::Head)) {
+		if (!GetBone(LocalPlayer->m_pControlledControllable, &PositionL, UpdatePoseResultData::Head))
+		{
 			PositionL = GetLocalPlayer()->m_pControlledControllable->m_pClientSoldierPrediction->m_Position;
 
 			PositionL.y += 1.8f;
-
-			Position = Target->m_pControlledControllable->m_pClientSoldierPrediction->m_Position;
-
-			Position.y += 1.8f;
 		}
+
+		ClientBones BonesStatus;
+
+
+		BonesStatus.Origin = Target->m_pControlledControllable->m_pClientSoldierPrediction->m_Position;
+		BonesStatus.GotOrigin = true;
+
+		BonesStatus.GotHead = GetBone(Target->m_pControlledControllable, &BonesStatus.Head, UpdatePoseResultData::Head);
+		if (!BonesStatus.GotHead) {
+			BonesStatus.Head = Target->m_pControlledControllable->m_pClientSoldierPrediction->m_Position;
+			BonesStatus.Head.y += 1.8f;
+			BonesStatus.GotHead = true;
+		}
+		BonesStatus.GotHips = GetBone(Target->m_pControlledControllable, &BonesStatus.Hips, UpdatePoseResultData::Hips);
+		BonesStatus.GotLeftFoot = GetBone(Target->m_pControlledControllable, &BonesStatus.LeftFoot, UpdatePoseResultData::LeftFoot);
+		BonesStatus.GotRightFoot = GetBone(Target->m_pControlledControllable, &BonesStatus.RightFoot, UpdatePoseResultData::RightFoot);
+		BonesStatus.GotLeftKnee = GetBone(Target->m_pControlledControllable, &BonesStatus.LeftKnee, UpdatePoseResultData::LeftKneeRoll);
+		BonesStatus.GotRightKnee = GetBone(Target->m_pControlledControllable, &BonesStatus.RightKnee, UpdatePoseResultData::RightKneeRoll);
+
+
+		if (BonesStatus.GotHead && IsVisible(&PositionL, &BonesStatus.Head))
+			isClientWallable[i] = Bone_Head;
+		else if (BonesStatus.GotHips && IsVisible(&PositionL, &BonesStatus.Hips))
+			isClientWallable[i] = Bone_Hips;
+		else if (BonesStatus.GotLeftKnee && IsVisible(&PositionL, &BonesStatus.LeftKnee))
+			isClientWallable[i] = Left_Knee;
+		else if (BonesStatus.GotRightKnee && IsVisible(&PositionL, &BonesStatus.RightKnee))
+			isClientWallable[i] = Right_Knee;
+		else if (BonesStatus.GotRightFoot && IsVisible(&PositionL, &BonesStatus.RightFoot))
+			isClientWallable[i] = Right_Foot;
+		else if (BonesStatus.GotLeftFoot && IsVisible(&PositionL, &BonesStatus.LeftFoot))
+			isClientWallable[i] = Left_Foot;
+		else if (BonesStatus.GotOrigin && IsVisible(&PositionL, &BonesStatus.Origin))
+			isClientWallable[i] = Bone_Origin;
+		else isClientWallable[i] = Bone_None;
+
+		Position = BonesStatus.Head;
 
 		float distance = Position.Distance(PositionL);
 
-		Vector4 Mine = Vector4(PositionL.x, PositionL.y, PositionL.z, 0), Theires = Vector4(Position.x, Position.y, Position.z, 0);
+		if (isClientWallable[i] == Bone_None && bVisibility)
+			continue;
 
-
-		isClientWallable[i] = IsVisible(&Mine, &Theires);
-
-
-		if (Target->m_teamId != LocalPlayer->m_teamId)
+		if ((distance < nearestDistance))
 		{
-			if ((isClientWallable[i] && bVisibility) || !bVisibility)
-			{
-				if ((distance < nearestDistance))
-				{
-					nearestDistance = distance;
-					Nearest = i;
-				}
-			}
+			nearestDistance = distance;
+			Nearest = i;
 		}
 	}
 	return Nearest;
@@ -1369,7 +1474,7 @@ void Aimbot(ClientPlayer* LocalEntity)
 
 	Vector3 LocalOrigin, Origin;
 
-	if (!GetAimPos(AimTarget, &Angles, &LocalOrigin, &Origin))
+	if (!GetAimPos(NearestPlayer, AimTarget, &Angles, &LocalOrigin, &Origin))
 		return;
 
 	if (ActiveWeapon->m_pCorrectedFiring->m_weaponState == 11)

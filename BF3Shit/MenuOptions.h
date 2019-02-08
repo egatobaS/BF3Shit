@@ -78,6 +78,11 @@ extern bool bOHK;
 extern bool bClientHealthBarF;
 extern bool bClientHealthBarE;
 extern bool bBlueTint;
+extern bool SetIni;
+extern bool GetIni;
+
+void DoIniSet();
+void DoIniLoad();
 
 void AddMenuOptions();
 
