@@ -247,6 +247,7 @@
     <None Include="BF3Shit.xml" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Address.cpp" />
     <ClCompile Include="Detour.cpp" />
     <ClCompile Include="Drawing.cpp" />
     <ClCompile Include="Functions.cpp" />
@@ -259,6 +260,7 @@
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Address.h" />
     <ClInclude Include="Detour.h" />
     <ClInclude Include="Drawing.h" />
     <ClInclude Include="Functions.h" />

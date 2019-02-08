@@ -11,12 +11,12 @@ sub_834F63C8_t sub_834F63C8Original;
 TransmitPacketStub TransmitPacketOriginal;
 ClientConnection_SendMessage_t ClientConnection_SendMessageOriginal;
 
-Detour XamInputGetStateDetour, D3DDevice_PresentDetour, RayCastingDetour, AddMoveHook, sub_834F63C8Detour,
-XamUserGetXUIDDetour, XamUserGetSigninInfoDetour, XamUserGetNameDetour, TransmitPacketDetour, sub_83CFF480Detour,
-ClientConnection_SendMessageDetour, onPostPhysicsUpdateSyncDetour;
+Detour* XamInputGetStateDetour, *D3DDevice_PresentDetour, *RayCastingDetour, *AddMoveHook, *sub_834F63C8Detour,
+*XamUserGetXUIDDetour, *XamUserGetSigninInfoDetour, *XamUserGetNameDetour, *TransmitPacketDetour, *sub_83CFF480Detour,
+*ClientConnection_SendMessageDetour, *onPostPhysicsUpdateSyncDetour;
 
-int(*sub_835F4878)(unsigned char* r3, unsigned char* r4) = (int(*)(unsigned char* r3, unsigned char* r4))0x835F4878;
-int(*sub_83D131D0)(unsigned char* r3, unsigned char* r4) = (int(*)(unsigned char* r3, unsigned char* r4))0x83D131D0;
+
+
 
 unsigned int WaitTimeV2 = 0;
 unsigned int TimeCountV2 = 0;
@@ -115,20 +115,20 @@ int D3DDevice_PresentHook(D3DDevice* pDevice, unsigned long long r4, unsigned lo
 
 			DrawESP();
 
-			*(int*)(0x836bbf98) = 0x60000000;  //Force Bones to update
+			*(int*)(Addresses->_0x836bbf98) = Addresses->_0x60000000;  //Force Bones to update
 
-			*(int*)(0x836D01E4) = bNoBBobbing ? 0x39600000 : 0x39600001;//no bobbing
-			*(int*)(0x836FDAC8) = bNoSpreadFake ? 0x60000000 : 0x4E800421;//zero out recoil/spread
-			*(int*)(0x834FC41C) = bUAV ? 0x38600001 : 0x38600000;
-			*(int*)(0x834FB424) = bUAV ? 0x39600001 : 0x39600000;
-			*(int*)(0x834FB3D0) = bUAV ? 0x39600001 : 0x39600000;
-			*(int*)(0x83504BBC) = bUAV ? 0x42400020 : 0x4240004C;
-			*(int*)(0x835054C0) = bUAV ? 0x60000000 : 0x419A0B38;
-			*(int*)(0x83505268) = bUAV ? 0x60000000 : 0x409A0DA4;
-			*(int*)(0x835054FC) = bUAV ? 0x4800003C : 0x419A003C;
-			*(int*)(0x8350498C) = bUAV ? 0x39600001 : 0x89590035;
-			*(int*)(0x83504990) = bUAV ? 0x917F02A4 : 0x2B0A0000;
-			*(int*)(0x83504994) = bUAV ? 0x60000000 : 0x419A01AC;
+			*(int*)(Addresses->_0x836D01E4) = bNoBBobbing ? Addresses->_0x39600000 : Addresses->_0x39600001;//no bobbing
+			*(int*)(Addresses->_0x836FDAC8) = bNoSpreadFake ? Addresses->_0x60000000 : Addresses->_0x4E800421;//zero out recoil/spread
+			*(int*)(Addresses->_0x834FC41C) = bUAV ? Addresses->_0x38600001 : Addresses->_0x38600000;
+			*(int*)(Addresses->_0x834FB424) = bUAV ? Addresses->_0x39600001 : Addresses->_0x39600000;
+			*(int*)(Addresses->_0x834FB3D0) = bUAV ? Addresses->_0x39600001 : Addresses->_0x39600000;
+			*(int*)(Addresses->_0x83504BBC) = bUAV ? Addresses->_0x42400020 : Addresses->_0x4240004C;
+			*(int*)(Addresses->_0x835054C0) = bUAV ? Addresses->_0x60000000 : Addresses->_0x419A0B38;
+			*(int*)(Addresses->_0x83505268) = bUAV ? Addresses->_0x60000000 : Addresses->_0x409A0DA4;
+			*(int*)(Addresses->_0x835054FC) = bUAV ? Addresses->_0x4800003C : Addresses->_0x419A003C;
+			*(int*)(Addresses->_0x8350498C) = bUAV ? Addresses->_0x39600001 : Addresses->_0x89590035;
+			*(int*)(Addresses->_0x83504990) = bUAV ? Addresses->_0x917F02A4 : Addresses->_0x2B0A0000;
+			*(int*)(Addresses->_0x83504994) = bUAV ? Addresses->_0x60000000 : Addresses->_0x419A01AC;
 
 			setBitFlag = bFlyHack;
 
@@ -229,21 +229,21 @@ DWORD XamInputGetStateHook(DWORD dwUserIndex, DWORD r4, PXINPUT_STATE pState)
 
 void SendMessage()
 {
-	int r4 = *(unsigned char*)0x840603E0;
+	int r4 = *(unsigned char*)Addresses->_0x840603E0;
 
 	if (r4 != 1)
 		return;
 
 	int r15 = 0;
 
-	*(unsigned char*)0x840603E0 = 0;
+	*(unsigned char*)Addresses->_0x840603E0 = 0;
 
 	unsigned char _0x50[0x200] = { 0 };
 
-	r4 = sub_835F4878(_0x50, (unsigned char*)0x8406041F);
+	r4 = sub_835F4878(_0x50, (unsigned char*)Addresses->_0x8406041F);
 
 
-	int r3 = *(int*)(0x84122028);
+	int r3 = *(int*)(Addresses->_0x84122028);
 
 	if (r3 == 0)
 		return;

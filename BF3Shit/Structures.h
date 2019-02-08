@@ -2068,10 +2068,10 @@ public:
 
 	ClientSoldierWeapon* GetActiveSoldierWeapon()
 	{
-		if (!MmIsAddressValidPtr(m_pActiveHandler))
+		if (!POINTERCHK(m_pActiveHandler))
 			return NULL;
 
-		if (!MmIsAddressValidPtr(m_pActiveHandler->m_pActiveWeapon))
+		if (!POINTERCHK(m_pActiveHandler->m_pActiveWeapon))
 			return NULL;
 
 		return m_pActiveHandler->m_pActiveWeapon;
@@ -3768,7 +3768,7 @@ public:
 
 			ClientSoldierEntity* Return = m_pControlledControllable;
 
-			if (!MmIsAddressValidPtr(Return))
+			if (!POINTERCHK(Return))
 				return NULL;
 
 			return	Return;

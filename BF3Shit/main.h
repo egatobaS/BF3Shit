@@ -56,9 +56,11 @@
 #include "EASTL/utility.h"
 #include "EASTL/vector.h"
 
+
 #include "Detour.h"
 #include "Utils.h"
 #include "Structures.h"
+#include "Address.h"
 #include "Functions.h"
 #include "Drawing.h"
 #include "Menu.h"

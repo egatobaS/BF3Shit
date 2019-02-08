@@ -32,8 +32,8 @@ extern AddMoveStub AddMoveOriginal;
 typedef int(*sub_834F63C8_t)(UINT64 r3, UINT64 r4, UINT64 r5, UINT64 r6, UINT64 r7, UINT64 r8, UINT64 r9, UINT64 r10, float f1, float f2, float f3);
 extern sub_834F63C8_t sub_834F63C8Original;
 
-extern Detour XamInputGetStateDetour, D3DDevice_PresentDetour, RayCastingDetour, AddMoveHook, sub_834F63C8Detour,
-XamUserGetXUIDDetour, XamUserGetSigninInfoDetour, XamUserGetNameDetour, TransmitPacketDetour, sub_83CFF480Detour, ClientConnection_SendMessageDetour, onPostPhysicsUpdateSyncDetour;
+extern Detour* XamInputGetStateDetour, *D3DDevice_PresentDetour, *RayCastingDetour, *AddMoveHook, *sub_834F63C8Detour,
+*XamUserGetXUIDDetour, *XamUserGetSigninInfoDetour, *XamUserGetNameDetour, *TransmitPacketDetour, *sub_83CFF480Detour, *ClientConnection_SendMessageDetour, *onPostPhysicsUpdateSyncDetour;
 
 DWORD XamUserGetXUIDHook(DWORD dwUserIndex, LPSTR pUserName, PXUID onlineOut);
 DWORD XamUserGetSigninInfoHook(DWORD userIndex, DWORD flags, PXUSER_SIGNIN_INFO pSigninInfo);

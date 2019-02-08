@@ -5,67 +5,6 @@ unsigned int TimeCount = 0;
 
 extern "C"  BOOL MmIsAddressValid(PVOID Address);
 
-const DWORD MMIORangeTable[] =
-{
- 0x7FC80000,
- 0x7FC9FFFF,
- 0x7FD00000,
- 0x7FDFFFFF,
- 0x7FEA0000,
- 0x7FEAFFFF,
- 0x7FED0000,
- 0x7FEDFFFF,
- 0x7FED0000,
- 0x7FEDFFFF,
- 0x8FFF0000,
- 0x8FFF0FFF,
- 0x8FFF1000,
- 0x8FFF1FFF,
- 0x00000000,
- 0x00000000,
-
-};
-
-BOOL FIsMmIoAddress(PVOID addr)
-{
-	int i = 0;
-
-	for (i = 0; MMIORangeTable[i]; i += 2) {
-		if (((DWORD)addr > MMIORangeTable[i]) && ((DWORD)addr < MMIORangeTable[i + 1]))
-			return TRUE;
-	}
-
-	return FALSE;
-}
-
-bool MmIsAddressValidPtr(void* ptr)
-{
-	if (((int)ptr > 0x30000000))
-		return (!FIsMmIoAddress(ptr) && MmIsAddressValid(ptr));
-
-	return false;
-}
-
-BOOL FileExists(LPCSTR lpFileName)
-{
-	if (GetFileAttributes(lpFileName) == -1) {
-		DWORD lastError = GetLastError();
-		if (lastError == ERROR_FILE_NOT_FOUND || lastError == ERROR_PATH_NOT_FOUND)
-			return FALSE;
-	}
-	return TRUE;
-}
-
-void CreateSystemThread(void* Function, void* Param)
-{
-	HANDLE hThread1 = 0; DWORD threadId1 = 0;
-	ExCreateThread(&hThread1, 0x10000, &threadId1, (VOID*)XapiThreadStartup, (LPTHREAD_START_ROUTINE)Function, Param, 0x2);
-	XSetThreadProcessor(hThread1, 4);
-	ResumeThread(hThread1);
-	CloseHandle(hThread1);
-}
-
-
 HRESULT CreateSymbolicLink(PCHAR szDrive, PCHAR szDeviceName, BOOL System)
 {
 	CHAR szDestinationDrive[MAX_PATH];
@@ -78,8 +17,6 @@ HRESULT CreateSymbolicLink(PCHAR szDrive, PCHAR szDeviceName, BOOL System)
 	long status = ObCreateSymbolicLink(&linkname, &devicename);
 	return (status >= 0) ? S_OK : S_FALSE;
 }
-
-
 
 DWORD GetModuleImport(HANDLE HModule, HANDLE HImportedModule, DWORD Ordinal)
 {
@@ -141,43 +78,9 @@ DWORD GetAddr(DWORD dwModuleBaseAddr, int Ordinal)
 	return GetModuleImport(hModule, hImportedModule, Ordinal);
 }
 
-
-int GetAsyncKeyState(DWORD KEY)
-{
-	XINPUT_STATE InputState;
-	XInputGetState(0, &InputState);
-
-	if (!KEY)
-		return true;
-
-	if (KEY == KEY_LT) {
-		return (InputState.Gamepad.bLeftTrigger / 30) > 0;
-	}
-
-	if (KEY == KEY_RT)
-		return (InputState.Gamepad.bRightTrigger / 30) > 0;
-
-	return InputState.Gamepad.wButtons & KEY;
-}
-
 void Wait(int time)
 {
 	TimeCount = GetTickCount();
 	WaitTime = time;
 }
 
-
-bool CWriteFile(const char* FilePath, const void* Data, unsigned int Size)
-{
-	HANDLE fHandle = CreateFile(FilePath, GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (fHandle == INVALID_HANDLE_VALUE) {
-		return FALSE;
-	}
-
-	DWORD writeSize = Size;
-	if (WriteFile(fHandle, Data, writeSize, &writeSize, NULL) != TRUE) {
-		return FALSE;
-	}
-	CloseHandle(fHandle);
-	return TRUE;
-}

@@ -42,7 +42,7 @@ bool InitFont()
 
 		IsFontInit = false;
 
-		printf("Font Creation Failed\n");
+		//printf("Font Creation Failed\n");
 
 		return IsFontInit;
 	}
@@ -51,7 +51,7 @@ bool InitFont()
 
 	IsFontInit = true;
 
-	printf("Font Creation Succesful\n");
+	//printf("Font Creation Succesful\n");
 
 	return IsFontInit;
 }
@@ -66,14 +66,14 @@ bool InitTexture()
 
 		IsTextureInit = false;
 
-		printf("Texture Creation Failed\n");
+		//printf("Texture Creation Failed\n");
 
 		return IsTextureInit;
 	}
 
 	IsTextureInit = true;
 
-	printf("Texture Creation Succesful\n");
+	//printf("Texture Creation Succesful\n");
 
 	return IsTextureInit;
 }

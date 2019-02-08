@@ -38,15 +38,11 @@ void DrawBoneLine(ClientPlayer * entity, int tagname1, int tagname2, D3DCOLOR co
 
 void DoAllBones(ClientPlayer * Client, D3DCOLOR boneESPCol);
 
-float GetDistance(Vector3 c1, Vector3 c2);
-
 bool DrawESP();
 
 float solveQuadratic(float a, float b, float c);
 
 bool custom_isnan(double var);
-
-float VectorLength2D(Vector3 * pV);
 
 void AimCorrection(Vector3 * inVec, Vector3 enemyVelo, Vector3 myVelo, float Distance, float BulletSpeed, float Gravity);
 

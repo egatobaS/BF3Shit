@@ -19,13 +19,8 @@ WeaponSway::Deviation *pSpread = 0;
 DWORD playerWeakPtrs[24];
 eastl::fixed_vector<DWORD *, 8, 0> controllablesToSpot;
 
-int(*GetAmmoPtr)(int x, int y, int z) = (int(*)(int x, int y, int z))0x83266AC0;
-int(*CCMessage)(ClientConnection*, Message*) = (int(*)(ClientConnection*, Message*))0x831FAD00;
-int(*ReloadMessageFunction)(int r3, int r4, int r5) = (int(*)(int r3, int r4, int r5))0x834CC888;
-int(*AddDamageData)(ClientConnection*, ClientDamageStream::DamageData*) = (int(*)(ClientConnection*, ClientDamageStream::DamageData*))0x831FB1D8;
-int(*GetPlayerScore)(ClientPlayerScoreManager*, ClientPlayer*) = (int(*)(ClientPlayerScoreManager*, ClientPlayer*))0x83212338;
 UnlockAssetBase(*GetWeaponID)(ClientWeapon*) = (UnlockAssetBase(*)(ClientWeapon*))0x836F4390;
-int(*sendSpottingMessage)(ClientSpottingComponent* thisClientSpottingComponent, ClientPlayer* MyClientPlayer, eastl::fixed_vector<DWORD *, 8, 0> *controllablesToSpot, int type) = (int(*)(ClientSpottingComponent* thisClientSpottingComponent, ClientPlayer* MyClientPlayer, eastl::fixed_vector<DWORD *, 8, 0> *controllablesToSpot, int type))0x8340E610;
+
 
 void SendSpotWait(int time)
 {
@@ -231,7 +226,7 @@ void MovementHack()
 	if (renderer->m_viewParams.view.Update() == false)
 		return;
 
-	MatrixD* Mat = (MatrixD*)(((int)renderer) + 0xDB0);
+	MatrixD* Mat = (MatrixD*)(((int)renderer) + Addresses->_0xDB0);
 
 	Vector3 vOrigin = renderer->m_viewParams.firstPersonTransform.trans;
 	Vector3 vForward = Mat->Forward();
@@ -663,12 +658,6 @@ void DoAllBones(ClientPlayer* Client, D3DCOLOR boneESPCol)
 	DrawBoneLine(Client, UpdatePoseResultData::RightKneeRoll, UpdatePoseResultData::RightFoot, boneESPCol);
 }
 
-float GetDistance(Vector3 c1, Vector3 c2)
-{
-	Vector3 Sub = c1 - c2;
-	return (sqrt((float)((Sub.x * Sub.x) + (Sub.y * Sub.y) + (Sub.z * Sub.z))) / 55.0f);
-}
-
 
 bool DrawESP() //TODO: BoneESP and a Visibility Check
 {
@@ -902,11 +891,6 @@ void CorrectSpread(Vector2* pAngles, WeaponSway::Deviation* pSpread)
 		pAngles->x += pSpread->m_Yaw;
 		pAngles->y += pSpread->m_Pitch;
 	}
-}
-
-float VectorLength2D(Vector3* pV)
-{
-	return	sqrtf(pV->x * pV->x + pV->z * pV->z);
 }
 
 void AimCorrection(Vector3 * inVec, Vector3 enemyVelo, Vector3 myVelo, float Distance, float BulletSpeed, float Gravity)
@@ -1197,7 +1181,7 @@ int getKitID()
 
 UnlockAssetBase* getUA(ClientPlayer* localp)
 {
-	int(*GetWeaponID)(ClientWeapon*) = (int(*)(ClientWeapon*))0x836F4390;
+	int(*GetWeaponID)(ClientWeapon*) = (int(*)(ClientWeapon*))Addresses->_0x836F4390;
 
 	ClientSoldierEntity* ClientSoldier = localp->GetClientSoldier();
 
@@ -1298,8 +1282,8 @@ void DoAmmo()
 			if (kitID == 0xFF)
 				return;
 
-			int r3 = *(int*)(0x841289FC);
-			int r4 = (int)(0x8420E38C);
+			int r3 = *(int*)(Addresses->_0x841289FC);
+			int r4 = (int)(Addresses->_0x8420E38C);
 			int checkPtr = GetAmmoPtr(r3, r4, 0x1);
 			ReloadMessageFunction(checkPtr, kitID, 0x1);
 		}

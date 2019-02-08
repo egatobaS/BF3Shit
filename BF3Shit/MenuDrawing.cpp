@@ -86,24 +86,6 @@ Vector4 InstructionsBackGround = Vector4(0, 0, 0, 0.4);
 
 int(*g_snprintf)(char* _Dest, size_t Count, const char* _Format, ...) = (int(*)(char* _Dest, size_t Count, const char* _Format, ...))0x835376B8;
 
-Vector3 Origin = Vector3(13.977393, 92.163528, 533.447266);
-//
-
-void SetDraw()
-{
-	GameRenderer* renderer = GameRenderer::Singleton();
-
-	if (renderer == NULL)
-		return;
-
-	D3DXVECTOR3 vOrigin = D3DXVECTOR3(renderer->m_viewParams.firstPersonTransform.data[3][0], renderer->m_viewParams.firstPersonTransform.data[3][1], renderer->m_viewParams.firstPersonTransform.data[3][2]);
-
-	GameRenderer::Singleton()->m_viewParams.view.Update();
-	Vector3 vecMySoldierPosition = GameRenderer::Singleton()->m_viewParams.view.m_viewMatrixInverse.trans;
-
-	Origin = Vector3(vOrigin.x, vOrigin.y, vOrigin.z);
-}
-
 void DrawMenu()
 {
 	Vector4 BackGround = Vector4(0, 0, 0, 0.5);

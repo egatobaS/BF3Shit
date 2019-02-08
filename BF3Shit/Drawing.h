@@ -27,6 +27,7 @@ bool InitFont();
 
 extern bool IsTextureInit;
 extern bool IsFontInit;
+
 void DrawBox(float X, float Y, float W, float H, D3DCOLOR Color);
 void DrawText(const char *Text, float x, float y, float scale, D3DCOLOR Color, int Flags);
 void DrawTextCentered(const char * Text, float x, float y, float scale, D3DCOLOR Color, int Flags);

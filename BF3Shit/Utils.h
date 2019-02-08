@@ -70,14 +70,18 @@ extern "C"
 	HRESULT ObCreateSymbolicLink(PSTRING SymbolicLinkName, PSTRING DeviceName);
 	DWORD ExCreateThread(PHANDLE pHandle, DWORD dwStackSize, LPDWORD lpThreadId, PVOID apiThreadStartup, LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParameter, DWORD dwCreationFlagsMod);
 	void XapiThreadStartup(void(*StartRoutine)(void *), void* StartContext, unsigned int dwExitCode);
+
+	BOOL MmIsAddressValid(PVOID Address);
+	PVOID MmGetPhysicalAddress(PVOID Address);
+	DWORD ExCreateThread(PHANDLE pHandle, DWORD dwStackSize, LPDWORD lpThreadId, PVOID apiThreadStartup, LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParameter, DWORD dwCreationFlagsMod);
+	long XexGetModuleHandle(PSZ moduleName, PHANDLE hand);
+	DWORD XexGetProcedureAddress(HANDLE hand, DWORD dwOrdinal, PVOID Address);
+
+
 }
 DWORD GetAddr(DWORD dwModuleBaseAddr, int Ordinal);
 HRESULT CreateSymbolicLink(PCHAR szDrive, PCHAR szDeviceName, BOOL System);
-void CreateSystemThread(void* Function, void* Param);
-bool MmIsAddressValidPtr(void * ptr);
-BOOL FileExists(LPCSTR lpFileName);
-int GetAsyncKeyState(DWORD KEY);
-bool CWriteFile(const char* FilePath, const void* Data, unsigned int Size);
+
 void Wait(int time);
 
 extern unsigned int WaitTime;
