@@ -1,6 +1,6 @@
 #pragma once
 
-#define DEVKIT 1
+//#define DEVKIT 1
 class Detour;
 
 extern Detour* (*GetDetour)();

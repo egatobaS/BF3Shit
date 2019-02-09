@@ -72,6 +72,7 @@ bool bForceSquadSpawn = false;
 bool bBlueTint = false;
 bool bClientHealthBarF = false;
 bool bClientHealthBarE = false;
+bool bAutoBone = false;
 
 int fPacketSpeed = 100;
 float damage = 100.0f;
@@ -154,6 +155,7 @@ void AddMenuOptions()
 	MenuBase.AddBool("Auto Shoot", "Shoots automatically when target is in sight.", &bAutoShoot); //todo
 	MenuBase.AddBool("Silent Aimbot", "Curved bullets", &bSilentAimbot);//todo
 	MenuBase.AddBool("Unfair Aimbot", "Allows the user to shoot through some walls.", &bUnfairAimbot); //fix
+	MenuBase.AddBool("Auto Bone", "Targets the more relevant bone", &bAutoBone);
 	MenuBase.AddBool("Headshots", "Sets if your damage type is a headshot.", &bHeadshots); //fix
 	MenuBase.AddBool("Spoof WeaponID to Target", "Allows the user to spoof their kills to that of their target.", &bSpoofTarget); //todo
 	//MenuBase.AddBool("Spoof Kills", "Allows the user to spoof kills.", &bSpoofKills);//todo
@@ -303,6 +305,7 @@ void LoadINI()
 		bClientHealthBarF = ini.GetBoolValue("Game", "bClientHealthBarF");
 		bClientHealthBarE = ini.GetBoolValue("Game", "bClientHealthBarE");
 		bBlueTint = ini.GetBoolValue("Game", "bBlueTint");
+		bAutoBone = ini.GetBoolValue("Game", "bAutoBone");
 	}
 	else
 	{
@@ -356,6 +359,7 @@ void LoadINI()
 		ini.SetValue("Game", "bClientHealthBarF", "false");
 		ini.SetValue("Game", "bClientHealthBarE", "false");
 		ini.SetValue("Game", "bBlueTint", "false");
+		ini.SetValue("Game", "bAutoBone", "false");
 		ini.SaveFile("Nigel:\\xbOnline\\BF3.cfg");
 	}
 }
@@ -428,6 +432,7 @@ void SetInit()
 		ini.SetValue("Game", "bClientHealthBarF", bClientHealthBarF ? "true" : "false");
 		ini.SetValue("Game", "bClientHealthBarE", bClientHealthBarE ? "true" : "false");
 		ini.SetValue("Game", "bBlueTint", bBlueTint ? "true" : "false");
+		ini.SetValue("Game", "bAutoBone", bAutoBone ? "true" : "false");
 		ini.SaveFile("Nigel:\\xbOnline\\BF3.cfg");
 	}
 }

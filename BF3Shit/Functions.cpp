@@ -674,6 +674,8 @@ void DoAllBones(ClientPlayer* Client, D3DCOLOR boneESPCol)
 	DrawBoneLine(Client, UpdatePoseResultData::RightKneeRoll, UpdatePoseResultData::RightFoot, boneESPCol);
 }
 
+Vector3 OverAllScreenCoords;
+
 
 bool DrawESP() //TODO: BoneESP and a Visibility Check
 {
@@ -820,6 +822,8 @@ bool DrawESP() //TODO: BoneESP and a Visibility Check
 		else
 		{
 			D3DCOLOR ESPColor = isClientWallable[i] == 0 ? D3DCOLOR_RGBA(255, 0, 0, 255) : D3DCOLOR_RGBA(255, 255, 0, 255);
+
+			ESPColor = (isClientWallable[i] == AutoWall) ? D3DCOLOR_RGBA(255, 69, 0, 255) : ESPColor;
 
 			if (bDrawSnapLinesE)
 			{
@@ -1069,7 +1073,15 @@ bool GetAimPos(int ClientNumber, ClientPlayer* _EnemyPlayer, Vector2* Angles, Ve
 		{
 			*Origin = _EnemyPlayer->m_pControlledControllable->m_pClientSoldierPrediction->m_Position;
 		}
-		else if (isClientWallable[ClientNumber] == Bone_None || bVisibility)
+		else if (isClientWallable[ClientNumber] == Bone_None || !bVisibility)
+		{
+			if (!GetBone(_EnemyPlayer->m_pControlledControllable, Origin, UpdatePoseResultData::Neck)) {
+
+				*Origin = _EnemyPlayer->m_pControlledControllable->m_pClientSoldierPrediction->m_Position;
+				Origin->y += 1.8f;
+			}
+		}
+		else if (isClientWallable[ClientNumber] == AutoWall && bUnfairAimbot)
 		{
 			if (!GetBone(_EnemyPlayer->m_pControlledControllable, Origin, UpdatePoseResultData::Neck)) {
 
@@ -1092,7 +1104,8 @@ bool GetAimPos(int ClientNumber, ClientPlayer* _EnemyPlayer, Vector2* Angles, Ve
 	return false;
 }
 
-bool IsVisible(Vector3* vFrom, Vector3* vTo)
+
+bool IsVisible(Vector3* vFrom, Vector3* vTo, Vector3* PositionHit)
 {
 	ClientGameContext* g_pGameContext = ClientGameContext::GetInstance();
 
@@ -1119,8 +1132,12 @@ bool IsVisible(Vector3* vFrom, Vector3* vTo)
 
 	Vector4 Mine = Vector4(vFrom->x, vFrom->y, vFrom->z, 0), Theires = Vector4(vTo->x, vTo->y, vTo->z, 0);
 
-
 	bool visible = !rayCaster->physicsRayQuery("OnGroundState::update", &Mine, &Theires, &ray, IPhysicsRayCaster::AimbotFlags, NULL);
+
+	Vector3 WorldCoords = Vector3(ray.m_position.x, ray.m_position.y, ray.m_position.z);
+
+	if (PositionHit)
+		*PositionHit = WorldCoords;
 
 	return visible;
 }
@@ -1182,23 +1199,41 @@ int ClosestClient(ClientPlayer* LocalPlayer)
 		BonesStatus.GotRightFoot = GetBone(Target->m_pControlledControllable, &BonesStatus.RightFoot, UpdatePoseResultData::RightFoot);
 		BonesStatus.GotLeftKnee = GetBone(Target->m_pControlledControllable, &BonesStatus.LeftKnee, UpdatePoseResultData::LeftKneeRoll);
 		BonesStatus.GotRightKnee = GetBone(Target->m_pControlledControllable, &BonesStatus.RightKnee, UpdatePoseResultData::RightKneeRoll);
+		 
+		Vector3 ImpactSystem;
 
+		if (bAutoBone)
+		{
+			if (BonesStatus.GotHead && IsVisible(&PositionL, &BonesStatus.Head, &ImpactSystem))
+				isClientWallable[i] = Bone_Head;
+			else if (BonesStatus.GotHips && IsVisible(&PositionL, &BonesStatus.Hips, &ImpactSystem))
+				isClientWallable[i] = Bone_Hips;
+			else if (BonesStatus.GotLeftKnee && IsVisible(&PositionL, &BonesStatus.LeftKnee, &ImpactSystem))
+				isClientWallable[i] = Left_Knee;
+			else if (BonesStatus.GotRightKnee && IsVisible(&PositionL, &BonesStatus.RightKnee, &ImpactSystem))
+				isClientWallable[i] = Right_Knee;
+			else if (BonesStatus.GotRightFoot && IsVisible(&PositionL, &BonesStatus.RightFoot, &ImpactSystem))
+				isClientWallable[i] = Right_Foot;
+			else if (BonesStatus.GotLeftFoot && IsVisible(&PositionL, &BonesStatus.LeftFoot, &ImpactSystem))
+				isClientWallable[i] = Left_Foot;
+			else if (BonesStatus.GotOrigin && IsVisible(&PositionL, &BonesStatus.Origin, &ImpactSystem))
+				isClientWallable[i] = Bone_Origin;
+			else isClientWallable[i] = Bone_None;
+		}
+		else
+		{
+			if (BonesStatus.GotHead && IsVisible(&PositionL, &BonesStatus.Head, &ImpactSystem))
+				isClientWallable[i] = Bone_Head;
+			else if (BonesStatus.GotOrigin && IsVisible(&PositionL, &BonesStatus.Origin, &ImpactSystem))
+				isClientWallable[i] = Bone_Origin;
+			else isClientWallable[i] = Bone_None;
+		}
 
-		if (BonesStatus.GotHead && IsVisible(&PositionL, &BonesStatus.Head))
-			isClientWallable[i] = Bone_Head;
-		else if (BonesStatus.GotHips && IsVisible(&PositionL, &BonesStatus.Hips))
-			isClientWallable[i] = Bone_Hips;
-		else if (BonesStatus.GotLeftKnee && IsVisible(&PositionL, &BonesStatus.LeftKnee))
-			isClientWallable[i] = Left_Knee;
-		else if (BonesStatus.GotRightKnee && IsVisible(&PositionL, &BonesStatus.RightKnee))
-			isClientWallable[i] = Right_Knee;
-		else if (BonesStatus.GotRightFoot && IsVisible(&PositionL, &BonesStatus.RightFoot))
-			isClientWallable[i] = Right_Foot;
-		else if (BonesStatus.GotLeftFoot && IsVisible(&PositionL, &BonesStatus.LeftFoot))
-			isClientWallable[i] = Left_Foot;
-		else if (BonesStatus.GotOrigin && IsVisible(&PositionL, &BonesStatus.Origin))
-			isClientWallable[i] = Bone_Origin;
-		else isClientWallable[i] = Bone_None;
+		if (isClientWallable[i] == Bone_None && bUnfairAimbot) {
+			
+			if (ImpactSystem.Distance(BonesStatus.Origin) <= 8)
+				isClientWallable[i] = AutoWall;
+		}
 
 		Position = BonesStatus.Head;
 
@@ -1500,9 +1535,10 @@ void Aimbot(ClientPlayer* LocalEntity)
 		{
 			bTriggerBot = true;
 
-			if (GetAsyncKeyState(KEY_RT) || WeaponPrimaryFriring->m_weaponState == 9 && bUnfairAimbot)
+			if ((GetAsyncKeyState(KEY_RT) || WeaponPrimaryFriring->m_weaponState == 6 || WeaponPrimaryFriring->m_weaponState == 9) && bUnfairAimbot)
+			{
 				DamagePlayer(AimTarget, LocalClientPlayer, 100.0f, bSpoofTarget ? getUA(AimTarget) : getUA(LocalClientPlayer), bHeadshots ? HRT_Head : (HitReactionType)0);
-
+			}
 			Matrix* m = new Matrix;
 			bool l = false;
 
@@ -1523,8 +1559,11 @@ void Aimbot(ClientPlayer* LocalEntity)
 	{
 		bTriggerBot = true;
 
-		if (GetAsyncKeyState(KEY_RT) || WeaponPrimaryFriring->m_weaponState == 9 && bUnfairAimbot)
+		if ((GetAsyncKeyState(KEY_RT) || WeaponPrimaryFriring->m_weaponState == 6 || WeaponPrimaryFriring->m_weaponState == 9) && bUnfairAimbot)
+		{
 			DamagePlayer(AimTarget, LocalClientPlayer, 100.0f, bSpoofTarget ? getUA(AimTarget) : getUA(LocalClientPlayer), bHeadshots ? HRT_Head : (HitReactionType)0);
+	
+		}
 
 		if (!bSilentAimbot)
 		{

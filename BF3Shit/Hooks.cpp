@@ -215,6 +215,7 @@ DWORD XamInputGetStateHook(DWORD dwUserIndex, DWORD r4, PXINPUT_STATE pState)
 			if (!MmIsAddressValidPtr(FiringFunctionData))
 				return dwResult;
 
+
 			if ((GetTickCount() - ShootCount) > FiringFunctionData->m_RateOfFire / 60)
 			{
 				ShootCount = GetTickCount();

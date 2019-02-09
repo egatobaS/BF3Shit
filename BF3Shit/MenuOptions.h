@@ -80,6 +80,7 @@ extern bool bClientHealthBarE;
 extern bool bBlueTint;
 extern bool SetIni;
 extern bool GetIni;
+extern bool bAutoBone;
 
 void DoIniSet();
 void DoIniLoad();

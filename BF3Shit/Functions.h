@@ -15,7 +15,8 @@ enum BoneType
 	Left_Foot,
 	Bone_Hips,
 	Left_Knee,
-	Right_Knee
+	Right_Knee,
+	AutoWall
 };
 
 struct ClientBones

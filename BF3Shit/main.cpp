@@ -6,7 +6,7 @@ bool RunThread = true;
 
 void MainThread()
 {
-	XNotify(L"[1.0.4] xbOnline BF3 Cheats Loaded!");
+	XNotify(L"[1.0.5] xbOnline BF3 Cheats Loaded!");
 
 	if (CreateSymbolicLink(NAME_MOUNT, NAME_HDD, TRUE) != ERROR_SUCCESS) {
 	}

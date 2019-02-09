@@ -3878,34 +3878,86 @@ public:
 	}
 };
 
-class Material
+enum MaterialFlag
+{
+	MfPenetrable = 0x1000000,
+	MfClientDestructible = 0x2000000,
+	MfBashable = 0x4000000,
+	MfSeeThrough = 0x8000000,
+	MfNoCollisionResponse = 0x10000000,
+	MfNoCollisionResponseCombined = 0x20000000,
+	MfIndexMask = 0xFFFFFF
+};
+
+class ITypedObject
 {
 public:
-	enum MaterialFlag
-	{
-		MFSeeThrough = 0x1,
-		MFClientDestructable = 0x40000000,
-		MFPenetrable = 0x8
-	};
-	int m_flagsAndIndex;
+	virtual TypeInfo * getType(); //v-00
+}; // 0x04
+
+
+class DataContainer
+	: public ITypedObject		// 0x00
+{
+public:
+	WORD m_refCnt;				// 0x04
+	WORD m_flags;				// 0x06
+}; // 0x08
+
+
+class MaterialContainerPair
+	: public DataContainer			// 0x00
+{
+public:
+	DWORD m_flagsAndIndex;			// 0x08
+	char m_physicsPropertyIndex;	// 0x0C
+	char m_physicsMaterialIndex;	// 0x0D
+	PAD(0x2);						// 0x0E
 	__forceinline bool isPenetrable()
 	{
-		return (m_flagsAndIndex & MFPenetrable);
+		return m_flagsAndIndex & 0x80000000;
 	};
-	__forceinline bool isSeeThrough()
+
+	__forceinline bool isSeeTrough()
 	{
-		return (m_flagsAndIndex & MFSeeThrough);
+		return m_flagsAndIndex & 0x20000000;
 	};
-};
+
+
+	__forceinline bool isClientDestructible()
+	{
+		return m_flagsAndIndex & 0x40000000;
+	};
+
+	__forceinline bool isBashable(void)
+	{
+		return m_flagsAndIndex & MfBashable;
+	};
+
+
+	__forceinline bool NoCollisionResponse(void)
+	{
+		return m_flagsAndIndex & MfNoCollisionResponse;
+	};
+
+	__forceinline bool NoCollisionResponseCombined(void)
+	{
+		return m_flagsAndIndex & MfNoCollisionResponseCombined;
+	}
+
+}; // 0x10
+
 class RayCastHit
 {
 public:
-	Vector4  m_position; //0x0000
-	Vector4 m_normal;    //0x0010
-	void*  m_RigidBody; // 0x20
-	Material m_Material;  // 0x28
-	DWORD  m_Part;   // 0x30
-	FLOAT  m_Lambda;  // 0x34
+	Vector3 m_position;					// 0x00
+	Vector3 m_normal;						// 0x10
+	void* m_rigidBody;		// 0x20
+	MaterialContainerPair* m_material;	// 0x24
+	DWORD m_part;						// 0x28
+	INT m_bone;							// 0x2C
+	FLOAT m_lambda;						// 0x30
+	PAD(0xC);
 };
 
 class IPhysicsRayCaster
@@ -3960,11 +4012,6 @@ public:
 	INT m_linked;						// 0x10
 }; // 0x14
 
-class ITypedObject
-{
-public:
-	virtual TypeInfo * getType(); //v-00
-}; // 0x04
 
 
 class PropertyModificationListener
@@ -4004,13 +4051,6 @@ public:
 	DWORD m_flags;					// 0x08
 }; // 0x0C
 
-class DataContainer
-	: public ITypedObject		// 0x00
-{
-public:
-	WORD m_refCnt;				// 0x04
-	WORD m_flags;				// 0x06
-}; // 0x08
 
 
 class GameDataContainer
@@ -4441,18 +4481,6 @@ public:
 	class ClientConnection* m_pClientConnection; //0x0018
 
 };
-
-
-
-class MaterialContainerPair
-	//	: public DataContainer			// 0x00
-{
-public:
-	DWORD m_flagsAndIndex;			// 0x08
-	int m_physicsPropertyIndex;	// 0x0C
-	int m_physicsMaterialIndex;	// 0x0D
-									//	PAD(0x2);						// 0x0E
-}; // 0x10
 
 
 
