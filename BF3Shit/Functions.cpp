@@ -1487,7 +1487,7 @@ void DoTheSpreadHack_Silent()
 	if (!MmIsAddressValid(&pWS->m_currentRecoilDeviation))
 		return;
 
-	if (pCSWC->m_activeSlot == ClientSoldierWeaponsComponent::M_GRENADE || ClientSoldierWeaponsComponent::M_KNIFE)
+	if (pCSWC->m_activeSlot == ClientSoldierWeaponsComponent::M_GRENADE || pCSWC->m_activeSlot == ClientSoldierWeaponsComponent::M_KNIFE)
 		return;
 
 	float flYaw = pSilent.x;
@@ -1547,7 +1547,7 @@ void DoTheSpreadHack_Visible()
 	if (!MmIsAddressValid(&pWS->m_currentRecoilDeviation))
 		return;
 
-	if (pCSWC->m_activeSlot == ClientSoldierWeaponsComponent::M_GRENADE || ClientSoldierWeaponsComponent::M_KNIFE)
+	if (pCSWC->m_activeSlot == ClientSoldierWeaponsComponent::M_GRENADE || pCSWC->m_activeSlot == ClientSoldierWeaponsComponent::M_KNIFE)
 		return;
 
 	float flYaw = pAA->m_yaw;
@@ -1634,7 +1634,7 @@ void Aimbot(ClientPlayer* LocalEntity)
 	if (!GetAimPos(NearestPlayer, AimTarget, &Angles, &LocalOrigin, &Origin))
 		return;
 
-	if (pWeapComp->m_activeSlot == ClientSoldierWeaponsComponent::M_GRENADE || ClientSoldierWeaponsComponent::M_KNIFE)
+	if (pWeapComp->m_activeSlot == ClientSoldierWeaponsComponent::M_GRENADE || pWeapComp->m_activeSlot == ClientSoldierWeaponsComponent::M_KNIFE)
 		return;
 
 	if (ActiveWeapon->m_pCorrectedFiring->m_weaponState == 11)
