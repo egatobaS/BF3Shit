@@ -260,6 +260,7 @@ void LoadINI()
 		bVisibility = ini.GetBoolValue("Game", "bVisibility");
 		bFOVCheck = ini.GetBoolValue("Game", "bFOVCheck");
 		bSilentAimbot = ini.GetBoolValue("Game", "bSilentAimbot");
+		bNoSpread = ini.GetBoolValue("Game", "bNoSpread");
 		bFlyHack = ini.GetBoolValue("Game", "bFlyHack");
 		bTeleCrosshair = ini.GetBoolValue("Game", "bTeleCrosshair");
 		bTeleAir = ini.GetBoolValue("Game", "bTeleAir");
@@ -315,6 +316,7 @@ void LoadINI()
 		ini.SetValue("Game", "bVisibility", "false");
 		ini.SetValue("Game", "bFOVCheck", "false");
 		ini.SetValue("Game", "bSilentAimbot", "false");
+		ini.SetBoolValue("Game", "bNoSpread", "fslae");
 		ini.SetValue("Game", "bFlyHack", "false");
 		ini.SetValue("Game", "bTeleCrosshair", "false");
 		ini.SetValue("Game", "bTeleAir", "false");
@@ -387,6 +389,7 @@ void SetInit()
 		ini.SetValue("Game", "bVisibility", bVisibility ? "true" : "false");
 		ini.SetValue("Game", "bFOVCheck", bFOVCheck ? "true" : "false");
 		ini.SetValue("Game", "bSilentAimbot", bSilentAimbot ? "true" : "false");
+		ini.SetValue("Game", "bNoSpread", bNoSpread ? "true" : "false");
 		ini.SetValue("Game", "bFlyHack", bFlyHack ? "true" : "false");
 		ini.SetValue("Game", "bTeleCrosshair", bTeleCrosshair ? "true" : "false");
 		ini.SetValue("Game", "bTeleAir", bTeleAir ? "true" : "false");

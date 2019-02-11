@@ -1232,7 +1232,7 @@ int ClosestClient(ClientPlayer* LocalPlayer)
 
 		if (isClientWallable[i] == Bone_None && bUnfairAimbot) {
 
-			if (ImpactSystem.Distance(BonesStatus.Origin) <= 8)
+			if (ImpactSystem.Distance(BonesStatus.Origin) <= 11.0f)
 				isClientWallable[i] = AutoWall;
 		}
 

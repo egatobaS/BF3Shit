@@ -492,6 +492,8 @@ class Level;
 class ClientGameWorld;
 class PickupData;
 class HavokPhysicsManager;
+class NetworkableMessage;
+class Message;
 class GameWorld;
 class IMouse;
 class MouseInputBuffer;
@@ -2484,6 +2486,21 @@ public:
 	char* m_name;
 };
 
+class Message
+{
+public:
+	virtual TypeInfo* GetInfo();
+
+	DWORD m_Category;//4
+	DWORD m_Type;//8
+};
+
+class NetworkableMessage : public Message
+{
+public:
+	char _0x000c[0x38 - sizeof(Message)];
+};
+
 class ExplosiveData
 {
 public:
@@ -3800,6 +3817,25 @@ public:
 
 };//Size=0x2440
 
+class UINetworkKilledOtherPlayerMessage : public NetworkableMessage
+{
+public:
+	int						m_serverVictim;
+	int						m_clientVictim;
+	int						m_weaponType;
+	int						m_weaponUnlock;
+	int						m_vehicleData;
+	int						m_headShot;
+};
+
+class UINetworkHudScoringMessage : public NetworkableMessage
+{
+public:
+	char* m_descriptionSid;
+	float m_amount;
+	float m_actualAmount;
+};
+
 class ClientPlayerScore
 {
 public:
@@ -5020,21 +5056,6 @@ public:
 	class SoldierBlueprint* m_pSoldierBlueprint; //0x000C
 	char pad_0010[52]; //0x0010
 }; //Size: 0x0044
-
-class Message
-{
-public:
-
-	intptr_t m_pVtable;//0
-	DWORD m_Category;//4
-	DWORD m_Type;//8
-};
-
-class NetworkableMessage : public Message
-{
-public:
-	char _0x000c[0x34 - sizeof(Message)];
-};
 
 class Color32
 {

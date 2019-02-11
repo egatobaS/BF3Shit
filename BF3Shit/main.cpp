@@ -58,7 +58,8 @@ BOOL WINAPI DllMain(HANDLE ModuleHandle, unsigned int fdwReason, LPVOID lpReserv
 		D3DDevice_PresentDetour = GetDetour();
 		AddMoveHook = GetDetour();
 		GetDispersionDetour = GetDetour();
-		
+		createScoringMessageDetour = GetDetour();
+
 #if defined(DEVKIT)
 		XamUserGetSigninInfoDetour = GetDetour();
 		XamUserGetNameDetour = GetDetour();
@@ -68,7 +69,9 @@ BOOL WINAPI DllMain(HANDLE ModuleHandle, unsigned int fdwReason, LPVOID lpReserv
 		xbOHookFunction(XamUserGetNameDetour, (void*)0x83F2775C, (void*)XamUserGetNameHook);
 		xbOHookFunction(XamUserGetXUIDDetour, (void*)0x83F2732C, (void*)XamUserGetXUIDHook);
 #endif // DEVKIT
-		
+
+		createScoringMessageOriginal = (createScoringMessageStub)xbOHookFunction(createScoringMessageDetour, (void*)0x834D3758, (void*)createScoringMessagehk);
+
 		GetDispersionOriginal = (GetDispersionStub)xbOHookFunction(GetDispersionDetour, (void*)0x8334FA80, (void*)GetDispersionHook);
 		onPostPhysicsUpdateSyncOriginal = (onPostPhysicsUpdateSync_t)xbOHookFunction(onPostPhysicsUpdateSyncDetour, (void*)Addresses->_0x834162D8, (void*)onPostPhysicsUpdateSyncHook);
 		ClientConnection_SendMessageOriginal = (ClientConnection_SendMessage_t)xbOHookFunction(ClientConnection_SendMessageDetour, (void*)Addresses->_0x831FAD00, (void*)ClientConnection_SendMessageHook);
@@ -94,6 +97,7 @@ BOOL WINAPI DllMain(HANDLE ModuleHandle, unsigned int fdwReason, LPVOID lpReserv
 		XamUserGetXUIDDetour->RestoreFunction();
 #endif // DEVKIT
 
+		createScoringMessageDetour->RestoreFunction();
 		GetDispersionDetour->RestoreFunction();
 		onPostPhysicsUpdateSyncDetour->RestoreFunction();
 		ClientConnection_SendMessageDetour->RestoreFunction();

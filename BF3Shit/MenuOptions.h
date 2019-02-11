@@ -82,6 +82,8 @@ extern bool SetIni;
 extern bool GetIni;
 extern bool bAutoBone;
 
+void SendChatMessage(wchar_t * Message);
+
 void DoIniSet();
 void DoIniLoad();
 

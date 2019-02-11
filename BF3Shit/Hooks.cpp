@@ -11,10 +11,11 @@ AddMoveStub AddMoveOriginal;
 sub_834F63C8_t sub_834F63C8Original;
 TransmitPacketStub TransmitPacketOriginal;
 ClientConnection_SendMessage_t ClientConnection_SendMessageOriginal;
+createScoringMessageStub createScoringMessageOriginal;
 
 Detour* XamInputGetStateDetour, *D3DDevice_PresentDetour, *RayCastingDetour, *AddMoveHook, *sub_834F63C8Detour,
 *XamUserGetXUIDDetour, *XamUserGetSigninInfoDetour, *XamUserGetNameDetour, *TransmitPacketDetour, *sub_83CFF480Detour,
-*ClientConnection_SendMessageDetour, *onPostPhysicsUpdateSyncDetour, *GetDispersionDetour;
+*ClientConnection_SendMessageDetour, *onPostPhysicsUpdateSyncDetour, *GetDispersionDetour, *createScoringMessageDetour;
 
 unsigned int WaitTimeV2 = 0;
 unsigned int TimeCountV2 = 0;
@@ -23,6 +24,16 @@ void WaitV2(int time)
 {
 	TimeCountV2 = GetTickCount();
 	WaitTimeV2 = time;
+}
+
+int createScoringMessagehk(int r3, int messageData, UINetworkHudScoringMessage *message)
+{
+	if (MmIsAddressValid(message))
+	{
+		printf("%f\n", message->m_amount);
+	}
+
+	return createScoringMessageOriginal(r3, messageData, message);
 }
 
 int GetDispersionHook(WeaponSway* r3, LinearTransform* swayTransform, bool scaletransform)
