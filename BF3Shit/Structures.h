@@ -1647,19 +1647,30 @@ public:
 	virtual float getRecoilPitch();       // V: 0x8C
 	virtual float getRecoilYaw();        // V: 0x90
 
-	char pad_0000[4]; //0x0000
-	class GunSwayData* m_data; //0x0004
-	char pad_0008[180]; //0x0008
-	float m_TimeSinceLastShot; //0x00BC
-	int m_cameraRecoilDeviation; //0x00C0
-	char pad_00C4[148]; //0x00C4
-	int m_seed; //0x0158
+	char pad0[168]; //0x0004
+	Deviation m_currentRecoilDeviation; // 0x00AC
+	float m_timeSinceLastShot; // 0x00BC
+	DWORD m_cameraRecoilDeviation; //0x00C0
+	float m_SpringPos; //0x00C4
+	float m_SpringRestPos; //0x00C8
+	float m_SpringVelocity; //0x00CC
+	LinearTransform m_cameraRecoilTransform; //0x00D0
+	Deviation m_currentLagDeviation; //0x0110
+	float m_dispersionAngle; //0x0120
+	float m_DeviationPitch; //0x0124
+	float m_crossHairDispersionFactor; //0x0128
+	Deviation m_currentDispersionDeviation; //0x012C
+	float m_currentGameplayDeviationScaleFactor; //0x013C
+	float m_currentVisualDeviationScaleFactor; //0x0140
+	float m_suppressionMinDispersionAngleFactor; //0x0144
+	Random m_Random; //0x0148
+	unsigned int m_seed; //0x0158
 	float m_randomAngle; //0x015C
 	float m_randomRadius; //0x0160
-	int m_fireShot; //0x0164
-	char pad_0165[3]; //0x0165
-	int m_initialFireShot; //0x0168
-	int m_IsFiring; //0x016C
+	bool m_fireShot; //0x0164
+	unsigned int m_initialFireShot; //0x0168
+	bool m_isFiring; //0x016C
+
 };//Size=0x0C44
 
 class BulletEntityData
@@ -4211,6 +4222,13 @@ public:
 
 	DWORD m_cullGridId;                    // 0x0C
 
+	Vector3* GetEntityOrigin()
+	{
+		LinearTransform tmp;
+		this->getTransform(tmp);
+		return &tmp.trans;
+	}
+
 }; // 0x10
 
 class EntityBus
@@ -4326,7 +4344,7 @@ public:
 	{
 		typedef void(__thiscall* kindOfQuery_t)(EntityWorld*, int*, EntityWorld::EntityIterator*, bool);
 
-		kindOfQuery_t m_kindOfQuery = (kindOfQuery_t)0x551790;//0x551790;
+		kindOfQuery_t m_kindOfQuery = (kindOfQuery_t)0x8309C768;//0x551790;
 
 		m_kindOfQuery(this, typeId, result, onlyIncludeIterable);
 	}
@@ -5205,7 +5223,8 @@ public:
 	class StreamManagerChat* m_pChatManager; //0x2E2C
 	char pad_0001[0x10];
 	class ClientDamageStream* m_pDamageStream; //0x2E40
-
+	char _0x2E44[24];
+	float FPS; //0x2E5C 
 };
 
 
@@ -5336,7 +5355,6 @@ public:
 
 };
 
-
 class GFxDrawTextManagerImpl
 {
 public:
@@ -5348,8 +5366,6 @@ public:
 	GFxDrawTextManager::TextParams  DefaultTextParams; // Offset = this + 0x1C0 Length = 0x2C
 
 };
-
-
 
 class _NetworkableMessage
 {

@@ -18,6 +18,7 @@ WeaponSway::Deviation *pSpread = 0;
 
 DWORD playerWeakPtrs[24];
 eastl::fixed_vector<DWORD *, 8, 0> controllablesToSpot;
+ClientPlayer* pTarget = NULL;
 
 UnlockAssetBase(*GetWeaponID)(ClientWeapon*) = (UnlockAssetBase(*)(ClientWeapon*))0x836F4390;
 
@@ -1199,7 +1200,7 @@ int ClosestClient(ClientPlayer* LocalPlayer)
 		BonesStatus.GotRightFoot = GetBone(Target->m_pControlledControllable, &BonesStatus.RightFoot, UpdatePoseResultData::RightFoot);
 		BonesStatus.GotLeftKnee = GetBone(Target->m_pControlledControllable, &BonesStatus.LeftKnee, UpdatePoseResultData::LeftKneeRoll);
 		BonesStatus.GotRightKnee = GetBone(Target->m_pControlledControllable, &BonesStatus.RightKnee, UpdatePoseResultData::RightKneeRoll);
-		 
+
 		Vector3 ImpactSystem;
 
 		if (bAutoBone)
@@ -1230,7 +1231,7 @@ int ClosestClient(ClientPlayer* LocalPlayer)
 		}
 
 		if (isClientWallable[i] == Bone_None && bUnfairAimbot) {
-			
+
 			if (ImpactSystem.Distance(BonesStatus.Origin) <= 8)
 				isClientWallable[i] = AutoWall;
 		}
@@ -1449,6 +1450,126 @@ void HealTeam(ClientPlayer* LocalPlayer)
 	}
 }
 
+void DoTheSpreadHack_Silent()
+{
+	ClientPlayer* pCP = GetLocalPlayer();
+	if (!MmIsAddressValid(pCP))
+		return;
+
+	ClientSoldierEntity* pCSE = pCP->m_pControlledControllable;
+	if (!MmIsAddressValid(pCSE))
+		return;
+
+	ClientSoldierWeaponsComponent* pCSWC = pCSE->m_pClientSoldierWeaponsComponent;
+	if (!MmIsAddressValid(pCSWC))
+		return;
+
+	ClientSoldierWeapon* pCSW = pCSWC->GetActiveSoldierWeapon();
+	if (!MmIsAddressValid(pCSW))
+		return;
+
+	ClientSoldierAimingSimulation* pCSAS = pCSW->m_pClientSoldierAimingSimulation;
+	if (!MmIsAddressValid(pCSAS))
+		return;
+
+	AimAssist* pAA = pCSAS->m_fpsAimer;
+	if (!MmIsAddressValid(pAA))
+		return;
+
+	WeaponFiring* pWF = pCSW->m_pPrimaryFiring;
+	if (!MmIsAddressValid(pWF))
+		return;
+
+	WeaponSway* pWS = pWF->m_pSway;
+	if (!MmIsAddressValid(pWS))
+		return;
+
+	if (!MmIsAddressValid(&pWS->m_currentRecoilDeviation))
+		return;
+
+	if (pCSWC->m_activeSlot == ClientSoldierWeaponsComponent::M_GRENADE || ClientSoldierWeaponsComponent::M_KNIFE)
+		return;
+
+	float flYaw = pSilent.x;
+	float flPitch = pSilent.y;
+
+	flYaw -= (-asin(pWS->m_currentRecoilDeviation.m_Yaw));
+	flPitch -= (-asin(pWS->m_currentRecoilDeviation.m_Pitch));
+
+	WeaponSway::WeaponFiringUpdateContext* pWFUC = new WeaponSway::WeaponFiringUpdateContext();
+	pWFUC->ticks = ClientGameContext::GetInstance()->m_pGameTime->m_ticks;
+
+	pWS->primaryFireShotSpawnedCallback(0.f, true, pWFUC);
+
+	flYaw += pWS->m_currentDispersionDeviation.m_Yaw;
+	flPitch += pWS->m_currentDispersionDeviation.m_Pitch;
+
+	pSilent.x = flYaw;
+	pSilent.y = flPitch;
+
+	delete pWFUC;
+}
+
+void DoTheSpreadHack_Visible()
+{
+	ClientPlayer* pCP = GetLocalPlayer();
+	if (!MmIsAddressValid(pCP))
+		return;
+
+	ClientSoldierEntity* pCSE = pCP->m_pControlledControllable;
+	if (!MmIsAddressValid(pCSE))
+		return;
+
+	ClientSoldierWeaponsComponent* pCSWC = pCSE->m_pClientSoldierWeaponsComponent;
+	if (!MmIsAddressValid(pCSWC))
+		return;
+
+	ClientSoldierWeapon* pCSW = pCSWC->GetActiveSoldierWeapon();
+	if (!MmIsAddressValid(pCSW))
+		return;
+
+	ClientSoldierAimingSimulation* pCSAS = pCSW->m_pClientSoldierAimingSimulation;
+	if (!MmIsAddressValid(pCSAS))
+		return;
+
+	AimAssist* pAA = pCSAS->m_fpsAimer;
+	if (!MmIsAddressValid(pAA))
+		return;
+
+	WeaponFiring* pWF = pCSW->m_pPrimaryFiring;
+	if (!MmIsAddressValid(pWF))
+		return;
+
+	WeaponSway* pWS = pWF->m_pSway;
+	if (!MmIsAddressValid(pWS))
+		return;
+
+	if (!MmIsAddressValid(&pWS->m_currentRecoilDeviation))
+		return;
+
+	if (pCSWC->m_activeSlot == ClientSoldierWeaponsComponent::M_GRENADE || ClientSoldierWeaponsComponent::M_KNIFE)
+		return;
+
+	float flYaw = pAA->m_yaw;
+	float flPitch = pAA->m_pitch;
+
+	flYaw -= (-asin(pWS->m_currentRecoilDeviation.m_Yaw));
+	flPitch -= (-asin(pWS->m_currentRecoilDeviation.m_Pitch));
+
+	WeaponSway::WeaponFiringUpdateContext* pWFUC = new WeaponSway::WeaponFiringUpdateContext();
+	pWFUC->ticks = ClientGameContext::GetInstance()->m_pGameTime->m_ticks;
+
+	pWS->primaryFireShotSpawnedCallback(0.f, true, pWFUC);
+
+	flYaw += pWS->m_currentDispersionDeviation.m_Yaw;
+	flPitch += pWS->m_currentDispersionDeviation.m_Pitch;
+
+	pAA->m_yaw = flYaw;
+	pAA->m_pitch = flPitch;
+
+	delete pWFUC;
+}
+
 void Aimbot(ClientPlayer* LocalEntity)
 {
 	ClientPlayer*  LocalClientPlayer = GetLocalPlayer();
@@ -1501,6 +1622,7 @@ void Aimbot(ClientPlayer* LocalEntity)
 	if (NearestPlayer == -1)
 	{
 		bTriggerBot = false;
+		pTarget = NULL;
 		return;
 	}
 
@@ -1510,6 +1632,9 @@ void Aimbot(ClientPlayer* LocalEntity)
 	Vector3 LocalOrigin, Origin;
 
 	if (!GetAimPos(NearestPlayer, AimTarget, &Angles, &LocalOrigin, &Origin))
+		return;
+
+	if (pWeapComp->m_activeSlot == ClientSoldierWeaponsComponent::M_GRENADE || ClientSoldierWeaponsComponent::M_KNIFE)
 		return;
 
 	if (ActiveWeapon->m_pCorrectedFiring->m_weaponState == 11)
@@ -1526,6 +1651,8 @@ void Aimbot(ClientPlayer* LocalEntity)
 	if (custom_isnan(Angles.x) || custom_isnan(Angles.y))
 		return;
 
+	pTarget = AimTarget;
+
 	pSilent.x = Angles.x;
 	pSilent.y = Angles.y;
 
@@ -1535,21 +1662,13 @@ void Aimbot(ClientPlayer* LocalEntity)
 		{
 			bTriggerBot = true;
 
-			if ((GetAsyncKeyState(KEY_RT) || WeaponPrimaryFriring->m_weaponState == 6 || WeaponPrimaryFriring->m_weaponState == 9) && bUnfairAimbot)
-			{
-				DamagePlayer(AimTarget, LocalClientPlayer, 100.0f, bSpoofTarget ? getUA(AimTarget) : getUA(LocalClientPlayer), bHeadshots ? HRT_Head : (HitReactionType)0);
-			}
-			Matrix* m = new Matrix;
-			bool l = false;
-
-			WeaponPrimaryFriring->m_pSway->getDispersion(*m, true);
-
-			delete m;
-
 			if (!bSilentAimbot)
 			{
 				ClientSoldierAimingSimulation->m_fpsAimer->m_pitch = Angles.y;
 				ClientSoldierAimingSimulation->m_fpsAimer->m_yaw = Angles.x;
+
+				if (bNoSpread)
+					DoTheSpreadHack_Visible();
 			}
 		}
 		else
@@ -1559,16 +1678,13 @@ void Aimbot(ClientPlayer* LocalEntity)
 	{
 		bTriggerBot = true;
 
-		if ((GetAsyncKeyState(KEY_RT) || WeaponPrimaryFriring->m_weaponState == 6 || WeaponPrimaryFriring->m_weaponState == 9) && bUnfairAimbot)
-		{
-			DamagePlayer(AimTarget, LocalClientPlayer, 100.0f, bSpoofTarget ? getUA(AimTarget) : getUA(LocalClientPlayer), bHeadshots ? HRT_Head : (HitReactionType)0);
-	
-		}
-
 		if (!bSilentAimbot)
 		{
 			ClientSoldierAimingSimulation->m_fpsAimer->m_pitch = Angles.y;
 			ClientSoldierAimingSimulation->m_fpsAimer->m_yaw = Angles.x;
+
+			if (bNoSpread)
+				DoTheSpreadHack_Visible();
 		}
 	}
 }

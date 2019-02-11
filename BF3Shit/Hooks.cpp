@@ -2,6 +2,7 @@
 
 UIRender Drawing;
 
+GetDispersionStub GetDispersionOriginal;
 onPostPhysicsUpdateSync_t onPostPhysicsUpdateSyncOriginal;
 sub_83CFF480_t sub_83CFF480Original;
 RayCasting_t RayCastingOriginal;
@@ -13,10 +14,7 @@ ClientConnection_SendMessage_t ClientConnection_SendMessageOriginal;
 
 Detour* XamInputGetStateDetour, *D3DDevice_PresentDetour, *RayCastingDetour, *AddMoveHook, *sub_834F63C8Detour,
 *XamUserGetXUIDDetour, *XamUserGetSigninInfoDetour, *XamUserGetNameDetour, *TransmitPacketDetour, *sub_83CFF480Detour,
-*ClientConnection_SendMessageDetour, *onPostPhysicsUpdateSyncDetour;
-
-
-
+*ClientConnection_SendMessageDetour, *onPostPhysicsUpdateSyncDetour, *GetDispersionDetour;
 
 unsigned int WaitTimeV2 = 0;
 unsigned int TimeCountV2 = 0;
@@ -25,6 +23,72 @@ void WaitV2(int time)
 {
 	TimeCountV2 = GetTickCount();
 	WaitTimeV2 = time;
+}
+
+int GetDispersionHook(WeaponSway* r3, LinearTransform* swayTransform, bool scaletransform)
+{
+	ClientPlayer* pCP = GetLocalPlayer();
+	if (!MmIsAddressValid(pCP))
+		return GetDispersionOriginal(r3, swayTransform, scaletransform);
+
+	ClientSoldierEntity* pCSE = pCP->m_pControlledControllable;
+	if (!MmIsAddressValid(pCSE))
+		return GetDispersionOriginal(r3, swayTransform, scaletransform);
+
+	ClientSoldierWeaponsComponent* pCSWC = pCSE->m_pClientSoldierWeaponsComponent;
+	if (!MmIsAddressValid(pCSWC))
+		return GetDispersionOriginal(r3, swayTransform, scaletransform);
+
+	ClientSoldierWeapon* pCSW = pCSWC->GetActiveSoldierWeapon();
+	if (!MmIsAddressValid(pCSW))
+		return GetDispersionOriginal(r3, swayTransform, scaletransform);
+
+	ClientSoldierAimingSimulation* pCSAS = pCSW->m_pClientSoldierAimingSimulation;
+	if (!MmIsAddressValid(pCSAS))
+		return GetDispersionOriginal(r3, swayTransform, scaletransform);
+
+	AimAssist* pAA = pCSAS->m_fpsAimer;
+	if (!MmIsAddressValid(pAA))
+		return GetDispersionOriginal(r3, swayTransform, scaletransform);
+
+	WeaponFiring* pWF = pCSW->m_pPrimaryFiring;
+	if (!MmIsAddressValid(pWF))
+		return GetDispersionOriginal(r3, swayTransform, scaletransform);
+
+	WeaponSway* pWS = pWF->m_pSway;
+	if (!MmIsAddressValid(pWS))
+		return GetDispersionOriginal(r3, swayTransform, scaletransform);
+
+	SoldierWeaponData* pSWD = pCSW->m_pSoldierWeaponData;
+	if (!MmIsAddressValid(pSWD))
+		return GetDispersionOriginal(r3, swayTransform, scaletransform);
+
+	WeaponFiringData* pWFD = pSWD->m_pWeaponFiringData;
+	if (!MmIsAddressValid(pWFD))
+		return GetDispersionOriginal(r3, swayTransform, scaletransform);
+
+	FiringFunctionData* pFFD = pWFD->m_pFiringFunctionData;
+	if (!MmIsAddressValid(pFFD))
+		return GetDispersionOriginal(r3, swayTransform, scaletransform);
+
+	BulletEntityData* pBED = pFFD->m_pBulletEntityData;
+	if (!MmIsAddressValid(pBED))
+		return GetDispersionOriginal(r3, swayTransform, scaletransform);
+
+	if (!MmIsAddressValid(pTarget))
+		return GetDispersionOriginal(r3, swayTransform, scaletransform);
+
+	ClientSoldierEntity* pCSET = pTarget->m_pControlledControllable;
+	if (!MmIsAddressValid(pCSET))
+		return GetDispersionOriginal(r3, swayTransform, scaletransform);
+
+	if (r3->m_currentDispersionDeviation.m_Yaw > 0 || r3->m_currentDispersionDeviation.m_Yaw < 0)
+	{
+		DamagePlayer(pTarget, GetLocalPlayer(), bUnfairAimbot ? 100.0f : pBED->m_DamageMax, bSpoofTarget ? getUA(pTarget) : getUA(GetLocalPlayer()), bHeadshots ? HRT_Head : (HitReactionType)0);
+		pTarget = NULL;
+	}
+
+	return GetDispersionOriginal(r3, swayTransform, scaletransform);
 }
 
 int TransmitPacketHook(StreamManagerMoveClient* lol, int r4, int r5)
@@ -63,24 +127,23 @@ int AddMove(StreamManagerMoveClient* r3, IMoveObject* pMove)
 
 	if (IsLocalClientAlive() && bSilentAimbot)
 	{
-
 		ClientPlayer* LocalPlayer = GetLocalPlayer();
 
 		if (MmIsAddressValidPtr(LocalPlayer))
 		{
-
 			ClientSoldierEntity* pCSE = LocalPlayer->GetClientSoldier();
 
 			if (MmIsAddressValidPtr(pCSE))
 			{
-
 				if (custom_isnan(pSilent.x) || custom_isnan(pSilent.y))
 					return AddMoveOriginal(r3, pMove);
 
 				if (!pCSE->m_sprinting && NearestPlayer != -1)
 				{
-
 					float OldAngle = pMove->m_EntryInput.m_WeaponAngles.x;
+
+					if (bNoSpread)
+						DoTheSpreadHack_Silent();
 
 					pMove->m_EntryInput.m_WeaponAngles.x = (pSilent.x);
 					pMove->m_EntryInput.m_WeaponAngles.y = (pSilent.y);
@@ -91,10 +154,8 @@ int AddMove(StreamManagerMoveClient* r3, IMoveObject* pMove)
 		}
 	}
 
-
 	return AddMoveOriginal(r3, pMove);
 }
-
 
 int D3DDevice_PresentHook(D3DDevice* pDevice, unsigned long long r4, unsigned long long r5, unsigned long long r6, unsigned long long r7)
 {
@@ -224,7 +285,6 @@ DWORD XamInputGetStateHook(DWORD dwUserIndex, DWORD r4, PXINPUT_STATE pState)
 		}
 	}
 
-
 	return dwResult;
 }
 
@@ -320,7 +380,6 @@ int ClientConnection_SendMessageHook(ClientConnection* Connection, _NetworkableM
 {
 	return ClientConnection_SendMessageOriginal(Connection, Message);
 }
-
 
 void onPostPhysicsUpdateSyncHook(ClientSpottingComponent* Component, ClientPlayer* LocalClientPlayer)
 {

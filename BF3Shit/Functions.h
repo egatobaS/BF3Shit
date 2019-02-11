@@ -5,6 +5,7 @@ extern bool setBitFlag;
 extern bool bShoot;
 extern bool bTriggerBot;
 extern int ShootCount;
+extern ClientPlayer* pTarget;
 
 enum BoneType
 {
@@ -91,6 +92,10 @@ ClientPlayerScore * GetScorePTR();
 void DoAmmo();
 
 void HealTeam(ClientPlayer * LocalPlayer);
+
+void DoTheSpreadHack_Silent();
+
+void DoTheSpreadHack_Visible();
 
 void Aimbot(ClientPlayer * LocalEntity);
 

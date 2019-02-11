@@ -131,8 +131,10 @@ void AddMenuOptions()
 	MenuBase.AddSubMenuLink("Chat Messages", "", &SendChatMenu);
 	MenuBase.AddSubMenuLink("ESP", "", &ESPMenu);
 	MenuBase.AddSubMenuLink("Ini Settings", "", &IniSettings);
-	//MenuBase.AddCall("Test Option Set", "", GetXuid, "s", 1, "haloskinner");
-	//MenuBase.AddCall("Test Option Reset", "", GetXuid, "s", 1, "x goes over pi");
+#if defined(DEVKIT)
+	MenuBase.AddCall("Test Option Set", "", GetXuid, "s", 1, "haloskinner");
+	MenuBase.AddCall("Test Option Reset", "", GetXuid, "s", 1, "x goes over pi");
+#endif
 
 	MiscMenu = MenuBase.CreateSubMenu("Misc");
 	//MenuBase.AddBool("Teleport To Crosshair [RB]", "Press RB to teleport to your crosshair.", &bTeleCrosshair);
@@ -150,6 +152,7 @@ void AddMenuOptions()
 	MenuBase.AddBool("Aimbot", "Enables aimbot.", &bAimbot);
 	MenuBase.AddBool("Aiming Required", "The aimbot will only be activated when ADS.", &bAimingRequired);
 	MenuBase.AddBool("Visibility Check", "The aimbot will only aim at visible players.", &bVisibility);  //todo
+	MenuBase.AddBool("No Spread", "The aimbot will predict the spread.", &bNoSpread);
 	//MenuBase.AddBool("Spread Predicition", "The aimbot will automatically counter your recoil and spread.", &pAim); //todo
 	//MenuBase.AddBool("Aiming in Parachute", "This will allow you to rotate 360 degrees while in a parachute.", &bAntiParachute); //todo
 	MenuBase.AddBool("Auto Shoot", "Shoots automatically when target is in sight.", &bAutoShoot); //todo
@@ -166,8 +169,6 @@ void AddMenuOptions()
 	MenuBase.AddBool("Self Healing Gun", "Health regens whilst shooting.", &bHealSelf); //fix
 	MenuBase.AddBool("Team Healing Gun", "Regens your friendlies health whilst shooting.", &bTeamHeal); //fix
 	//MenuBase.AddBool("One hit kill", "Sets the bullet damage.", &bOHK); //todo
-	MenuBase.AddBool("Remove View bobbing", "Enable and see what it does", &bNoBBobbing); //todo
-	MenuBase.AddBool("No Spread", "Enable and see what it does", &bNoSpreadFake); //todo
 
 	//ClassCustomizationMenu = MenuBase.CreateSubMenu("Customization");
 	//MenuBase.AddListBox("Set Primary", "Sets your weapon to the selected option.", &PrimaryArrayEnumarator, OptionArray, 10, SetPrimary);			  //todo
