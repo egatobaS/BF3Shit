@@ -125,7 +125,7 @@ int AddMove(StreamManagerMoveClient* r3, IMoveObject* pMove)
 		pMove->m_EntryInput.m_CustomBitFlags ^= (pMove->m_EntryInput.m_CustomBitFlags ^ -1) & 2;
 	}
 
-	if (IsLocalClientAlive() && bSilentAimbot)
+	if (IsLocalClientAlive() && bSilentAimbot || bNoSpread)
 	{
 		ClientPlayer* LocalPlayer = GetLocalPlayer();
 
