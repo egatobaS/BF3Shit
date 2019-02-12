@@ -56,7 +56,6 @@
 #include "EASTL/utility.h"
 #include "EASTL/vector.h"
 
-
 #include "Detour.h"
 #include "Utils.h"
 #include "Structures.h"
@@ -68,7 +67,10 @@
 #include "MenuOptions.h"
 #include "MenuDrawing.h"
 #include "Hooks.h"
+#include "AtgAudio.h"
 
+extern char SoundPath[0x255];
+extern bool runSoundsNow;
 extern HANDLE g_hModule;
 
 using namespace std;

@@ -30,7 +30,26 @@ int createScoringMessagehk(int r3, int messageData, UINetworkHudScoringMessage *
 {
 	if (MmIsAddressValid(message))
 	{
-		printf("%f\n", message->m_amount);
+		if (!strcmp("ID_SCORE_HEADSHOT", message->m_descriptionSid))
+		{
+			strcpy(SoundPath, "Nigel:\\headshot.wav");
+			runSoundsNow = true;
+		}
+		else if (!strcmp("ID_SCORE_DOUBLE_KILL", message->m_descriptionSid))
+		{
+			strcpy(SoundPath, "Nigel:\\doublekill.wav");
+			runSoundsNow = true;
+		}
+		else if (!strcmp("ID_SCORE_TRIPE_KILL", message->m_descriptionSid))
+		{
+			strcpy(SoundPath, "Nigel:\\triplekill.wav");
+			runSoundsNow = true;
+		}
+		else if (!strcmp("ID_SCORE_SQUAD_WIPE", message->m_descriptionSid))
+		{
+			strcpy(SoundPath, "Nigel:\\multikill.wav");
+			runSoundsNow = true;
+		}
 	}
 
 	return createScoringMessageOriginal(r3, messageData, message);
@@ -190,7 +209,6 @@ int D3DDevice_PresentHook(D3DDevice* pDevice, unsigned long long r4, unsigned lo
 			*(int*)(Addresses->_0x836bbf98) = Addresses->_0x60000000;  //Force Bones to update
 
 			*(int*)(Addresses->_0x836D01E4) = bNoBBobbing ? Addresses->_0x39600000 : Addresses->_0x39600001;//no bobbing
-			*(int*)(Addresses->_0x836FDAC8) = bNoSpreadFake ? Addresses->_0x60000000 : Addresses->_0x4E800421;//zero out recoil/spread
 			*(int*)(Addresses->_0x834FC41C) = bUAV ? Addresses->_0x38600001 : Addresses->_0x38600000;
 			*(int*)(Addresses->_0x834FB424) = bUAV ? Addresses->_0x39600001 : Addresses->_0x39600000;
 			*(int*)(Addresses->_0x834FB3D0) = bUAV ? Addresses->_0x39600001 : Addresses->_0x39600000;

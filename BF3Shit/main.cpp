@@ -4,12 +4,31 @@ HANDLE g_hModule;
 
 bool RunThread = true;
 
+char SoundPath[0x255] = { 0 };
+bool runSoundsNow = false;
+
+void SoundThread()
+{
+	while (RunThread)
+	{
+
+		if (runSoundsNow) {
+
+			PlayThreadedWav(SoundPath);
+			runSoundsNow = false;
+		}
+		Sleep(10);
+	}
+}
+
 void MainThread()
 {
-	XNotify(L"[1.0.5] xbOnline BF3 Cheats Loaded!");
+	XNotify(L"[1.0.6] xbOnline BF3 Cheats Loaded!");
 
 	if (CreateSymbolicLink(NAME_MOUNT, NAME_HDD, TRUE) != ERROR_SUCCESS) {
 	}
+
+	CreateSystemThread(SoundThread, NULL);
 
 	LoadINI();
 
@@ -61,14 +80,14 @@ BOOL WINAPI DllMain(HANDLE ModuleHandle, unsigned int fdwReason, LPVOID lpReserv
 		createScoringMessageDetour = GetDetour();
 
 #if defined(DEVKIT)
-		XamUserGetSigninInfoDetour = GetDetour();
-		XamUserGetNameDetour = GetDetour();
-		XamUserGetXUIDDetour = GetDetour();
-
-		xbOHookFunction(XamUserGetSigninInfoDetour, (void*)0x83F275EC, (void*)XamUserGetSigninInfoHook);
-		xbOHookFunction(XamUserGetNameDetour, (void*)0x83F2775C, (void*)XamUserGetNameHook);
-		xbOHookFunction(XamUserGetXUIDDetour, (void*)0x83F2732C, (void*)XamUserGetXUIDHook);
-#endif // DEVKIT
+		//XamUserGetSigninInfoDetour = GetDetour();
+		//XamUserGetNameDetour = GetDetour();
+		//XamUserGetXUIDDetour = GetDetour();
+		//
+		//xbOHookFunction(XamUserGetSigninInfoDetour, (void*)0x83F275EC, (void*)XamUserGetSigninInfoHook);
+		//xbOHookFunction(XamUserGetNameDetour, (void*)0x83F2775C, (void*)XamUserGetNameHook);
+		//xbOHookFunction(XamUserGetXUIDDetour, (void*)0x83F2732C, (void*)XamUserGetXUIDHook);
+#endif 
 
 		createScoringMessageOriginal = (createScoringMessageStub)xbOHookFunction(createScoringMessageDetour, (void*)0x834D3758, (void*)createScoringMessagehk);
 
@@ -92,9 +111,9 @@ BOOL WINAPI DllMain(HANDLE ModuleHandle, unsigned int fdwReason, LPVOID lpReserv
 		RunThread = false;
 
 #if defined(DEVKIT)
-		XamUserGetSigninInfoDetour->RestoreFunction();
-		XamUserGetNameDetour->RestoreFunction();
-		XamUserGetXUIDDetour->RestoreFunction();
+		//XamUserGetSigninInfoDetour->RestoreFunction();
+		//XamUserGetNameDetour->RestoreFunction();
+		//XamUserGetXUIDDetour->RestoreFunction();
 #endif // DEVKIT
 
 		createScoringMessageDetour->RestoreFunction();

@@ -132,8 +132,8 @@ void AddMenuOptions()
 	MenuBase.AddSubMenuLink("ESP", "", &ESPMenu);
 	MenuBase.AddSubMenuLink("Ini Settings", "", &IniSettings);
 #if defined(DEVKIT)
-	MenuBase.AddCall("Test Option Set", "", GetXuid, "s", 1, "haloskinner");
-	MenuBase.AddCall("Test Option Reset", "", GetXuid, "s", 1, "x goes over pi");
+	//MenuBase.AddCall("Test Option Set", "", GetXuid, "s", 1, "haloskinner");
+	//MenuBase.AddCall("Test Option Reset", "", GetXuid, "s", 1, "x goes over pi");
 #endif
 
 	MiscMenu = MenuBase.CreateSubMenu("Misc");
